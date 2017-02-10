@@ -40,50 +40,50 @@
             function($routeProvider) {
                 $routeProvider
                     .when('/', {
-                        templateUrl: '../templates/partials/index_full.html',
+                        templateUrl: './templates/partials/index_full.html',
                         controller: 'DemoCtrl'
                     })
                     .when('/demo', {
-                        templateUrl: '../templates/partials/index_full.html',
+                        templateUrl: './templates/partials/index_full.html',
                         controller: 'DemoCtrl'
                     })
                     .when('/show/:dataset/:xDim/:yDim/:colorDim/:relativeMode', {
-                        templateUrl: '../templates/partials/index_simple.html',
+                        templateUrl: './templates/partials/index_simple.html',
                         controller: 'ShowCtrl'
                     })
                     .when('/dropbox/:dropbox_key/:dropbox_filename', {
-                        templateUrl: '../templates/partials/index_dropbox.html',
+                        templateUrl: './templates/partials/index_dropbox.html',
                         controller: 'DropboxCtrl'
                     })
                     .when('/login', {
-                        templateUrl: '../templates/partials/login.html',
+                        templateUrl: './templates/partials/login.html',
                         controller: 'LoginCtrl'
                     })
                     .whenAuthenticated('/account', {
-                        templateUrl: '../templates/partials/account.html',
+                        templateUrl: './templates/partials/account.html',
                         controller: 'AccountCtrl'
                     })
                     .when('/load/:csvKey/:comment?', {
-                        templateUrl: '../templates/partials/index_load.html',
+                        templateUrl: './templates/partials/index_load.html',
                         controller: 'LoadCtrl',
                         reloadOnSearch: false
                     })
                     .when('/inspect/:csvKey/:comment?', {
-                        templateUrl: '../templates/partials/inspect.html',
+                        templateUrl: './templates/partials/inspect.html',
                         controller: 'InspectCtrl',
                         reloadOnSearch: false
                     })
                     .when('/matrix/:csvKey', {
-                        templateUrl: '../templates/partials/index_matrix.html',
+                        templateUrl: './templates/partials/index_matrix.html',
                         controller: 'MatrixCtrl',
                         reloadOnSearch: false
                     })
                     .whenAuthenticated('/upload', {
-                        templateUrl: '../templates/partials/index_upload.html',
+                        templateUrl: './templates/partials/index_upload.html',
                         controller: 'UploadCtrl'
                     })
                     .when('/browse', {
-                        templateUrl: '../templates/partials/browse.html',
+                        templateUrl: './templates/partials/browse.html',
                         controller: 'BrowseCtrl'
                     })
                     .otherwise({

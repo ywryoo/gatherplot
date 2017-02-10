@@ -18,7 +18,7 @@ module.exports = function(grunt) {
     // Configurable paths for the application
     var appConfig = {
         app: require('./bower.json').appPath || 'app',
-        dist: 'dist'
+        dist: '../gp2-core/static/gatherplot'
     };
 
     // Define the configuration for all the tasks
@@ -370,7 +370,7 @@ module.exports = function(grunt) {
             },
             target: {
                 command: [
-                            'firebase deploy', 
+                            'firebase deploy',
                             'firebase open'
                         ].join('&&')
             }
@@ -421,7 +421,7 @@ module.exports = function(grunt) {
         'filerev',
         'usemin',
         // 'htmlmin'
-        'shell'
+        //'shell'
     ]);
 
     grunt.registerTask('default', [
@@ -430,4 +430,3 @@ module.exports = function(grunt) {
         'serve'
     ]);
 };
-
