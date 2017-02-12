@@ -10,69 +10,14 @@ const gulp = require('gulp')
 const del = require('del')
 const imagemin = require('gulp-imagemin')
 const htmlmin = require('gulp-htmlmin')
-const postcss = require('gulp-postcss')
-const concat = require('gulp-concat')
-const sourcemaps = require('gulp-sourcemaps')
-const autoprefixer = require('autoprefixer')
 const webpack = require('webpack')
 const browserSync = require('browser-sync').create()
 const packageInfo = require('./package.json')
-
+const webpackConfig = require('./webpack.config')
 const appConfig = {
   app: packageInfo.appPath || 'app',
   dist: 'dist',
   deploy: '../gp2-core/static/gatherplot'
-}
-
-const webpackConfig = {
-  production: {
-    entry: './' + appConfig.app + '/scripts/app.ts',
-    output: {
-      filename: '/gatherplot.min.js',
-      path: appConfig.dist + '/app'
-    },
-    module: {
-      exprContextCritical: false,
-      loaders: [
-        {
-          test: /\.ts/,
-          loaders: ['ts-loader'],
-          exclude: /node_modules/
-        }
-      ]
-    },
-    resolve: {
-      extensions: ['.tsx', '.ts', '.js']
-    },
-    plugins: [
-      new webpack.optimize.UglifyJsPlugin({
-        compress: {
-          warnings: false
-        }
-      })
-    ]
-  },
-  dev: {
-    entry: './' + appConfig.app + '/scripts/app.ts',
-    output: {
-      filename: '/gatherplot.min.js',
-      path: appConfig.dist + '/app'
-    },
-    devtool: 'source-map',
-    module: {
-      exprContextCritical: false,
-      loaders: [
-        {
-          test: /\.ts/,
-          loaders: ['ts-loader'],
-          exclude: /node_modules/
-        }
-      ]
-    },
-    resolve: {
-      extensions: ['.tsx', '.ts', '.js']
-    }
-  }
 }
 
 // showing error or done
@@ -113,43 +58,16 @@ gulp.task('copyHtmls', done => {
       .on('end', done)
 })
 
-gulp.task('copyTemplates', done => {
-  gulp.src(appConfig.app + '/templates/**/*')
-      .pipe(htmlmin({
-        collapseWhitespace: false,
-        conservativeCollapse: true,
-        collapseBooleanAttributes: false,
-        removeCommentsFromCDATA: false,
-        removeOptionalTags: false
-      }))
-      .pipe(gulp.dest(appConfig.dist + '/templates'))
-      .on('end', done)
-})
-
 gulp.task('copyVendors', done => {
   gulp.src([
     'node_modules/bootstrap/dist/**/*',
     'node_modules/font-awesome/css/font-awesome.min.css',
     'node_modules/font-awesome/fonts/**/*',
-    'node_modules/core-js/client/shim.min.js',
-    'node_modules/zone.js/dist/**/*',
-    'node_modules/jquery/dist/jquery.min.js',
-    'node_modules/angular-ui-select/select.min.*',
-    'node_modules/angular-ui-grid/ui-grid.*'
+    'node_modules/jquery/dist/jquery.min.js'
   ], {
     base: 'node_modules'
   })
       .pipe(gulp.dest(appConfig.dist + '/vendor'))
-      .on('end', done)
-})
-
-gulp.task('copyStyles', done => {
-  gulp.src(appConfig.app + '/styles/**/*.css')
-      .pipe(sourcemaps.init())
-      .pipe(postcss([ autoprefixer() ]))
-      .pipe(concat('gatherplot.min.css'))
-      .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(appConfig.dist + '/styles'))
       .on('end', done)
 })
 
@@ -160,12 +78,10 @@ gulp.task('copyData', done => {
 })
 
 gulp.task('copy', [
-  'copyStyles',
   'copyData',
   'copyHtmls',
   'copyVendors',
-  'copyImages',
-  'copyTemplates'],
+  'copyImages'],
   done => {
     done()
   })
@@ -197,18 +113,12 @@ gulp.task('watch', ['copy', 'build:dev'], () => {
   gulp.watch(appConfig.app + '/data/**/*', ['watchData'])
   gulp.watch(appConfig.app + '/images/**/*', ['copyImages'])
   gulp.watch(appConfig.app + '/*.html', ['copyHtmls'])
-  gulp.watch(appConfig.app + '/templates/**/*', ['copyTemplates'])
   gulp.watch([
     'node_modules/bootstrap/dist/**/*',
     'node_modules/font-awesome/css/font-awesome.min.css',
     'node_modules/font-awesome/fonts/**/*',
-    'node_modules/core-js/client/shim.min.js',
-    'node_modules/zone.js/dist/**/*',
-    'node_modules/jquery/dist/jquery.min.js',
-    'node_modules/angular-ui-select/select.min.*',
-    'node_modules/angular-ui-grid/ui-grid.*'
+    'node_modules/jquery/dist/jquery.min.js'
   ], ['watchVendors'])
-  gulp.watch(appConfig.app + '/styles/**/*', ['copyStyles'])
   gulp.watch(appConfig.app + '/scripts/**/*', ['watchApp'])
 
   browserSync.init({
