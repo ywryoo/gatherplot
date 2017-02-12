@@ -6,49 +6,33 @@
  */
 
 import { NgModule }      from '@angular/core';
+import { FormsModule }      from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
 import { AppRoutingModule } from './app.routing.module';
+import { AccordionModule, ButtonsModule, AlertModule } from 'ng2-bootstrap';
 
 import { AppComponent }  from './app.component';
-import { ApppComponent }  from './appp.component';
-import { AppppComponent }  from './apppp.component';
-import { ApppppComponent }  from './appppp.component';
+import { GatherplotComponent }  from './demo/gatherplot/gatherplot.component';
 import { PageNotFoundComponent }  from './error/404';
 
 @NgModule({
   imports:      [
     BrowserModule,
+    FormsModule,
+    AccordionModule.forRoot(),
+    ButtonsModule.forRoot(),
+    AlertModule.forRoot(),
     AppRoutingModule
   ],
   declarations: [
     PageNotFoundComponent,
-    ApppppComponent,
-    AppppComponent,
-    ApppComponent,
+    GatherplotComponent,
     AppComponent
   ],
   bootstrap:    [
     AppComponent
   ]
 })
-export class AppModule { }
 
-/*
-const appRoutes: Routes = [
-  { path: '', component: DemoCtrl },
-  { path: 'demo', component: DemoCtrl },
-  { path: 'show/:dataset/:xDim/:yDim/:colorDim/:relativeMode', component: ShowCtrl },
-  { path: 'dropbox/:dropbox_key/:dropbox_filename', component: DemoCtrl },
-  { path: 'login', component: DemoCtrl },
-  { path: 'account', component: DemoCtrl },
-  { path: 'load/:csvKey/:comment?', component: DemoCtrl },
-  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
-  { path: 'matrix/:csvKey', component: DemoCtrl },
-  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
-  { path: 'upload', component: DemoCtrl },
-  { path: 'browse', component: DemoCtrl },
-  { path: '**',
-    redirectTo: '/heroes',
-    pathMatch: 'full' }
-];*/
+export class AppModule { }

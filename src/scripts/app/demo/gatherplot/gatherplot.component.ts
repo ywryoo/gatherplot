@@ -1,0 +1,1102 @@
+/**
+ * Created by Yangwook Ryoo on 2017.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE.txt file in the root directory of this source tree.
+ */
+
+import { Component } from '@angular/core';
+import { DemoService } from '../shared/data.service';
+import { AccordionModule } from 'ng2-bootstrap';
+import * as d3 from 'd3';
+
+@Component({
+  selector: 'my-demo',
+  templateUrl: './gatherplot.component.html',
+  providers:  [ DemoService ]
+})
+
+export class GatherplotComponent {
+  public nomaConfig: any;
+  public configMatrix: any;
+  public customCSV: any;
+  public loadedData: any;
+  public onlyNumbers: any;
+  public context: any;
+  public dimsum: any;
+  public nomaRound: any;
+  public nomaBorder: any;
+  public nomaShapeRendering: any;
+  public alerts: any;
+  public isPlotSelectFocused: any;
+  public isScatter: any;
+  public isRelativeSelectFocused: boolean;
+  public isBinSizeFocused: boolean;
+  public activeData: string;
+  public nomaData: any;
+  public isAdvancedOptionOpen: boolean;
+  public isCarsOpen: boolean;
+
+  constructor() {
+    this.nomaConfig = {
+
+    };
+
+    this.configMatrix = [];
+
+    this.customCSV = '';
+
+    this.loadedData = 'cars';
+    this.nomaConfig.SVGAspectRatio = 1.4;
+    this.onlyNumbers = /^\d+$/;
+
+    this.context = {};
+    this.context.translate = [0, 0];
+    this.context.scale = 1;
+    this.dimsum = {};
+    this.dimsum.selectionSpace = [];
+
+    this.nomaRound = true;
+    this.nomaBorder = false;
+    this.nomaShapeRendering = 'auto';
+    this.nomaConfig.isGather = 'scatter';
+    this.nomaConfig.relativeModes = [false, true];
+    this.nomaConfig.relativeMode = 'absolute';
+    this.nomaConfig.binSize = 10;
+    this.nomaConfig.matrixMode = false;
+  //  this.nomaConfig.xDim;
+  //  this.nomaConfig.yDim;
+    this.alerts = [];
+    this.isPlotSelectFocused = false;
+    this.nomaConfig.isInteractiveAxis = false;
+    this.isScatter = false;
+    this.nomaConfig.lens = 'noLens';
+  }
+
+  public updateIsScatter(event, isScatter: boolean) {
+    event.stopPropagation();
+    this.isScatter = isScatter;
+  }
+
+  public addAlert(messageType, messageContent) {
+      this.alerts.push({
+          msg: messageContent,
+          type: messageType
+      });
+  }
+
+  public closeAlert(index) {
+      this.alerts.splice(index, 1);
+  }
+
+  public focusElement(element) {
+      element = true;
+  }
+
+  public resetTutMsg() {
+      this.alerts = [];
+      this.isPlotSelectFocused = false;
+      this.isRelativeSelectFocused = false;
+      this.isBinSizeFocused = false;
+  }
+
+  public d3OnClick(item: any) {
+      this.nomaConfig.xDim = item.xDim;
+      this.nomaConfig.yDim = item.yDim;
+      // alert(item.name);
+  }
+/*
+  public openGPLOM() {
+      $window.open('/gplom.html', '_blank');
+  }
+
+  public openLens() {
+      $window.open('/lens.html', '_blank');
+  }
+
+
+  public openGPLOMNav() {
+      $window.open('/indexmatrixNav.html', '_blank');
+  }
+
+
+  // this.$watch()
+  public changeGPLOM() {
+      loadGPLOM();
+  }*/
+
+
+  changeActiveDataCustomCSV(customCSV) {
+      this.resetTutMsg();
+
+
+      this.activeData = 'Cars Data';
+
+      d3.csv(customCSV, (error, tdata: any) => {
+          let count = 0;
+
+          tdata.map((d) => {
+              d.id = count;
+              count += 1;
+          });
+
+          this.nomaData = tdata;
+          this.nomaConfig.dims = d3.keys(tdata[0]);
+
+          let index = this.nomaConfig.dims.indexOf('id');
+          this.nomaConfig.dims.splice(index, 1);
+
+
+          index = this.nomaConfig.dims.indexOf('Name');
+          this.nomaConfig.dims.splice(index, 1);
+
+
+          this.nomaConfig.xDim = null;
+          this.nomaConfig.yDim = null;
+          this.nomaConfig.colorDim = null;
+
+          this.nomaConfig.isGather = 'gather';
+          this.nomaConfig.relativeMode = 'absolute';
+
+      });
+
+
+
+
+  }
+
+  public changeActiveDataTitanic() {
+      this.resetTutMsg();
+
+
+      this.activeData = 'Survivors of Titanic';
+
+      let lowMeanHighSDRandomNumberGenerator = d3.randomNormal(30, 5);
+      let highMeanLowSDRandomNumberGenerator = d3.randomNormal(50, 10);
+
+
+
+      d3.tsv('data/Titanic.txt', (error, tdata: any) => {
+          let count = 0;
+
+          tdata.map((d) => {
+              d.id = count;
+              count += 1;
+
+      // if (d.Survived === 'Yes') {
+
+      //     let a = Math.random();
+
+      //     if (d.Class === 'First') {
+
+
+
+      //         if (a < 0.202325) {
+      //             d.Port = 'Southhampton';
+      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
+
+      //         } else if (a < 0.26496) {
+      //             d.Port = 'Queenstown';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
+
+
+      //         } else if (a < 0.61064) {
+
+      //             d.Port = 'Cherbourg';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      //  highMeanLowSDRandomNumberGenerator();
+
+      //         } else {
+
+      //             d.Port = 'Belfast';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         }
+      //     } else if (d.Class === 'Second') {
+
+      //         if (a < 0.202325) {
+      //             d.Port = 'Southhampton';
+      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
+
+      //         } else if (a < 0.26496) {
+      //             d.Port = 'Queenstown';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
+
+
+      //         } else if (a < 0.61064) {
+
+      //             d.Port = 'Cherbourg';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         } else {
+
+      //             d.Port = 'Belfast';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         }
+      //     } else if (d.Class === 'Third') {
+
+      //         if (a < 0.431254) {
+      //             d.Port = 'Southhampton';
+      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
+
+      //         } else if (a < 0.51303) {
+      //             d.Port = 'Queenstown';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
+
+
+      //         } else if (a < 0.74983) {
+
+      //             d.Port = 'Cherbourg';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         } else {
+
+      //             d.Port = 'Belfast';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         }
+      //     } else if (d.Class === 'Crew') {
+
+      //         if (a < 0.278968) {
+      //             d.Port = 'Southhampton';
+      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
+
+      //         } else if (a < 0.50005) {
+      //             d.Port = 'Queenstown';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
+
+
+      //         } else if (a < 0.75641) {
+
+      //             d.Port = 'Cherbourg';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         } else {
+
+      //             d.Port = 'Belfast';
+      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //         }
+      //     }
+
+
+      // } else {
+      //     if (Math.random() > 0.5) {
+      //         d.Port = 'Southhampton';
+      //         d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
+
+      //     } else if (Math.random() > 0.4) {
+      //         d.Port = 'Queenstown';
+      //         d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
+
+
+      //     } else if (Math.random() > 0.5) {
+
+      //         d.Port = 'Cherbourg';
+      //         d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator();
+
+      //     } else {
+
+      //         d.Port = 'Belfast';
+      //         d.AgeInNumbers =
+      // Math.round((lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator()) * 0.7);
+
+      //     }
+
+      // }
+
+      // d.AgeInNumbers = Math.round((lowMeanHighSDRandomNumberGenerator() +
+      // highMeanLowSDRandomNumberGenerator()) * 0.7);
+
+
+          });
+
+
+
+          this.nomaData = tdata;
+          this.nomaConfig.dims = d3.keys(tdata[0]);
+
+          let index = this.nomaConfig.dims.indexOf('id');
+          this.nomaConfig.dims.splice(index, 1);
+
+          this.nomaConfig.xDim = this.nomaConfig.dims[0];
+          this.nomaConfig.yDim = this.nomaConfig.dims[1];
+          this.nomaConfig.colorDim = this.nomaConfig.dims[2];
+          this.loadGPLOM();
+
+      });
+
+
+  } // End  this.changeActiveDataTitanic()
+
+
+
+  public settingForTitanicLoadAll() {
+
+      this.resetTutMsg();
+
+
+      if (this.activeData !== 'Survivors of Titanic') {
+
+          this.changeActiveDataTitanic();
+      }
+
+
+
+      this.nomaConfig.xDim = null;
+      this.nomaConfig.yDim = null;
+      this.nomaConfig.colorDim = null;
+
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+
+      this.addAlert('info', 'Here X and Y axes are not defined. Gatherplots make it easy to have an undefined axis.  Check scatterplots and jittering when there is undefined axis.');
+      this.focusElement(this.isPlotSelectFocused);
+
+  }
+
+  public settingForTitanicLoadAllSurvived() {
+
+      this.resetTutMsg();
+
+
+      if (this.activeData !== 'Survivors of Titanic') {
+
+          this.changeActiveDataTitanic();
+      }
+
+
+
+      this.nomaConfig.xDim = null;
+      this.nomaConfig.yDim = null;
+      this.nomaConfig.colorDim = 'Survived';
+
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+
+
+  }
+
+
+  public settingForTitanicGenderSurvived() {
+
+      this.resetTutMsg();
+
+
+      if (this.activeData !== 'Survivors of Titanic') {
+
+          this.changeActiveDataTitanic();
+      }
+
+
+
+      this.nomaConfig.xDim = 'Sex';
+      this.nomaConfig.yDim = null;
+      this.nomaConfig.colorDim = 'Survived';
+
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+      this.addAlert('info', 'It looks like woman had survived more likely. Is this pattern clear in jittered scatterplots?');
+      this.focusElement(this.isPlotSelectFocused);
+
+
+
+  }
+
+  public settingForTitanicClassGenderSurvived() {
+
+      this.resetTutMsg();
+
+
+      if (this.activeData !== 'Survivors of Titanic') {
+
+          this.changeActiveDataTitanic();
+      }
+
+
+
+      this.nomaConfig.xDim = 'Class';
+      this.nomaConfig.yDim = 'Sex';
+      this.nomaConfig.colorDim = 'Survived';
+
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+      this.addAlert('info', 'The different number of elements in the group makes it difficult to compare the percentage directly. Especially male groups of Second, Third and Crew looks similar.');
+
+  }
+
+  public settingForTitanicClassGenderSurvivedRelative() {
+
+      this.resetTutMsg();
+
+
+      if (this.activeData !== 'Survivors of Titanic') {
+
+          this.changeActiveDataTitanic();
+      }
+
+
+
+      this.nomaConfig.xDim = 'Class';
+      this.nomaConfig.yDim = 'Sex';
+      this.nomaConfig.colorDim = 'Survived';
+
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = true;
+
+      this.addAlert('info',
+        'The size of nodes changes to make the entire group size same '+
+        'in order to make comparison between groups easier. ' +
+        ' Now we can see that "male Crew" has better survival rate than' +
+        ' "male 2nd" or "male 3rd". ' +
+        ' Try abolute and relative mode yourself and please leave a feedback ' +
+        'about your experience.');
+      this.focusElement(this.isRelativeSelectFocused);
+
+
+
+
+  }
+
+
+
+
+  ///////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////
+  // change Active Data to the Bayesian Inference-Mammogram;
+
+  public changeActiveDataMammo() {
+      this.resetTutMsg();
+
+      // Config settings
+      let numberOfEntity = 3000;
+      let numDiscreteVar = 60;
+
+      this.activeData = 'Bayesian Inference - Mammogram';
+      let data = [];
+
+      for (let count = 0; count < numberOfEntity; count++) {
+
+          let temp = <any>{};
+
+          temp.id = count;
+
+          // temp.continous_letiable1 = Math.random();
+          // temp.continous_letiable2 = Math.random();
+          // temp.discrete_letiable = Math.round(Math.random() * (numDiscreteVar - 1));
+
+          // if (Math.random() > 0.3) {
+          //     temp.nominal_letiable = 'Male';
+          // } else {
+          //     temp.nominal_letiable = 'Female';
+          // }
+
+          if (Math.random() > 0.99) {
+              temp.cancer = 'Cancer';
+
+              if (Math.random() > 0.8) {
+                  temp.mammo = 'Negative Mamo';
+              } else {
+                  temp.mammo = 'Positive Mamo';
+              }
+
+           } else {
+              temp.cancer = 'No cancer';
+
+              if (Math.random() > 0.096) {
+                  temp.mammo = 'Negative Mamo';
+              } else {
+                  temp.mammo = 'Positive Mamo';
+              }
+          }
+
+           // temp.descriptor = temp.cancer + ', ' + temp.mamo;
+
+          data.push(temp);
+      }
+
+      this.nomaData = data;
+      this.nomaConfig.dims = Object.keys(data[0]);
+
+      let index = this.nomaConfig.dims.indexOf('id');
+      this.nomaConfig.dims.splice(index, 1);
+
+      this.nomaConfig.xDim = null;
+      this.nomaConfig.yDim = null;
+      this.nomaConfig.colorDim = null;
+
+      this.nomaConfig.relativeMode = 'absolute';
+
+      this.loadGPLOM();
+
+      // this.$apply();
+
+
+  } // End  this.changeActiveDataMammo()
+
+  public validateBinsize(value)  {
+    value < 0 ? this.nomaConfig.binSize = 0 : this.nomaConfig.binSize = value;
+  }
+
+  public changeConfigMammoProblem() {
+
+      this.resetTutMsg();
+
+
+
+      if (this.activeData !== 'Bayesian Inference - Mammogram') {
+
+          this.changeActiveDataMammo();
+      }
+
+
+
+      this.nomaConfig.xDim = 'cancer';
+      this.nomaConfig.yDim = null;
+      this.nomaConfig.colorDim = 'mammo';
+
+      this.nomaConfig.relativeMode = 'absolute';
+      this.nomaConfig.isGather = 'gather';
+
+  }
+
+  public changeConfigMammoAnswer() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Bayesian Inference - Mammogram') {
+
+          this.changeActiveDataMammo();
+      }
+
+
+      this.nomaConfig.xDim = 'mammo';
+      this.nomaConfig.yDim = null;
+      this.nomaConfig.colorDim = 'cancer';
+
+      this.nomaConfig.relativeMode = 'absolute';
+      this.nomaConfig.isGather = 'gather';
+
+  }
+
+  public changeActiveDataContinuous() {
+      this.resetTutMsg();
+
+      // Config settings
+      let numberOfEntity = 5000;
+      let numDiscreteVar = 60;
+
+      this.activeData = 'Continuous Variables';
+      let data = [];
+
+      let lowMeanHighSDRandomNumberGenerator = d3.randomNormal(1, 2);
+      let highMeanLowSDRandomNumberGenerator = d3.randomNormal(4, 2);
+
+      for (let count = 0; count < numberOfEntity; count++) {
+
+          let temp = <any>{};
+
+          temp.id = count;
+
+
+          if (Math.random() > 0.7) {
+              temp.nominal = 'A';
+              temp.continuous1 = highMeanLowSDRandomNumberGenerator();
+
+          } else if (Math.random() > 0.5) {
+              temp.nominal = 'B';
+              temp.continuous1 = lowMeanHighSDRandomNumberGenerator();
+
+
+          } else {
+
+              temp.nominal = 'C';
+              temp.continuous1 = lowMeanHighSDRandomNumberGenerator() +
+                                 highMeanLowSDRandomNumberGenerator();
+
+          }
+
+
+
+          temp.continuous2 = (Math.random() * (numDiscreteVar - 1));
+
+          temp.continuous3 = Math.random();
+
+          data.push(temp);
+      }
+
+      this.nomaData = data;
+      this.nomaConfig.dims = d3.keys(data[0]);
+
+      let index = this.nomaConfig.dims.indexOf('id');
+      this.nomaConfig.dims.splice(index, 1);
+
+      this.nomaConfig.xDim = 'continuous1';
+      this.nomaConfig.yDim = 'continuous2';
+      this.nomaConfig.colorDim = 'nominal';
+      this.nomaConfig.relativeMode = 'absolute';
+      this.nomaConfig.isGather = 'scatter';
+
+      this.loadGPLOM();
+
+      this.resetTutMsg();
+
+  }
+
+  public settingForContinuousScatter() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Continuous Variables') {
+
+          this.changeActiveDataContinuous();
+      }
+
+     // this.nomaRound = 'absolute';
+
+      this.nomaConfig.xDim = 'continuous1';
+      this.nomaConfig.yDim = 'continuous2';
+      this.nomaConfig.colorDim = 'nominal';
+      this.nomaConfig.relativeMode = 'absolute';
+      this.nomaConfig.isGather = 'scatter';
+
+      this.addAlert('info', 'There is a severe overplotting over the range where X value is near 4.');
+
+  }
+
+  public settingForContinuousGather() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Continuous Variables') {
+
+          this.changeActiveDataContinuous();
+      }
+
+     // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'continuous1';
+      this.nomaConfig.yDim = 'continuous2';
+      this.nomaConfig.colorDim = 'nominal';
+      this.nomaConfig.relativeMode = 'absolute';
+      this.nomaConfig.isGather = 'gather';
+
+      this.addAlert('info', 'The trend over the region where overplotting was severe is now clear. However the other regions where there were only small number of nodes were is barely visible. ');
+
+  }
+
+  public updateBinSize(binSize) {
+
+      this.nomaConfig.binSize = binSize;
+      return 'success intuinno';
+  }
+
+  public updateBinSizeDefer(binSize) {
+
+      let deferred = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            // since this fn executes async in a future turn of the event loop, we need to wrap
+            // our code into an $apply call so that the model changes are properly observed.
+            if (this.updateBinSize(binSize)) {
+                resolve('Success!');
+            } else {
+                reject('Failure');
+            }
+        }, 1000);
+      })
+      return deferred;
+
+  }
+
+
+  public settingForContinuousGatherWithBinSize() {
+
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Continuous Variables') {
+
+          this.changeActiveDataContinuous;
+      }
+
+     // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'continuous1';
+      this.nomaConfig.yDim = 'continuous2';
+      this.nomaConfig.colorDim = 'nominal';
+      this.nomaConfig.relativeMode = 'absolute';
+      this.nomaConfig.isGather = 'gather';
+
+      let promise = this.updateBinSizeDefer(7);
+
+      promise.then((greeting) => {
+          console.log('Success: ' + greeting);
+      }).catch((reason) => {
+          alert('Failed: ' + reason);
+      }).then((update) => {
+          // alert('Got notification: ' + update);
+          this.isAdvancedOptionOpen = true;
+          this.addAlert('info', 'You can try different bin size at advanced options menu below.');
+          this.focusElement(this.isBinSizeFocused);
+      });
+      this.isAdvancedOptionOpen = true;
+
+  }
+
+  public settingForContinuousGatherWithBinSizeRelative() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Continuous Variables') {
+
+          this.changeActiveDataContinuous();
+      }
+
+     // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'continuous1';
+      this.nomaConfig.yDim = 'continuous2';
+      this.nomaConfig.colorDim = 'nominal';
+      this.nomaConfig.relativeMode = true;
+      this.nomaConfig.isGather = 'gather';
+
+
+      this.addAlert('info', 'Here you can see that the distributions of sparse regions are more visible. It makes spotting outliers much easier. Compare absolute and relative mode to feel this change. Can you tell what is the underlying distribution of these random letiables?');
+      this.focusElement(this.isRelativeSelectFocused);
+
+  }
+
+
+
+  public changeActiveDataCars() {
+      this.resetTutMsg();
+
+
+      this.activeData = 'Cars Data';
+
+      d3.csv('data/cars.csv', (error, tdata: any) => {
+          let count = 0;
+
+          tdata.map((d) => {
+              d.id = count;
+              count += 1;
+          });
+
+          this.nomaData = tdata;
+          this.nomaConfig.dims = d3.keys(tdata[0]);
+
+          let index = this.nomaConfig.dims.indexOf('id');
+          this.nomaConfig.dims.splice(index, 1);
+
+
+          index = this.nomaConfig.dims.indexOf('Name');
+          this.nomaConfig.dims.splice(index, 1);
+
+
+          this.nomaConfig.xDim = 'Cylinders';
+          this.nomaConfig.yDim = 'MPG';
+          this.nomaConfig.colorDim = 'Origin';
+
+          this.nomaConfig.isGather = 'gather';
+          this.isCarsOpen = true;
+          this.nomaConfig.relativeMode = 'absolute';
+
+          this.loadGPLOM();
+
+
+      });
+
+  }
+
+  public loadGPLOM() {
+
+      this.configMatrix = [];
+
+      for (let xIndex in this.nomaConfig.dims) {
+          if(this.nomaConfig.dims.hasOwnProperty(xIndex)) {
+              let xTemp = [];
+
+              for (let yIndex in this.nomaConfig.dims) {
+                  if(this.nomaConfig.dims.hasOwnProperty(yIndex)) {
+                      let temp = <any>{};
+
+                      temp.SVGAspectRatio = 1;
+                      temp.colorDim = '';
+                      temp.isGather = 'gather';
+                      temp.isInteractiveAxis = false;
+                      temp.relativeMode = 'absolute';
+                      temp.dims = this.nomaConfig.dims;
+                      temp.xDim = this.nomaConfig.dims[xIndex];
+                      temp.yDim = this.nomaConfig.dims[yIndex];
+                      temp.matrixMode = true;
+
+                      xTemp.push(temp);
+                  }
+              }
+
+             this.configMatrix.push(xTemp);
+          }
+      }
+  }
+
+
+  public changeConfigCarsScatterplots() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+     // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'Horsepower';
+      this.nomaConfig.yDim = 'MPG';
+      this.nomaConfig.colorDim = 'Origin';
+      this.nomaConfig.isGather = 'scatter';
+      this.nomaConfig.relativeMode = 'absolute';
+
+
+  }
+
+  public changeConfigCarsScatterOneNominal() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+      // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'Cylinders';
+      this.nomaConfig.yDim = 'MPG';
+      this.nomaConfig.colorDim = null;
+      this.nomaConfig.isGather = 'scatter';
+      this.nomaConfig.relativeMode = 'absolute';
+
+  }
+
+  public changeConfigCarsJitterOneNominal() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+      // this.nomaRound = 'absolute';
+
+      this.nomaConfig.xDim = 'Cylinders';
+      this.nomaConfig.yDim = 'MPG';
+      this.nomaConfig.colorDim = null;
+      this.nomaConfig.isGather = 'jitter';
+      this.nomaConfig.relativeMode = 'absolute';
+
+  }
+
+  public changeConfigCarsJitterOneNominalWithColor() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+      // this.nomaRound = 'absolute';
+
+      this.nomaConfig.xDim = 'Cylinders';
+      this.nomaConfig.yDim = 'MPG';
+      this.nomaConfig.colorDim = 'Origin';
+      this.nomaConfig.isGather = 'jitter';
+      this.nomaConfig.relativeMode = 'absolute';
+
+  }
+
+  public changeConfigCarsGatherOneNominalWithColor() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+      // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'Cylinders';
+      this.nomaConfig.yDim = 'MPG';
+      this.nomaConfig.colorDim = 'Origin';
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+  }
+
+  public changeConfigCarsGatherTwoNominalWithColor() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+      // this.nomaRound = absolute;
+
+      this.nomaConfig.xDim = 'Cylinders';
+      this.nomaConfig.yDim = 'Origin';
+      this.nomaConfig.colorDim = 'Origin';
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+      this.addAlert('info', 'Here Cylinders and Origin are both nominal letiables. Try what happens with scatterplots or jittering.');
+      this.focusElement(this.isPlotSelectFocused);
+
+  }
+
+  public changeConfigCarsGatherTwoNominalWithContinuousColor() {
+
+      this.resetTutMsg();
+
+      if (this.activeData !== 'Cars Data') {
+
+          this.changeActiveDataCars();
+      }
+
+      // this.nomaRound = 'absolute';
+
+      this.nomaConfig.xDim = 'Cylinders';
+      this.nomaConfig.yDim = 'Origin';
+      this.nomaConfig.colorDim = 'Weight';
+      this.nomaConfig.isGather = 'gather';
+      this.nomaConfig.relativeMode = 'absolute';
+
+      this.addAlert('info', 'Here the color of nodes represent a weight, which is continuous. Having ordered arrangement makes it easier to discern minute changes in colors.  Compare with scatterplots or jittering.');
+      this.focusElement(this.isPlotSelectFocused);
+
+
+
+  }
+
+  public changeActiveDataEHR() {
+
+      this.resetTutMsg();
+
+
+      this.activeData = 'Electronic Health Records (EHR)';
+
+      d3.csv('data/trauma.csv', (error, tdata: any) => {
+          let count = 0;
+
+          tdata.map((d) => {
+              d.id = count;
+              count += 1;
+          });
+
+          this.nomaData = tdata;
+          this.nomaConfig.dims = d3.keys(tdata[0]);
+
+          let index = this.nomaConfig.dims.indexOf('id');
+          this.nomaConfig.dims.splice(index, 1);
+
+          this.nomaConfig.xDim = '';
+          this.nomaConfig.yDim = '';
+          this.nomaConfig.colorDim = '';
+
+          this.nomaConfig.isGather = 'gather';
+          this.isCarsOpen = true;
+          this.nomaConfig.relativeMode = 'absolute';
+
+
+      });
+
+  }
+
+  public changeActiveDataComments() {
+
+      this.resetTutMsg();
+
+
+      this.activeData = 'CommentIQ - Comments Data';
+
+      d3.csv('data/gatherplotFeatures.csv', (error, tdata: any) => {
+          let count = 0;
+
+          tdata.map((d) => {
+              d.id = count;
+              count += 1;
+          });
+
+          this.nomaData = tdata;
+          this.nomaConfig.dims = d3.keys(tdata[0]);
+
+          let index = this.nomaConfig.dims.indexOf('id');
+          this.nomaConfig.dims.splice(index, 1);
+
+          this.nomaConfig.xDim = '';
+          this.nomaConfig.yDim = '';
+          this.nomaConfig.colorDim = '';
+
+          this.nomaConfig.isGather = 'gather';
+          this.isCarsOpen = true;
+          this.nomaConfig.relativeMode = 'absolute';
+
+
+      });
+
+  }
+
+  public changeActiveDataArticles() {
+
+      this.resetTutMsg();
+
+
+      this.activeData = 'CommentIQ - Articles Data';
+
+      d3.csv('data/articlesForGatherplot.csv', (error, tdata: any) => {
+          let count = 0;
+
+          tdata.map((d) => {
+              d.id = count;
+              count += 1;
+          });
+
+          this.nomaData = tdata;
+          this.nomaConfig.dims = d3.keys(tdata[0]);
+
+          let index = this.nomaConfig.dims.indexOf('id');
+          this.nomaConfig.dims.splice(index, 1);
+
+          this.nomaConfig.xDim = '';
+          this.nomaConfig.yDim = '';
+          this.nomaConfig.colorDim = '';
+
+          this.nomaConfig.isGather = 'gather';
+          this.isCarsOpen = true;
+          this.nomaConfig.relativeMode = 'absolute';
+
+
+      });
+
+  }
+
+}

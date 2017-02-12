@@ -8,16 +8,22 @@
 import { NgModule }              from '@angular/core';
 import { RouterModule, Routes }  from '@angular/router';
 
-import { AppComponent }  from './app.component';
-import { ApppComponent }  from './appp.component';
-import { AppppComponent }  from './apppp.component';
-import { ApppppComponent }  from './appppp.component';
+import { GatherplotComponent }  from './demo/gatherplot/gatherplot.component';
 import { PageNotFoundComponent }  from './error/404';
 
 const appRoutes: Routes = [
-  { path: '', component: ApppComponent },
-  { path: 'browse', component: AppppComponent },
-  { path: 'load', component: ApppppComponent },
+  { path: '', component: GatherplotComponent },
+//  { path: 'demo', component: DemoCtrl },
+//  { path: 'show/:dataset/:xDim/:yDim/:colorDim/:relativeMode', component: ShowCtrl },
+//  { path: 'dropbox/:dropbox_key/:dropbox_filename', component: DemoCtrl },
+//  { path: 'login', component: DemoCtrl },
+//  { path: 'account', component: DemoCtrl },
+//  { path: 'load/:csvKey/:comment?', component: DemoCtrl },
+//  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
+//  { path: 'matrix/:csvKey', component: DemoCtrl },
+//  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
+//  { path: 'upload', component: DemoCtrl },
+//  { path: 'browse', component: DemoCtrl },
   { path: '**', component: PageNotFoundComponent }
 ];
 
@@ -29,4 +35,5 @@ const appRoutes: Routes = [
     RouterModule
   ]
 })
+
 export class AppRoutingModule {}

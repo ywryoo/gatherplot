@@ -46,7 +46,7 @@ const devConfig = {
       }
     )
   ],
-  devtool: 'eval'
+  devtool: 'eval-source-map'
 }
 
 // Our Webpack Defaults
@@ -65,7 +65,7 @@ const defaultConfig = {
       // .ts files for TypeScript
       {
         test: /\.ts$/,
-        use: [
+        loaders: [
           'awesome-typescript-loader',
           'angular2-template-loader',
           'angular2-router-loader'
@@ -73,22 +73,9 @@ const defaultConfig = {
       },
       {
         test: /\.css$/,
-        use: [
-          'to-string-loader',
-          'css-loader', {
-            loader: 'postcss-loader',
-            options: {
-              plugins: () => {
-                return [
-                  require('precss'),
-                  require('autoprefixer')
-                ]
-              }
-            }
-          }
-        ]
+        loaders: ['to-string-loader', 'css-loader', 'postcss-loader']
       },
-      { test: /\.html$/, use: 'raw-loader' }
+      { test: /\.html$/, loader: 'raw-loader' }
     ]
   }
 }

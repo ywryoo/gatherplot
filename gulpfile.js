@@ -77,8 +77,15 @@ gulp.task('copyData', (done) => {
       .on('end', done)
 })
 
+gulp.task('copyStyles', (done) => {
+  gulp.src(appConfig.app + '/styles/**/*')
+      .pipe(gulp.dest(appConfig.dist + '/styles'))
+      .on('end', done)
+})
+
 gulp.task('copy', [
   'copyData',
+  'copyStyles',
   'copyHtmls',
   'copyVendors',
   'copyImages'],
@@ -88,6 +95,11 @@ gulp.task('copy', [
 
 gulp.task('watchData', ['copyData'], (done) => {
   browserSync.reload()
+  done()
+})
+
+gulp.task('watchStyles', ['copyStyles'], (done) => {
+  browserSync.stream()
   done()
 })
 
@@ -106,6 +118,7 @@ gulp.task('watchApp', () => {
 
 gulp.task('watch', ['copy', 'watchApp'], () => {
   gulp.watch(appConfig.app + '/data/**/*', ['watchData'])
+  gulp.watch(appConfig.app + '/styles/**/*', ['watchStyles'])
   gulp.watch(appConfig.app + '/images/**/*', ['copyImages'])
   gulp.watch(appConfig.app + '/*.html', ['copyHtmls'])
   gulp.watch([
