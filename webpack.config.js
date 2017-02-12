@@ -54,7 +54,7 @@ const defaultConfig = {
   entry: './' + appConfig.app + '/scripts/main.browser.ts',
   output: {
     filename: '/gatherplot.min.js',
-    path: appConfig.dist + '/app'
+    path: appConfig.dist
   },
   resolve: {
     extensions: [ '.ts', '.js' ],

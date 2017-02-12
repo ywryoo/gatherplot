@@ -15,7 +15,7 @@ const browserSync = require('browser-sync').create()
 const packageInfo = require('./package.json')
 const webpackConfig = require('./webpack.config')
 const appConfig = {
-  app: packageInfo.appPath || 'app',
+  app: packageInfo.appPath || 'src',
   dist: 'dist',
   deploy: '../gp2-core/static/gatherplot'
 }
@@ -34,18 +34,18 @@ function onBuild (done) {
   }
 }
 
-gulp.task('clean', done => {
+gulp.task('clean', (done) => {
   return del([appConfig.dist + '/**'])
 })
 
-gulp.task('copyImages', done => {
+gulp.task('copyImages', (done) => {
   gulp.src(appConfig.app + '/images/**/*')
       .pipe(imagemin())
       .pipe(gulp.dest(appConfig.dist + '/images'))
       .on('end', done)
 })
 
-gulp.task('copyHtmls', done => {
+gulp.task('copyHtmls', (done) => {
   gulp.src(appConfig.app + '/*.html')
       .pipe(htmlmin({
         collapseWhitespace: false,
@@ -58,7 +58,7 @@ gulp.task('copyHtmls', done => {
       .on('end', done)
 })
 
-gulp.task('copyVendors', done => {
+gulp.task('copyVendors', (done) => {
   gulp.src([
     'node_modules/bootstrap/dist/**/*',
     'node_modules/font-awesome/css/font-awesome.min.css',
@@ -71,7 +71,7 @@ gulp.task('copyVendors', done => {
       .on('end', done)
 })
 
-gulp.task('copyData', done => {
+gulp.task('copyData', (done) => {
   gulp.src(appConfig.app + '/data/**/*')
       .pipe(gulp.dest(appConfig.dist + '/data'))
       .on('end', done)
@@ -82,34 +82,29 @@ gulp.task('copy', [
   'copyHtmls',
   'copyVendors',
   'copyImages'],
-  done => {
+  (done) => {
     done()
   })
 
-gulp.task('build:production', done => {
-  webpack(webpackConfig.production).run(onBuild(done))
-})
-
-gulp.task('build:dev', done => {
-  webpack(webpackConfig.dev).run(onBuild(done))
-})
-
-gulp.task('watchData', ['copyData'], function (done) {
+gulp.task('watchData', ['copyData'], (done) => {
   browserSync.reload()
   done()
 })
 
-gulp.task('watchVendors', ['copyVendors'], function (done) {
+gulp.task('watchVendors', ['copyVendors'], (done) => {
   browserSync.reload()
   done()
 })
 
-gulp.task('watchApp', ['build:dev'], function (done) {
-  browserSync.reload()
-  done()
+gulp.task('watchApp', () => {
+  webpack(webpackConfig.dev).watch({ignored: /node_modules/},
+    (err, stats) => {
+      if (err) console.error(err)
+    }
+  )
 })
 
-gulp.task('watch', ['copy', 'build:dev'], () => {
+gulp.task('watch', ['copy', 'watchApp'], () => {
   gulp.watch(appConfig.app + '/data/**/*', ['watchData'])
   gulp.watch(appConfig.app + '/images/**/*', ['copyImages'])
   gulp.watch(appConfig.app + '/*.html', ['copyHtmls'])
@@ -119,7 +114,6 @@ gulp.task('watch', ['copy', 'build:dev'], () => {
     'node_modules/font-awesome/fonts/**/*',
     'node_modules/jquery/dist/jquery.min.js'
   ], ['watchVendors'])
-  gulp.watch(appConfig.app + '/scripts/**/*', ['watchApp'])
 
   browserSync.init({
     server: {
@@ -137,15 +131,23 @@ gulp.task('watch', ['copy', 'build:dev'], () => {
   })
 })
 
-gulp.task('default', ['copy', 'build:dev'], done => {
+gulp.task('build:production', (done) => {
+  webpack(webpackConfig.production).run(onBuild(done))
+})
+
+gulp.task('build:dev', (done) => {
+  webpack(webpackConfig.dev).run(onBuild(done))
+})
+
+gulp.task('default', ['copy', 'build:dev'], (done) => {
   done()
 })
 
-gulp.task('build', ['copy', 'build:production'], done => {
+gulp.task('build', ['copy', 'build:production'], (done) => {
   done()
 })
 
-gulp.task('copyToServer', ['default'], done => {
+gulp.task('copyToServer', ['default'], (done) => {
   gulp.src(appConfig.dist + '/**/*')
       .pipe(gulp.dest(appConfig.deploy))
       .on('end', done)
