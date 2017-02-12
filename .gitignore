@@ -1,8 +1,7 @@
 npm-debug.log
-/node_modules
-/bower_components
+node_modules/
 .DS_Store
 libpeerconnection.log
-/dist
+dist/
 data/2008.csv
-dist/index.html
+.tmp/
