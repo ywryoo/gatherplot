@@ -11,14 +11,14 @@ import { Directive, ElementRef, HostListener, Input } from '@angular/core';
    selector: '[focusMe]'
 })
 
-export class GatherplotDirective {
+export class FocusmeDirective {
   constructor(private el: ElementRef) {
     // to address @blesh's comment, set attribute value to 'false'
     // on blur event:
-    el.bind('blur', function() {
+/*    el.bind('blur', function() {
         console.log('blur');
         scope.$apply(model.assign(scope, false));
-    });
+    });*/
   }
 }
   /*

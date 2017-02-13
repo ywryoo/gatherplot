@@ -132,12 +132,12 @@ export class GatherplotDirective {
 
         if (!this.config.matrixMode) {
 
-            this.labelDiv = d3.select(this.el[0])
+            this.labelDiv = d3.select(this.el.nativeElement)
                 .append("div")
                 .attr("class", "btn-group")
                 .html('<a class="btn btn-default" title="Pan and Zoom" id="toolbarPanZoom"><i class="fa fa-search-plus"></i></a><a class="btn btn-default" title="Select" id="toolbarSelect"><i class="fa fa-square-o"></i></a><a class="btn btn-default" title="Reset" id="toolbarReset"><i class="fa fa-undo"></i></a>');
         }
-        this.svg = d3.select(this.el[0])
+        this.svg = d3.select(this.el.nativeElement)
             .append("svg:svg");
 
         this.svgGroup = this.svg.append("g")
@@ -1348,7 +1348,7 @@ export class GatherplotDirective {
         //Update size of SVG
 
         if (this.config.matrixMode === false) {
-            this.outerWidth = d3.select(this.el[0]).node().offsetWidth;
+            this.outerWidth = d3.select(this.el.nativeElement).node().offsetWidth;
         } else {
   //          this.outerWidth = d3.select(".matrixGroup").node().offsetWidth;
 
