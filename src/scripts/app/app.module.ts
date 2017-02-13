@@ -11,6 +11,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
 import { AppRoutingModule } from './app.routing.module';
 import { AccordionModule, ButtonsModule, AlertModule } from 'ng2-bootstrap';
+import { DemoComponent } from './demo/gatherplot/main.component';
+import { GatherplotComponent } from './demo/gatherplot/gatherplot.component';
 
 import { AppComponent }  from './app.component';
 import { GatherplotComponent }  from './demo/gatherplot/gatherplot.component';
@@ -28,7 +30,8 @@ import { PageNotFoundComponent }  from './error/404';
   declarations: [
     PageNotFoundComponent,
     GatherplotComponent,
-    AppComponent
+    AppComponent,
+    DemoComponent
   ],
   bootstrap:    [
     AppComponent

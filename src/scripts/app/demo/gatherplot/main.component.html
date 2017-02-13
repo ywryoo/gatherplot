@@ -23,7 +23,7 @@
                     <div>
                         <alert *ngFor="let alert of alerts; let i=index" type="alert.type" onClose="closeAlert(i)">{{alert.msg}}</alert>
                     </div>
-                    <div gatherplot data="nomaData" config="nomaConfig" border="nomaBorder" round="nomaRound" shaperenderingmode="nomaShapeRendering" (click)="d3OnClick(item)" dimsum="dimsum" context="context"></div>
+                    <gatherplot [data]="nomaData" [config]="nomaConfig" [border]="nomaBorder" [round]="nomaRound" [shaperenderingmode]="nomaShapeRendering" (click)="d3OnClick(item)" [clickfunction]="d3OnClick(item)" [dimsum]="dimsum" [context]="context"></gatherplot>
                     <div class="chart-simple-interface">
                         <h5>Show me
                             <select [(ngModel)]="nomaConfig.xDim">
