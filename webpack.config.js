@@ -19,14 +19,6 @@ const appConfig = {
 
 const prodConfig = {
   plugins: [
-    new webpack.ContextReplacementPlugin(
-      // The (\\|\/) piece accounts for path separators in *nix and Windows
-      /angular(\\|\/)core(\\|\/)src(\\|\/)linker/,
-      './' + appConfig.app + '/scripts',
-      {
-        // your Angular Async Route paths relative to this root directory
-      }
-    ),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
@@ -36,17 +28,7 @@ const prodConfig = {
   devtool: 'nosources-source-map'
 }
 const devConfig = {
-  plugins: [
-    new webpack.ContextReplacementPlugin(
-      // The (\\|\/) piece accounts for path separators in *nix and Windows
-      /angular(\\|\/)core(\\|\/)src(\\|\/)linker/,
-      './' + appConfig.app + '/scripts',
-      {
-        // your Angular Async Route paths relative to this root directory
-      }
-    )
-  ],
-  devtool: 'eval-source-map'
+  devtool: 'eval-cheap-module-source-ma'
 }
 
 // Our Webpack Defaults
@@ -68,7 +50,8 @@ const defaultConfig = {
         loaders: [
           'awesome-typescript-loader',
           'angular2-template-loader',
-          'angular2-router-loader'
+          'angular2-router-loader',
+          'source-map-loader',
         ]
       },
       {

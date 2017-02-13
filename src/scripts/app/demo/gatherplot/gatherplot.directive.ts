@@ -5,25 +5,28 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { Directive, Input, ElementRef, OnInit } from '@angular/core';
+import { HostListener, Component, Input, ElementRef, OnInit, OnDestroy, NgZone } from '@angular/core';
 import * as d3 from 'd3';
+import { Subscription } from 'rxjs/Subscription';
+import { DataService } from '../shared/data.service';
+import { ConfigService } from '../shared/config.service';
 
-@Directive({
-   selector: '[gatherplot]'
+@Component({
+   selector: 'gatherplot',
+   template: `<div></div>`
 })
 
-export class GatherplotDirective {
-  @Input() gatherplot: any;
-  @Input() data: any;
-  @Input() config: any;
-  @Input() border: any;
-  @Input() round: any;
-  @Input() xdim: any;
-  @Input() ydim: any;
-  @Input() shaperenderingmode: any;
-  @Input() dimsum: any;
-  @Input() context: any;
-  @Input() comment: any;
+export class GraphComponent {
+  public data: any;
+  public config: any;
+  public border: any;
+  public round: any;
+  public xdim: any;
+  public ydim: any;
+  public shaperenderingmode: any;
+  public dimsum: any;
+  public context: any;
+  public comment: any;
   public width: any;
   public height: any;
   public outerWidth: any;
@@ -68,10 +71,68 @@ export class GatherplotDirective {
   public initialInnerRadiusOfPieLens: any;
   public brush: any;
   public shiftKey: any;
-  constructor(private el: ElementRef) {
-  }
+  private configSubscription: Subscription;
+  private roundSubscription: Subscription;
+  private borderSubscription: Subscription;
+  private shapeRenderingSubscription: Subscription;
+  private dimsumSubscription: Subscription;
+  private contextSubscription: Subscription;
+  private dataSubscription: Subscription;
 
+  constructor(private el: ElementRef, private zone: NgZone, private configService: ConfigService, private dataService: DataService) {
+  }
+  /*
+      this.$watch(() => {
+          return angular.element(window)[0].innerWidth;
+      }, () => {
+          return this.handleConfigChange(renderData, this.config);
+      });
+
+      this.$watch(() => {
+          return this.comment;
+      }, function(newVals, oldVals) {
+          if (newVals === true) {
+              return this.handleConfigChange(renderData, this.config);
+          }
+      }, false);
+
+  */
   ngOnInit() {
+
+    this.configSubscription = this.configService.config$
+         .subscribe((config) => {
+           this.config = config;
+           this.xdim = config.xdim;
+           this.ydim = config.ydim;
+           if(this.renderData) {this.handleConfigChange(this.renderData, config);}
+         });
+    this.borderSubscription = this.configService.border$
+         .subscribe((border) => {
+           this.border = border;
+           this.renderBorderChange(border);
+         });
+    this.roundSubscription = this.configService.round$
+         .subscribe((round) => {
+           this.round = round;
+           this.renderRoundChange(round);
+         });
+    this.shapeRenderingSubscription = this.configService.shapeRendering$
+         .subscribe((shapeRendering) => {
+           this.shaperenderingmode = shapeRendering;
+           this.renderShapeRenderingChange(shapeRendering);
+         });
+    this.dimsumSubscription = this.configService.dimsum$
+         .subscribe((dimsum) => {
+           this.dimsum = dimsum;
+           this.handleDimsumChange(dimsum);
+         });
+    this.contextSubscription = this.configService.context$
+         .subscribe(context => this.context = context);
+    this.dataSubscription = this.dataService.data$
+         .subscribe((data) => {
+           this.data = data;
+           this.renderDataChange(data, this.config);
+         });
     //Constants and Setting Environment letiables
     this.margin = 80;
     this.maxDotSize = 4;
@@ -99,7 +160,7 @@ export class GatherplotDirective {
 
     this.dimSetting = <any>{};
 
-    this.config.binSiz = this.defaultBinSize;
+    this.config.binSize = this.defaultBinSize;
 
     this.initialLensSize = 100;
 
@@ -180,7 +241,21 @@ export class GatherplotDirective {
 
     initializeSVG();
 
+  }
 
+  ngOnDestroy() {
+    // prevent memory leak when component is destroyed
+    this.configSubscription.unsubscribe();
+    this.borderSubscription.unsubscribe();
+    this.shapeRenderingSubscription.unsubscribe();
+    this.dimsumSubscription.unsubscribe();
+    this.contextSubscription.unsubscribe();
+    this.shapeRenderingSubscription.unsubscribe();
+    this.dataSubscription.unsubscribe();
+  }
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.zone.run(() => {});
   }
   /*
   data: "=",
@@ -194,66 +269,6 @@ export class GatherplotDirective {
   context: "=",
   comment: "=",
   onClick: '&'*/
-/*
-    // on window resize, re-render d3 canvas
-    window.onresize() {
-        return this.$apply();
-    };
-
-    this.$watch(() => {
-        return angular.element(window)[0].innerWidth;
-    }, () => {
-        return this.handleConfigChange(renderData, this.config);
-    });
-
-    // watch for data changes and re-render
-    this.$watch('data', function(newVals, oldVals) {
-        return this.renderDataChange(newVals, this.config);
-
-    }, false);
-
-    // watch for Config changes and re-render
-
-    this.$watch('config', function(newVals, oldVals) {
-        // debugger;
-        return this.handleConfigChange(renderData, newVals);
-    }, true);
-
-    this.$watch(() => {
-        return this.border;
-    }, function(newVals, oldVals) {
-        return this.renderBorderChange(newVals);
-    }, false);
-
-    this.$watch(() => {
-        return this.round;
-    }, function(newVals, oldVals) {
-        return this.renderRoundChange(newVals);
-    }, false);
-
-    this.$watch(() => {
-        return this.comment;
-    }, function(newVals, oldVals) {
-        if (newVals === true) {
-            return this.handleConfigChange(renderData, this.config);
-        }
-    }, false);
-
-    this.$watch(() => {
-        return this.shapeRenderingMode;
-    }, function(newVals, oldVals) {
-        return this.renderShapeRenderingChange(newVals);
-    }, true);
-
-
-    this.$watch(() => {
-        return this.dimsum;
-    }, function(newVals, oldVals) {
-        return this.handleDimsumChange(newVals);
-
-    }, true);
-
-*/
 
     public handleDimsumChange(newDimsum) {
         if (!this.node) {
@@ -1515,7 +1530,7 @@ export class GatherplotDirective {
 
         function zoomed() {
 
-            // this.$apply();
+            // this.zone.run();
 
             // this.comment = false;
 
@@ -1562,7 +1577,7 @@ export class GatherplotDirective {
             this.context.translate = [0, 0];
             this.context.scale = 1;
 
-            // this.$apply();
+            // this.zone.run();
 
             d3.transition("resetZoom").duration(700).tween("zoom", () => {
 
@@ -1624,7 +1639,7 @@ export class GatherplotDirective {
 
         this.dimsum.selectionSpace = [];
         this.handleDimsumChange(this.dimsum);
-//        this.$apply();
+//        this.zone.run();
     }
 
     public setClipPathForAxes() {

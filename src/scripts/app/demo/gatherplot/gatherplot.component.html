@@ -23,22 +23,23 @@
                     <div>
                         <alert *ngFor="let alert of alerts; let i=index" type="alert.type" onClose="closeAlert(i)">{{alert.msg}}</alert>
                     </div>
-                    <div gatherplot [data]="nomaData" [config]="nomaConfig" [border]="nomaBorder" [round]="nomaRound" [shaperenderingmode]="nomaShapeRendering" (click)="d3OnClick(item)" [xdim]="nomaConfig.xDim"  [ydim]="nomaConfig.yDim" [dimsum]="dimsum" [context]="context"></div>
+                    <gatherplot></gatherplot>
+                    <!--(click)="d3OnClick(item)" -->
                     <div class="chart-simple-interface">
                         <h5>Show me
                             <select [(ngModel)]="nomaConfig.xDim">
-                                <option>-- undefined --</option>
-                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}-</option>
+                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
                             </select>&nbsp;vs&nbsp;.
                             <select [(ngModel)]="nomaConfig.yDim">
-                                <option>-- undefined --</option>
+                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
                                 <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
                             </select>
                             <br>
                             <br>
                             Mark nodes with color according to
                             <select [(ngModel)]="nomaConfig.colorDim">
-                              <option>-- undefined --</option>
+                              <option *ngIf="!nomaConfig.dims">-- undefined --</option>
                               <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
                             </select>
                         </h5>

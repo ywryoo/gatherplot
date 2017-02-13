@@ -5,9 +5,11 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { Component, AfterViewInit } from '@angular/core';
-import { DemoService } from '../shared/data.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { DataService } from '../shared/data.service';
+import { ConfigService } from '../shared/config.service';
 import { AccordionModule } from 'ng2-bootstrap';
+import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
 
 @Component({
@@ -15,67 +17,55 @@ import * as d3 from 'd3';
   templateUrl: './gatherplot.component.html'
 })
 
-export class GatherplotComponent implements AfterViewInit {
-  public nomaConfig: any;
+export class GatherplotComponent implements OnInit, OnDestroy {
   public configMatrix: any;
   public customCSV: any;
   public loadedData: any;
   public onlyNumbers: any;
-  public context: any;
-  public dimsum: any;
-  public nomaRound: any;
-  public nomaBorder: any;
-  public nomaShapeRendering: any;
+//  public dimsum: any;
+  public nomaConfig: any;
+//  public context: any;
+//  public nomaBorder: any;
+//  public nomaShapeRendering: any;
   public alerts: any;
   public isPlotSelectFocused: any;
   public isScatter: any;
   public isRelativeSelectFocused: boolean;
   public isBinSizeFocused: boolean;
   public activeData: string;
-  public nomaData: any;
   public isAdvancedOptionOpen: boolean;
   public isCarsOpen: boolean;
-
-  constructor() {
-    this.nomaConfig = <any>{
-
-    };
-
-    this.configMatrix = [];
-
-    this.customCSV = '';
-
-    this.loadedData = 'cars';
-    this.nomaConfig.SVGAspectRatio = 1.4;
-    this.onlyNumbers = /^\d+$/;
-
-    this.context = <any>{};
-    this.context.translate = [0, 0];
-    this.context.scale = 1;
-    this.dimsum = <any>{};
-    this.dimsum.selectionSpace = [];
-
-    this.nomaRound = true;
-    this.nomaBorder = false;
-    this.nomaShapeRendering = 'auto';
-    this.nomaConfig.isGather = 'scatter';
-    this.nomaConfig.relativeModes = [false, true];
-    this.nomaConfig.relativeMode = 'absolute';
-    this.nomaConfig.binSize = 10;
-    this.nomaConfig.matrixMode = false;
-    this.alerts = [];
-    this.isPlotSelectFocused = false;
-    this.nomaConfig.isInteractiveAxis = false;
-    this.isScatter = false;
-    this.nomaConfig.lens = 'noLens';
-    this.nomaConfig.xDim = '';
-    this.nomaConfig.yDim = '';
-    this.nomaConfig.colorDim = '';
-
-
+  private configSubscription: Subscription;
+  private roundSubscription: Subscription;
+//  private borderSubscription: Subscription;
+//  private shapeRenderingSubscription: Subscription;
+//  private dimsumSubscription: Subscription;
+//  private contextSubscription: Subscription;
+  private dataSubscription: Subscription;
+  constructor(private configService: ConfigService, private dataService: DataService) {
 }
-  ngAfterViewInit() {
+  ngOnInit() {
+    this.configSubscription = this.configService.config$
+         .subscribe(config => this.nomaConfig = config);
+//    this.borderSubscription = this.configService.border$
+//         .subscribe(border => this.nomaBorder = border);
+//    this.shapeRenderingSubscription = this.configService.shapeRendering$
+//         .subscribe(shapeRendering => this.nomaShapeRendering = shapeRendering);
+//    this.dimsumSubscription = this.configService.dimsum$
+//         .subscribe(dimsum => this.dimsum = dimsum);
+//    this.contextSubscription = this.configService.context$
+//         .subscribe(context => this.context = context);
+
     this.changeActiveDataCars();
+  }
+
+  ngOnDestroy() {
+    // prevent memory leak when component is destroyed
+    this.configSubscription.unsubscribe();
+//    this.borderSubscription.unsubscribe();
+//    this.shapeRenderingSubscription.unsubscribe();
+//    this.dimsumSubscription.unsubscribe();
+//    this.contextSubscription.unsubscribe();
   }
 
   public updateIsScatter(event, isScatter: boolean) {
@@ -108,6 +98,7 @@ export class GatherplotComponent implements AfterViewInit {
   public d3OnClick(item: any) {
       this.nomaConfig.xDim = item.xDim;
       this.nomaConfig.yDim = item.yDim;
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       // alert(item.name);
   }
 /*
@@ -145,7 +136,7 @@ export class GatherplotComponent implements AfterViewInit {
               count += 1;
           });
 
-          this.nomaData = tdata;
+          this.dataService.setData(tdata);
           this.nomaConfig.dims = d3.keys(tdata[0]);
 
           let index = this.nomaConfig.dims.indexOf('id');
@@ -162,7 +153,7 @@ export class GatherplotComponent implements AfterViewInit {
 
           this.nomaConfig.isGather = 'gather';
           this.nomaConfig.relativeMode = 'absolute';
-
+          this.configService.setConfig(Object.assign({}, this.nomaConfig));
       });
 
 
@@ -328,7 +319,7 @@ export class GatherplotComponent implements AfterViewInit {
 
 
 
-          this.nomaData = tdata;
+          this.dataService.setData(tdata);
           this.nomaConfig.dims = d3.keys(tdata[0]);
 
           let index = this.nomaConfig.dims.indexOf('id');
@@ -337,6 +328,8 @@ export class GatherplotComponent implements AfterViewInit {
           this.nomaConfig.xDim = this.nomaConfig.dims[0];
           this.nomaConfig.yDim = this.nomaConfig.dims[1];
           this.nomaConfig.colorDim = this.nomaConfig.dims[2];
+          this.configService.setConfig(Object.assign({}, this.nomaConfig));
+
           this.loadGPLOM();
 
       });
@@ -365,7 +358,7 @@ export class GatherplotComponent implements AfterViewInit {
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
 
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'Here X and Y axes are not defined. Gatherplots make it easy to have an undefined axis.  Check scatterplots and jittering when there is undefined axis.');
       this.focusElement(this.isPlotSelectFocused);
 
@@ -389,7 +382,7 @@ export class GatherplotComponent implements AfterViewInit {
 
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
 
   }
@@ -413,7 +406,7 @@ export class GatherplotComponent implements AfterViewInit {
 
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'It looks like woman had survived more likely. Is this pattern clear in jittered scatterplots?');
       this.focusElement(this.isPlotSelectFocused);
 
@@ -439,7 +432,7 @@ export class GatherplotComponent implements AfterViewInit {
 
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'The different number of elements in the group makes it difficult to compare the percentage directly. Especially male groups of Second, Third and Crew looks similar.');
 
   }
@@ -462,7 +455,7 @@ export class GatherplotComponent implements AfterViewInit {
 
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = true;
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info',
         'The size of nodes changes to make the entire group size same '+
         'in order to make comparison between groups easier. ' +
@@ -535,7 +528,7 @@ export class GatherplotComponent implements AfterViewInit {
           data.push(temp);
       }
 
-      this.nomaData = data;
+      this.dataService.setData(data);
       this.nomaConfig.dims = Object.keys(data[0]);
 
       let index = this.nomaConfig.dims.indexOf('id');
@@ -546,7 +539,7 @@ export class GatherplotComponent implements AfterViewInit {
       this.nomaConfig.colorDim = null;
 
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.loadGPLOM();
 
       // this.$apply();
@@ -556,6 +549,7 @@ export class GatherplotComponent implements AfterViewInit {
 
   public validateBinsize(value)  {
     value < 0 ? this.nomaConfig.binSize = 0 : this.nomaConfig.binSize = value;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigMammoProblem() {
@@ -577,7 +571,7 @@ export class GatherplotComponent implements AfterViewInit {
 
       this.nomaConfig.relativeMode = 'absolute';
       this.nomaConfig.isGather = 'gather';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigMammoAnswer() {
@@ -596,7 +590,7 @@ export class GatherplotComponent implements AfterViewInit {
 
       this.nomaConfig.relativeMode = 'absolute';
       this.nomaConfig.isGather = 'gather';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeActiveDataContinuous() {
@@ -645,7 +639,7 @@ export class GatherplotComponent implements AfterViewInit {
           data.push(temp);
       }
 
-      this.nomaData = data;
+      this.dataService.setData(data);
       this.nomaConfig.dims = d3.keys(data[0]);
 
       let index = this.nomaConfig.dims.indexOf('id');
@@ -656,7 +650,7 @@ export class GatherplotComponent implements AfterViewInit {
       this.nomaConfig.colorDim = 'nominal';
       this.nomaConfig.relativeMode = 'absolute';
       this.nomaConfig.isGather = 'scatter';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.loadGPLOM();
 
       this.resetTutMsg();
@@ -672,14 +666,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataContinuous();
       }
 
-     // this.nomaRound = 'absolute';
+     // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'continuous1';
       this.nomaConfig.yDim = 'continuous2';
       this.nomaConfig.colorDim = 'nominal';
       this.nomaConfig.relativeMode = 'absolute';
       this.nomaConfig.isGather = 'scatter';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'There is a severe overplotting over the range where X value is near 4.');
 
   }
@@ -693,14 +687,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataContinuous();
       }
 
-     // this.nomaRound = absolute;
+     // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'continuous1';
       this.nomaConfig.yDim = 'continuous2';
       this.nomaConfig.colorDim = 'nominal';
       this.nomaConfig.relativeMode = 'absolute';
       this.nomaConfig.isGather = 'gather';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'The trend over the region where overplotting was severe is now clear. However the other regions where there were only small number of nodes were is barely visible. ');
 
   }
@@ -708,6 +702,7 @@ export class GatherplotComponent implements AfterViewInit {
   public updateBinSize(binSize) {
 
       this.nomaConfig.binSize = binSize;
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       return 'success intuinno';
   }
 
@@ -739,14 +734,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataContinuous;
       }
 
-     // this.nomaRound = absolute;
+     // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'continuous1';
       this.nomaConfig.yDim = 'continuous2';
       this.nomaConfig.colorDim = 'nominal';
       this.nomaConfig.relativeMode = 'absolute';
       this.nomaConfig.isGather = 'gather';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       let promise = this.updateBinSizeDefer(7);
 
       promise.then((greeting) => {
@@ -772,14 +767,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataContinuous();
       }
 
-     // this.nomaRound = absolute;
+     // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'continuous1';
       this.nomaConfig.yDim = 'continuous2';
       this.nomaConfig.colorDim = 'nominal';
       this.nomaConfig.relativeMode = true;
       this.nomaConfig.isGather = 'gather';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
       this.addAlert('info', 'Here you can see that the distributions of sparse regions are more visible. It makes spotting outliers much easier. Compare absolute and relative mode to feel this change. Can you tell what is the underlying distribution of these random letiables?');
       this.focusElement(this.isRelativeSelectFocused);
@@ -802,7 +797,7 @@ export class GatherplotComponent implements AfterViewInit {
               count += 1;
           });
 
-          this.nomaData = tdata;
+          this.dataService.setData(tdata);
           this.nomaConfig.dims = d3.keys(tdata[0]);
 
           let index = this.nomaConfig.dims.indexOf('id');
@@ -820,7 +815,7 @@ export class GatherplotComponent implements AfterViewInit {
           this.nomaConfig.isGather = 'gather';
           this.isCarsOpen = true;
           this.nomaConfig.relativeMode = 'absolute';
-
+          this.configService.setConfig(Object.assign({}, this.nomaConfig));
           this.loadGPLOM();
 
 
@@ -849,7 +844,6 @@ export class GatherplotComponent implements AfterViewInit {
                       temp.xDim = this.nomaConfig.dims[xIndex];
                       temp.yDim = this.nomaConfig.dims[yIndex];
                       temp.matrixMode = true;
-
                       xTemp.push(temp);
                   }
               }
@@ -869,7 +863,7 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-     // this.nomaRound = absolute;
+     // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Horsepower';
       this.nomaConfig.yDim = 'MPG';
@@ -877,7 +871,7 @@ export class GatherplotComponent implements AfterViewInit {
       this.nomaConfig.isGather = 'scatter';
       this.nomaConfig.relativeMode = 'absolute';
 
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigCarsScatterOneNominal() {
@@ -889,14 +883,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-      // this.nomaRound = absolute;
+      // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Cylinders';
       this.nomaConfig.yDim = 'MPG';
       this.nomaConfig.colorDim = null;
       this.nomaConfig.isGather = 'scatter';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigCarsJitterOneNominal() {
@@ -908,14 +902,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-      // this.nomaRound = 'absolute';
+      // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Cylinders';
       this.nomaConfig.yDim = 'MPG';
       this.nomaConfig.colorDim = null;
       this.nomaConfig.isGather = 'jitter';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigCarsJitterOneNominalWithColor() {
@@ -927,14 +921,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-      // this.nomaRound = 'absolute';
+      // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Cylinders';
       this.nomaConfig.yDim = 'MPG';
       this.nomaConfig.colorDim = 'Origin';
       this.nomaConfig.isGather = 'jitter';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigCarsGatherOneNominalWithColor() {
@@ -946,14 +940,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-      // this.nomaRound = absolute;
+      // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Cylinders';
       this.nomaConfig.yDim = 'MPG';
       this.nomaConfig.colorDim = 'Origin';
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public changeConfigCarsGatherTwoNominalWithColor() {
@@ -965,14 +959,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-      // this.nomaRound = absolute;
+      // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Cylinders';
       this.nomaConfig.yDim = 'Origin';
       this.nomaConfig.colorDim = 'Origin';
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'Here Cylinders and Origin are both nominal letiables. Try what happens with scatterplots or jittering.');
       this.focusElement(this.isPlotSelectFocused);
 
@@ -987,14 +981,14 @@ export class GatherplotComponent implements AfterViewInit {
           this.changeActiveDataCars();
       }
 
-      // this.nomaRound = 'absolute';
+      // configService.setRound('absolute');
 
       this.nomaConfig.xDim = 'Cylinders';
       this.nomaConfig.yDim = 'Origin';
       this.nomaConfig.colorDim = 'Weight';
       this.nomaConfig.isGather = 'gather';
       this.nomaConfig.relativeMode = 'absolute';
-
+      this.configService.setConfig(Object.assign({}, this.nomaConfig));
       this.addAlert('info', 'Here the color of nodes represent a weight, which is continuous. Having ordered arrangement makes it easier to discern minute changes in colors.  Compare with scatterplots or jittering.');
       this.focusElement(this.isPlotSelectFocused);
 
@@ -1017,7 +1011,7 @@ export class GatherplotComponent implements AfterViewInit {
               count += 1;
           });
 
-          this.nomaData = tdata;
+          this.dataService.setData(tdata);
           this.nomaConfig.dims = d3.keys(tdata[0]);
 
           let index = this.nomaConfig.dims.indexOf('id');
@@ -1031,7 +1025,7 @@ export class GatherplotComponent implements AfterViewInit {
           this.isCarsOpen = true;
           this.nomaConfig.relativeMode = 'absolute';
 
-
+          this.configService.setConfig(Object.assign({}, this.nomaConfig));
       });
 
   }
@@ -1051,7 +1045,7 @@ export class GatherplotComponent implements AfterViewInit {
               count += 1;
           });
 
-          this.nomaData = tdata;
+          this.dataService.setData(tdata);
           this.nomaConfig.dims = d3.keys(tdata[0]);
 
           let index = this.nomaConfig.dims.indexOf('id');
@@ -1065,7 +1059,7 @@ export class GatherplotComponent implements AfterViewInit {
           this.isCarsOpen = true;
           this.nomaConfig.relativeMode = 'absolute';
 
-
+          this.configService.setConfig(Object.assign({}, this.nomaConfig));
       });
 
   }
@@ -1085,7 +1079,7 @@ export class GatherplotComponent implements AfterViewInit {
               count += 1;
           });
 
-          this.nomaData = tdata;
+          this.dataService.setData(tdata);
           this.nomaConfig.dims = d3.keys(tdata[0]);
 
           let index = this.nomaConfig.dims.indexOf('id');
@@ -1098,7 +1092,7 @@ export class GatherplotComponent implements AfterViewInit {
           this.nomaConfig.isGather = 'gather';
           this.isCarsOpen = true;
           this.nomaConfig.relativeMode = 'absolute';
-
+          this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
       });
 

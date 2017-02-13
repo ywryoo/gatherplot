@@ -1,29 +1,13 @@
 import { Injectable } from '@angular/core';
-import { Http, URLSearchParams } from '@angular/http';
-import 'rxjs/add/operator/map';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
-export class DemoService {
-  constructor(private http: Http) {}
+export class DataService {
+  private dataSource = new BehaviorSubject<any>({});
+  public data$ = this.dataSource.asObservable();
 
-  getOrg(org: string) {
-    return this.makeRequest(`orgs/${org}`);
-  }
-
-  getReposForOrg(org: string) {
-    return this.makeRequest(`orgs/${org}/repos`);
-  }
-
-  getRepoForOrg(org: string, repo: string) {
-    return this.makeRequest(`repos/${org}/${repo}`);
-  }
-
-  private makeRequest(path: string) {
-    let params = new URLSearchParams();
-    params.set('per_page', '100');
-
-    let url = `https://api.github.com/${ path }`;
-    return this.http.get(url, {search: params})
-      .map((res) => res.json());
+  public setData(data: any): void {
+    this.dataSource.next(data);
   }
 }
