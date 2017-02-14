@@ -93,7 +93,7 @@ const devConfig = {
       __dirname
     )
   ],
-  devtool: 'cheap-module-eval-source-map'
+  devtool: 'eval-cheap-module-source-ma'
 }
 
 // Our Webpack Defaults
