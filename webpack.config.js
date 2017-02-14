@@ -29,7 +29,7 @@ const prodConfig = {
       }
     })
   ],
-  devtool: 'nosources-source-map'
+  devtool: 'hidden-source-map'
 }
 const devConfig = {
   plugins: [
