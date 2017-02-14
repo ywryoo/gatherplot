@@ -19,6 +19,10 @@ const appConfig = {
 
 const prodConfig = {
   plugins: [
+    new webpack.ContextReplacementPlugin(
+      /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+      __dirname
+    ),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         warnings: false
@@ -28,6 +32,12 @@ const prodConfig = {
   devtool: 'nosources-source-map'
 }
 const devConfig = {
+  plugins: [
+    new webpack.ContextReplacementPlugin(
+      /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+      __dirname
+    )
+  ],
   devtool: 'eval-cheap-module-source-ma'
 }
 

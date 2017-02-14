@@ -8,7 +8,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DataService } from '../shared/data.service';
 import { ConfigService } from '../shared/config.service';
-import { GraphComponent } from './gatherplot.directive';
 import { AccordionModule } from 'ng2-bootstrap';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
