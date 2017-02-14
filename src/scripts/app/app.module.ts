@@ -16,7 +16,7 @@ import { DataService } from './demo/shared/data.service';
 import { ConfigService } from './demo/shared/config.service';
 
 import { GatherplotComponent } from './demo/gatherplot/gatherplot.component';
-import { GraphComponent } from './demo/gatherplot/gatherplot.directive';
+import { GatherplotDirective } from './demo/gatherplot/gatherplot.directive';
 import { AppComponent }  from './app.component';
 import { PageNotFoundComponent }  from './error/404';
 
@@ -33,9 +33,8 @@ import { PageNotFoundComponent }  from './error/404';
     PageNotFoundComponent,
     GatherplotComponent,
     AppComponent,
-    GraphComponent
+    GatherplotDirective
   ],
-  providers: [ConfigService, DataService],
   bootstrap:    [
     AppComponent
   ]

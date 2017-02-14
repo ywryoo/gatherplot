@@ -23,7 +23,7 @@
                     <div>
                         <alert *ngFor="let alert of alerts; let i=index" type="alert.type" onClose="closeAlert(i)">{{alert.msg}}</alert>
                     </div>
-                    <gatherplot></gatherplot>
+                    <div [gatherplot]></div>
                     <!--(click)="d3OnClick(item)" -->
                     <div class="chart-simple-interface">
                         <h5>Show me

@@ -8,13 +8,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DataService } from '../shared/data.service';
 import { ConfigService } from '../shared/config.service';
+import { GraphComponent } from './gatherplot.directive';
 import { AccordionModule } from 'ng2-bootstrap';
 import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
 
 @Component({
   selector: 'my-demo',
-  templateUrl: './gatherplot.component.html'
+  templateUrl: './gatherplot.component.html',
+  providers: [ConfigService, DataService]
 })
 
 export class GatherplotComponent implements OnInit, OnDestroy {
@@ -36,12 +38,12 @@ export class GatherplotComponent implements OnInit, OnDestroy {
   public isAdvancedOptionOpen: boolean;
   public isCarsOpen: boolean;
   private configSubscription: Subscription;
-  private roundSubscription: Subscription;
+//  private roundSubscription: Subscription;
 //  private borderSubscription: Subscription;
 //  private shapeRenderingSubscription: Subscription;
 //  private dimsumSubscription: Subscription;
 //  private contextSubscription: Subscription;
-  private dataSubscription: Subscription;
+//  private dataSubscription: Subscription;
   constructor(private configService: ConfigService, private dataService: DataService) {
 }
   ngOnInit() {
