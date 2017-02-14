@@ -5,49 +5,49 @@
                     <h5>
                         <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
                             <div class="btn-group">
-                                <label class="btn btn-default active" [(ngModel)]="nomaConfig.isGather" (click)="updateIsScatter($event, true)" btnRadio="scatter">Scatter</label>
-                                <label class="btn btn-default" [(ngModel)]="nomaConfig.isGather" (click)="updateIsScatter($event, false)" btnRadio="jitter">Jitter</label>
-                                <label class="btn btn-default" [(ngModel)]="nomaConfig.isGather" (click)="updateIsScatter($event, false)" btnRadio="gather">Gather</label>
+                                <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
                             </div>
                         </div>
                         <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false">
                             Try these buttons.</alert>
                         <div class="btn-group" [hidden]="!isScatter">
-                                <label class="btn btn-default active" [(ngModel)]="nomaConfig.lens" btnRadio="noLens">No Lens</label>
-                                <label class="btn btn-default" [(ngModel)]="nomaConfig.lens" btnRadio="rectLens">Rect Lens</label>
-                                <label class="btn btn-default" [(ngModel)]="nomaConfig.lens" btnRadio="histLens">Histogram Lens</label>
-                                <label class="btn btn-default" [(ngModel)]="nomaConfig.lens" btnRadio="pieLens"> Pie Lens</label>
+                                <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
                         </div>
                     </h5>
                     <h4 class="chart-title">{{activeData}}</h4>
-                    <div>
-                        <alert *ngFor="let alert of alerts; let i=index" type="alert.type" onClose="closeAlert(i)">{{alert.msg}}</alert>
+                    <div *ngFor="let alert of alerts; let i=index">
+                        <alert [type]="alert.type" dismissible="true" (onClose)="closeAlert(i)">{{alert.msg}}</alert>
                     </div>
                     <div [gatherplot]></div>
                     <!--(click)="d3OnClick(item)" -->
                     <div class="chart-simple-interface">
                         <h5>Show me
-                            <select [(ngModel)]="nomaConfig.xDim">
+                            <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
                                 <option *ngIf="!nomaConfig.dims">-- undefined --</option>
                                 <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
                             </select>&nbsp;vs&nbsp;.
-                            <select [(ngModel)]="nomaConfig.yDim">
+                            <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
                                 <option *ngIf="!nomaConfig.dims">-- undefined --</option>
                                 <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
                             </select>
                             <br>
                             <br>
                             Mark nodes with color according to
-                            <select [(ngModel)]="nomaConfig.colorDim">
+                            <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
                               <option *ngIf="!nomaConfig.dims">-- undefined --</option>
                               <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
                             </select>
                         </h5>
                         <div [ngClass]="{tryMe: isRelativeSelectFocused}">
                             <h6>
-                                <input type='checkbox' [(ngModel)]="nomaConfig.relativeMode" btnCheckboxTrue="relative" btnCheckboxFalse="'absolute'">Check this to make it easy to compare groups of different sizes.</h6>
+                                <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
                         </div>
-                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" onClose="isRelativeSelectFocused=false">
+                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible="true">
                             Try this check button.</alert>
                     </div>
                 </div>
@@ -61,17 +61,13 @@
                                 <table class="table table-hover">
                                     <tr>
                                         <td>
-                                            <form class="form-inline" role="form">
-                                                <div class="form-group">
-                                                    <div [ngClass]="{tryMe: isBinSizeFocused}">
-                                                        Data Binning Size:
-                                                        <input type="number" [(ngModel)]="nomaConfig.binSize" [ngModelOptions]="{standalone: true}" (ngModelChange)="validateBinsize($event)" min="1" max="50" size="20">
-                                                        <input type="range" [(ngModel)]="nomaConfig.binSize" [ngModelOptions]="{standalone: true}" (ngModelChange)="validateBinsize($event)"min="1" max="50">
-                                                    </div>
-                                                    <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
-                                                        Try different values for a bin size.</alert>
-                                                </div>
-                                            </form>
+                                          <div [ngClass]="{tryMe: isBinSizeFocused}">
+                                              Data Binning Size:
+                                              <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
+                                              <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)"min="1" max="50">
+                                          </div>
+                                          <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
+                                              Try different values for a bin size.</alert>
                                         </td>
                                     </tr>
                                     <tr>

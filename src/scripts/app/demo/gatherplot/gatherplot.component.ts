@@ -5,7 +5,7 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Input, Component, OnInit, OnDestroy } from '@angular/core';
 import { DataService } from '../shared/data.service';
 import { ConfigService } from '../shared/config.service';
 import { AccordionModule } from 'ng2-bootstrap';
@@ -47,7 +47,11 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 }
   ngOnInit() {
     this.configSubscription = this.configService.config$
-         .subscribe(config => this.nomaConfig = config);
+         .subscribe((config) => {
+           //For getting default settings
+           this.nomaConfig = config;
+           this.isScatter = (config.isGather === 'scatter');
+         });
 //    this.borderSubscription = this.configService.border$
 //         .subscribe(border => this.nomaBorder = border);
 //    this.shapeRenderingSubscription = this.configService.shapeRendering$
@@ -69,9 +73,39 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 //    this.contextSubscription.unsubscribe();
   }
 
-  public updateIsScatter(event, isScatter: boolean) {
-    event.stopPropagation();
-    this.isScatter = isScatter;
+  private updateIsGather(isGather: string) {
+    this.nomaConfig.isGather = isGather;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
+  }
+
+  private updateLens(lens: string) {
+    this.nomaConfig.lens = lens;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
+  }
+
+  private updateXDim(xDim: string) {
+    this.nomaConfig.xDim = xDim;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
+  }
+
+  private updateYDim(yDim: string) {
+    this.nomaConfig.yDim = yDim;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
+  }
+
+  private updateColorDim(colorDim: string) {
+    this.nomaConfig.colorDim = colorDim;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
+  }
+
+  private updateRelativeMode(relativeMode: boolean) {
+    this.nomaConfig.relativeMode = relativeMode ? 'relative' : 'absolute';
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
+  }
+
+  private validateAndUpdateBinsize(binSize: number)  {
+    (binSize < 0 || binSize > 50) ? this.nomaConfig.binSize = 10 : this.nomaConfig.binSize = binSize;
+    this.configService.setConfig(Object.assign({}, this.nomaConfig));
   }
 
   public addAlert(messageType, messageContent) {
@@ -79,10 +113,6 @@ export class GatherplotComponent implements OnInit, OnDestroy {
           msg: messageContent,
           type: messageType
       });
-  }
-
-  public closeAlert(index) {
-      this.alerts.splice(index, 1);
   }
 
   public focusElement(element) {
@@ -547,11 +577,6 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
 
   } // End  this.changeActiveDataMammo()
-
-  public validateBinsize(value)  {
-    value < 0 ? this.nomaConfig.binSize = 0 : this.nomaConfig.binSize = value;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
 
   public changeConfigMammoProblem() {
 

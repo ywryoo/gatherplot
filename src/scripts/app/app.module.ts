@@ -10,7 +10,9 @@ import { FormsModule }      from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, Routes } from '@angular/router';
 import { AppRoutingModule } from './app.routing.module';
-import { AccordionModule, ButtonsModule, AlertModule } from 'ng2-bootstrap';
+import { AccordionModule } from 'ng2-bootstrap/accordion';
+import { ButtonsModule } from 'ng2-bootstrap/buttons';
+import { AlertModule } from 'ng2-bootstrap/alert';
 
 import { DataService } from './demo/shared/data.service';
 import { ConfigService } from './demo/shared/config.service';

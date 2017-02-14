@@ -197,8 +197,8 @@ export class GatherplotDirective {
 
     d3.select("body")
         .attr("tabindex", 1)
-        .on("keydown.brush", this.keyflip)
-        .on("keyup.brush", this.keyflip)
+        .on("keydown.brush", this.keyflip.bind(this))
+        .on("keyup.brush", this.keyflip.bind(this))
         .each(() => {
             focus();
         });
@@ -1405,7 +1405,7 @@ export class GatherplotDirective {
 
     public configZoomToolbar() {
 
-        d3.select("#toolbarPanZoom").on("click", setZoomMode);
+        d3.select("#toolbarPanZoom").on("click", setZoomMode.bind(this));
 
 
         function setZoomMode() {
@@ -1418,7 +1418,7 @@ export class GatherplotDirective {
 
     public configBrushToolbar() {
 
-        d3.select("#toolbarSelect").on("click", setSelectMode);
+        d3.select("#toolbarSelect").on("click", setSelectMode.bind(this));
 
         function setSelectMode() {
 
@@ -1428,7 +1428,7 @@ export class GatherplotDirective {
     }
 
     public configBrush() {
-
+        console.log(this.xScale)
         this.brush = this.brushGroup.append("g")
             .datum(() => {
                 return {
@@ -1437,11 +1437,10 @@ export class GatherplotDirective {
                 };
             })
             .attr("class", "brush")
-            .call(d3.brushX()
-                .extent(this.xScale)
-        //        .brushY()
-          //      .extent(this.yScale)
-                .on("brushstart", (d) => {
+            .call(d3.brush()
+            //    .extent(this.xScale)
+            //    .extent([[this.xScale[0], this.yScale[0]], [this.xScale[1], this.yScale[1]]])
+                .on("start", (d) => {
                     this.node.each((d) => {
 
                         // if (d.Name.indexOf("ciera") > 0) {
@@ -1455,34 +1454,33 @@ export class GatherplotDirective {
                     let extent = d3.event.target.extent();
                     this.node.classed("selected", (d) => {
 
-                        //     return d.selected = d.previouslySelected ^
-                        //         (this.xScale(extent[0][0]) <= this.xMap(d) && this.xMap(d) < this.xScale(extent[1][0]) && this.yScale(extent[0][1]) >= this.yMap(d) && this.yMap(d) > this.yScale(extent[1][1]));
-                        // });
-
+                    //     return d.selected = d.previouslySelected ^
+                    //         (xScale(extent[0][0]) <= xMap(d) && xMap(d) < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d) && yMap(d) > yScale(extent[1][1]));
+                    // });
+/*
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
 
-//                        if (d.previouslySelected ^ (this.xScale(extent[0][0]) <= this.xMap(d) && this.xMap(d) < this.xScale(extent[1][0]) && this.yScale(extent[0][1]) >= this.yMap(d) && this.yMap(d) > this.yScale(extent[1][1]))) {
+                        if (d.previouslySelected ^ (this.xScale(extent[0][0]) <= this.xMap(d) && this.xMap(d) < this.xScale(extent[1][0]) && this.yScale(extent[0][1]) >= this.yMap(d) && this.yMap(d) > this.yScale(extent[1][1]))) {
 
                             if (nodeIndex == -1) {
                                 this.dimsum.selectionSpace.push(d.id);
                             }
-//                        } else {
+                        } else {
 
                             if (nodeIndex != -1) {
                                 this.dimsum.selectionSpace.splice(nodeIndex, 1);
                             }
 
 
-//                        }
-
+                        }
+*/
                     });
+                    this.zone.run(() => {});
                     this.handleDimsumChange(this.dimsum);
-
-
                 })
-                .on("brushend", () => {
-                    d3.event.target.clear();
-                    d3.select(this.el.nativeElement).call(d3.event.target);
+                .on("end", () => {
+          //          d3.event.target.clear();
+    //                d3.select(this.el.nativeElement).call(d3.event.target);
                 }));
 
 
@@ -1513,14 +1511,9 @@ export class GatherplotDirective {
 
     public configZoom() {
 
-        removeBrushMode();
 
-        function removeBrushMode() {
+        d3.selectAll(".brush").remove();
 
-            d3.selectAll(".brush").remove();
-
-
-        }
 
         this.zoom = d3.zoom()
             //.x(this.xScale)
@@ -1547,8 +1540,9 @@ export class GatherplotDirective {
 
             this.context.translate = d3.event.translate;
             this.context.scale = d3.event.scale;
-            this.context.xDomain = this.zoom.domain();
-            this.context.yDomain = this.zoom.domain();
+            console.log(this.zoom)
+      //      this.context.xDomain = this.zoom.domain();
+      //      this.context.yDomain = this.zoom.domain();
 
             this.nodeGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 
@@ -1556,16 +1550,9 @@ export class GatherplotDirective {
 
         }
 
-        function zoomReset() {
-
-            this.svgGroup.select(".x.axis").call(this.xAxis);
-            this.svgGroup.select(".y.axis").call(this.yAxis);
-
-        }
-
         this.setClipPathForAxes();
 
-        d3.select("#toolbarReset").on("click", reset);
+        d3.select("#toolbarReset").on("click", reset.bind(this));
 
         d3.select("#toolbarSelect").classed("active", false);
 
@@ -1614,7 +1601,8 @@ export class GatherplotDirective {
                 return (t) => {
                     this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
 
-                    zoomReset();
+                    this.svgGroup.select(".x.axis").call(this.xAxis);
+                    this.svgGroup.select(".y.axis").call(this.yAxis);
                 };
             });
         }
@@ -3411,7 +3399,7 @@ export class GatherplotDirective {
             this.colorScaleForHeatMap = d3.scaleLinear()
                 .range([0x98c8fd, 0x08306b])
                 .domain(colorDomain)
-//                .interpolate(d3.interpolateHsl);
+                .interpolate(/*d3.interpolateHsl*/);
 
             this.color = this.colorScaleForHeatMap;
         } else {
