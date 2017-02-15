@@ -20,8 +20,8 @@
                         </div>
                     </h5>
                     <h4 class="chart-title">{{activeData}}</h4>
-                    <div *ngFor="let alert of alerts; let i=index">
-                        <alert [type]="alert.type" dismissible="true" (onClose)="closeAlert(i)">{{alert.msg}}</alert>
+                    <div *ngFor="let alert of alerts">
+                        <alert [type]="alert.type" dismissible=true>{{alert.msg}}</alert>
                     </div>
                     <div [gatherplot]></div>
                     <!--(click)="d3OnClick(item)" -->
@@ -47,7 +47,7 @@
                             <h6>
                                 <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
                         </div>
-                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible="true">
+                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
                             Try this check button.</alert>
                     </div>
                 </div>

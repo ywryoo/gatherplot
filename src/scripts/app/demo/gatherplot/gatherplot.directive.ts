@@ -164,8 +164,8 @@ export class GatherplotDirective {
     this.outerHeight = this.height + 2 * this.margin;
     this.colorNominal = d3.scaleOrdinal(d3.schemeCategory10);
     this.colorScaleForHeatMap = d3.scaleLinear()
-        .range([0x98c8fd, 0x08306b])
-        .interpolate(/*d3.interpolateHsl*/);
+        .range(["#98c8fd", "#08306b"])
+        .interpolate(d3.interpolateHsl);
     this.nest = <any>{};
 
     this.defaultBinSize = 10;
@@ -379,8 +379,8 @@ export class GatherplotDirective {
                         .duration(500)
                         .style("opacity", 0);
                 })
-                .on("mousedown", (d) => {
-                    if (d3.event.shiftKey) d3.select(this.el.nativeElement).classed("selected", d.selected = !d.selected); // TODO
+                .on("mousedown", function(d) {
+                    if (d3.event.shiftKey) d3.select(this).classed("selected", d.selected = !d.selected); // TODO
                     else this.node.classed("selected", (p) => {
                         return p.selected = d === p;
                     });
@@ -976,9 +976,9 @@ export class GatherplotDirective {
     }
 
     public drawLensItems(itemsOnLens, lensInfo) {
-
-
-
+        if(itemsOnLens.length === 0) {
+        return;
+        }
         this.nodeGroup.selectAll(".dot")
             .data(itemsOnLens, (d) => {
                 return d.id;
@@ -1013,15 +1013,13 @@ export class GatherplotDirective {
                 // }
                 return "translate(" + (d.XOffsetLens) + "," + (-(d.YOffsetLens)) + ") ";
             });
-
         //Enter
         //Append new circle
         //Transition from Original place to new place
+
         lensItems.enter().append("rect")
-            .classed({
-                'lensItems': true,
-                'dot': false
-            })
+            .classed('lensItems': true)
+            .classed('dot': false)
             .attr("y", this.yMap)
             .attr("x", this.xMap)
             .attr("width", (d) => {
@@ -1065,10 +1063,8 @@ export class GatherplotDirective {
         //Transition from previous place to original place
         //remove circle
         lensItems.exit()
-            .classed({
-                'dot': true,
-                'lensItems': false
-            })
+            .classed('dot': true)
+            .classed('lensItems': false)
             .transition()
             .duration(500)
             .attr("width", (d) => {
@@ -1083,11 +1079,12 @@ export class GatherplotDirective {
             .attr("transform", (d, i) => {
                 return "translate(" + (d.XOffset) + "," + (-(d.YOffset)) + ") ";
             });
+
     }
 
 
 
-    public getLensData = (lensInfo) => {
+    public getLensData(lensInfo) {
 
         let itemsOnLens = this.data.filter((d) => {
 
@@ -1162,13 +1159,11 @@ export class GatherplotDirective {
     }
 
 
-    public dragmoveRectLens() {
-
+    public dragmoveRectLens(dom) {
         let xPos, yPos;
 
         let lensInfo = <any>{};
-
-        d3.select(this.el.nativeElement) //TODO
+        d3.select(dom) //TODO
             .attr("x", xPos = Math.max(this.initialLensSize / 2, Math.min(this.width - this.initialLensSize / 2, d3.event.x)) - this.initialLensSize / 2)
             .attr("y", yPos = Math.max(this.initialLensSize / 2, Math.min(this.height - this.initialLensSize / 2, d3.event.y)) - this.initialLensSize / 2);
 
@@ -1183,15 +1178,16 @@ export class GatherplotDirective {
 
         this.redrawLensRect(lensInfo);
 
+
     }
 
-    public dragmoveHistLens() {
+    public dragmoveHistLens(dom) {
 
         let xPos, yPos;
 
         let lensInfo = <any>{};
 
-        d3.select(this.el.nativeElement)
+        d3.select(dom)
             .attr("x", xPos = Math.max(this.initialHistLensWidth / 2, Math.min(this.width - this.initialHistLensWidth / 2, d3.event.x)) - this.initialHistLensWidth / 2)
             .attr("y", yPos = Math.max(this.initialHistLensHeight / 2, Math.min(this.height - this.initialHistLensHeight / 2, d3.event.y)) - this.initialHistLensHeight / 2);
 
@@ -1208,13 +1204,13 @@ export class GatherplotDirective {
 
     }
 
-    public dragmovePieLens() {
+    public dragmovePieLens(dom) {
 
         let xPos, yPos;
 
         let lensInfo = <any>{};
 
-        d3.select(this.el.nativeElement)
+        d3.select(dom)
             .attr("x", xPos = Math.max(this.initialLensSize / 2, Math.min(this.width - this.initialLensSize / 2, d3.event.x)) - this.initialLensSize / 2)
             .attr("y", yPos = Math.max(this.initialLensSize / 2, Math.min(this.height - this.initialLensSize / 2, d3.event.y)) - this.initialLensSize / 2);
 
@@ -1234,11 +1230,11 @@ export class GatherplotDirective {
 
     }
 
-    public dragmoveCircle() {
+    public dragmoveCircle(dom) {
 
         let xPos, yPos;
 
-        d3.select(this.el.nativeElement)
+        d3.select(dom)
             .attr("cx", xPos = Math.max(this.initialLensSize, Math.min(this.width - this.initialLensSize, d3.event.x)))
             .attr("cy", yPos = Math.max(this.initialLensSize, Math.min(this.height - this.initialLensSize, d3.event.y)));
 
@@ -1247,12 +1243,17 @@ export class GatherplotDirective {
     }
 
     public handleRectLensChange() {
+        //on at d3 is tricky handling 'this'. So 'tricky' idea should be applied
+        const self = this;
 
         this.clearLens();
 
         let drag = d3.drag()
-            .on("drag", this.dragmoveRectLens)
-            .on("dragstart", () => {
+            .on("drag", function() {
+              //'this' now DOM Element; Should use 'self' for original scope.
+              self.dragmoveRectLens(this);
+            })
+            .on("start", () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
             });
 
@@ -1270,12 +1271,16 @@ export class GatherplotDirective {
     }
 
     public handleHistLensChange() {
-
+        //on at d3 is tricky handling 'this'. So 'tricky' idea should be applied
+        const self = this;
         this.clearLens();
 
         let drag = d3.drag()
-            .on("drag", this.dragmoveHistLens)
-            .on("dragstart", () => {
+            .on("drag", function() {
+              //'this' now DOM Element; Should use 'self' for original scope.
+              self.dragmoveHistLens(this);
+            })
+            .on("start", () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
             });
 
@@ -1292,12 +1297,16 @@ export class GatherplotDirective {
     }
 
     public handlePieLensChange() {
-
+        //on at d3 is tricky handling 'this'. So 'tricky' idea should be applied
+        const self = this;
         this.clearLens();
 
         let drag = d3.drag()
-            .on("drag", this.dragmovePieLens)
-            .on("dragstart", () => {
+            .on("drag", function() {
+              //'this' now DOM Element; Should use 'self' for original scope.
+              self.dragmovePieLens(this);
+            })
+            .on("start", () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
             });
 
@@ -1315,7 +1324,7 @@ export class GatherplotDirective {
 
     }
 
-    public handleLensChange = (config) => {
+    public handleLensChange(config) {
 
         if (config.lens === "noLens" || config.isGather !== 'scatter') {
 
@@ -1341,10 +1350,8 @@ export class GatherplotDirective {
         this.nodeGroup.selectAll(".lens").remove();
         if(!this.nodeGroup.selectAll(".lensItems").empty()) {
             this.nodeGroup.selectAll(".lensItems")
-                .classed({
-                    'dot': true,
-                    'lensItems': false
-                })
+                .classed('dot': true)
+                .classed('lensItems': false)
                 .transition()
                 .duration(500)
                 .attr("width", (d) => {
@@ -1363,7 +1370,7 @@ export class GatherplotDirective {
         }
     }
 
-    public updateSizeSVG = (config) => {
+    public updateSizeSVG(config) {
         // XPadding = 60;
         // YPadding = 30;
         //Update size of SVG
@@ -1457,7 +1464,7 @@ export class GatherplotDirective {
                     //     return d.selected = d.previouslySelected ^
                     //         (xScale(extent[0][0]) <= xMap(d) && xMap(d) < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d) && yMap(d) > yScale(extent[1][1]));
                     // });
-/*
+
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
 
                         if (d.previouslySelected ^ (this.xScale(extent[0][0]) <= this.xMap(d) && this.xMap(d) < this.xScale(extent[1][0]) && this.yScale(extent[0][1]) >= this.yMap(d) && this.yMap(d) > this.yScale(extent[1][1]))) {
@@ -1473,14 +1480,14 @@ export class GatherplotDirective {
 
 
                         }
-*/
+
                     });
                     this.zone.run(() => {});
                     this.handleDimsumChange(this.dimsum);
                 })
-                .on("end", () => {
-          //          d3.event.target.clear();
-    //                d3.select(this.el.nativeElement).call(d3.event.target);
+                .on("end", function() {
+                    d3.event.target.clear();
+                    d3.select(this).call(d3.event.target);
                 }));
 
 
@@ -1537,14 +1544,14 @@ export class GatherplotDirective {
 
             this.svgGroup.select(".x.axis").call(this.xAxis);
             this.svgGroup.select(".y.axis").call(this.yAxis);
-
-            this.context.translate = d3.event.translate;
-            this.context.scale = d3.event.scale;
+            console.log(d3.event)
+            this.context.translate = d3.event.target.translate;
+            this.context.scale = d3.event.target.scale;
             console.log(this.zoom)
       //      this.context.xDomain = this.zoom.domain();
       //      this.context.yDomain = this.zoom.domain();
 
-            this.nodeGroup.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            this.nodeGroup.attr("transform", "translate(" + d3.event.target.translate + ")scale(" + d3.event.target.scaleTo + ")");
 
 
 
@@ -1599,7 +1606,7 @@ export class GatherplotDirective {
                     iy = d3.interpolate(this.yScale.domain(), yRange);
 
                 return (t) => {
-                    this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
+          //          this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
 
                     this.svgGroup.select(".x.axis").call(this.xAxis);
                     this.svgGroup.select(".y.axis").call(this.yAxis);
@@ -3397,9 +3404,9 @@ export class GatherplotDirective {
             });
 
             this.colorScaleForHeatMap = d3.scaleLinear()
-                .range([0x98c8fd, 0x08306b])
+                .range(['#98c8fd', '#08306b'])
                 .domain(colorDomain)
-                .interpolate(/*d3.interpolateHsl*/);
+                .interpolate(d3.interpolateHsl);
 
             this.color = this.colorScaleForHeatMap;
         } else {
@@ -3430,8 +3437,8 @@ export class GatherplotDirective {
             })
             .transition()
             .duration(1500)
-            .attr("x", this.xMap)
-            .attr("y", this.yMap)
+            .attr("x", this.xMap.bind(this))
+            .attr("y", this.yMap.bind(this))
             .attr("width", (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidth;
@@ -3469,8 +3476,8 @@ export class GatherplotDirective {
             })
             .transition()
             .duration(0)
-            .attr("x", this.xMap)
-            .attr("y", this.yMap)
+            .attr("x", this.xMap.bind(this))
+            .attr("y", this.yMap.bind(this))
             .attr("width", (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidth;
@@ -3812,7 +3819,7 @@ export class GatherplotDirective {
          this.xAxis = d3.axisBottom(this.xScale)
              .tickValues(ticks)
              .tickFormat(this.labelGeneratorForOrdinalGather(this.xdim))
-             .tickSize(12, 0); //Provides 0 size ticks at center position for gather
+             .tickSize(0); //Provides 0 size ticks at center position for gather
 
         this.xAxisNodes = this.svgGroup.append("g")
             .attr("class", "x axis")
@@ -3835,7 +3842,7 @@ export class GatherplotDirective {
          this.yAxis = d3.axisLeft(this.yScale)
              .tickValues(ticks)
              .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
-             .tickSize(12, 0); //Provides 0 size ticks at center position for gather
+             .tickSize(0); //Provides 0 size ticks at center position for gather
 
         this.yAxisNodes = this.svgGroup.append("g")
             .attr("class", "y axis")
@@ -3864,7 +3871,7 @@ export class GatherplotDirective {
          this.xAxis = d3.axisBottom(xScaleForSameOrdDimGather)
              .tickValues(ticks)
              .tickFormat(this.labelGeneratorForOrdinalGather(this.xdim))
-             .tickSize(12, 0); //Provides 0 size ticks at center position for gather
+             .tickSize(0); //Provides 0 size ticks at center position for gather
 
         this.xAxisNodes = this.svgGroup.append("g")
             .attr("class", "x axis")
@@ -3895,7 +3902,7 @@ export class GatherplotDirective {
          this.yAxis = d3.axisLeft(yScaleForSameOrdDimGather)
              .tickValues(ticks)
              .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
-             .tickSize(12, 0); //Provides 0 size ticks at center position for gather
+             .tickSize(0); //Provides 0 size ticks at center position for gather
 
         this.yAxisNodes = this.svgGroup.append("g")
             .attr("class", "y axis")
@@ -3990,7 +3997,7 @@ export class GatherplotDirective {
          this.xAxis = d3.axisBottom(this.xScale)
              .tickValues(this.tickValueGeneratorForGather(this.xdim))
              .tickFormat(this.labelGeneratorForGather(this.xdim))
-             .tickSize(12, 0); //Provides 0 size ticks at center position for gather
+             .tickSize(0); //Provides 0 size ticks at center position for gather
 
         this.svg.selectAll(".axis").remove();
 
@@ -4021,21 +4028,21 @@ export class GatherplotDirective {
 
 
             xAxisBracketGroup
-                .on("mouseover", (d) => {
-                    d3.select(this.el.nativeElement).selectAll("rect")
+                .on("mouseover", function(d) {
+                    d3.select(this).selectAll("rect")
                         .style("opacity", 0.7);
-                    d3.select(this.el.nativeElement).selectAll("text")
+                    d3.select(this).selectAll("text")
                         .style("opacity", 0.7);
                 })
-                .on("mouseout", (d) => {
+                .on("mouseout", function(d) {
 
 
-                    d3.select(this.el.nativeElement).selectAll("rect")
+                    d3.select(this).selectAll("rect")
                         .transition()
                         .duration(1500)
                         .style("opacity", 0);
 
-                    d3.select(this.el.nativeElement).selectAll("text")
+                    d3.select(this).selectAll("text")
                         .transition()
                         .duration(1500)
                         .style("opacity", 0);
@@ -4080,13 +4087,13 @@ export class GatherplotDirective {
                 .attr("height", 14)
                 .attr("rx", 5)
                 .attr("ry", 5)
-                .on("mouseover", (d) => {
-                    d3.select(this.el.nativeElement).style("fill", 'lightsteelblue');
+                .on("mouseover", function(d) {
+                    d3.select(this).style("fill", 'lightsteelblue');
                 })
-                .on("mouseout", (d) => {
+                .on("mouseout", function(d) {
 
 
-                    d3.select(this.el.nativeElement).style("fill", 'lightgray')
+                    d3.select(this).style("fill", 'lightgray')
 
                 })
                 .on("click", (d, i) => {
@@ -4104,19 +4111,19 @@ export class GatherplotDirective {
                 .attr("height", 14)
                 .attr("rx", 5)
                 .attr("ry", 5)
-                .on("mouseover", (d) => {
-                    d3.select(this.el.nativeElement).style("fill", 'green');
+                .on("mouseover", function(d) {
+                    d3.select(this).style("fill", 'green');
                 })
-                .on("mouseout", (d) => {
+                .on("mouseout", function(d) {
 
 
-                    d3.select(this.el.nativeElement).style("fill", 'lightgray')
+                    d3.select(this).style("fill", 'lightgray')
 
                 })
                 .on("click", (d, i) => {
                     console.log(d);
                     // toggleMinimizeCluster(this.xdim, i);
-                    this.toggleMaximizeCluster(this.xdim, i)
+                    this.toggleMaximizeCluster(this.xdim, i);
                 });
 
 
@@ -4146,7 +4153,7 @@ export class GatherplotDirective {
          this.yAxis = d3.axisLeft(this.yScale)
              .tickValues(this.tickValueGeneratorForGather(this.ydim))
              .tickFormat(this.labelGeneratorForGather(this.ydim))
-             .tickSize(12, 0); //Provides 0 size ticks at center position for gather
+             .tickSize(0); //Provides 0 size ticks at center position for gather
 
 
         this.yAxisNodes = this.svgGroup.append("g")
@@ -4177,21 +4184,21 @@ export class GatherplotDirective {
         if (this.config.isInteractiveAxis) {
 
             yAxisBracketGroup
-                .on("mouseover", (d) => {
-                    d3.select(this.el.nativeElement).selectAll("rect")
+                .on("mouseover", function(d) {
+                    d3.select(this).selectAll("rect")
                         .style("opacity", 0.9);
-                    d3.select(this.el.nativeElement).selectAll("text")
+                    d3.select(this).selectAll("text")
                         .style("opacity", 0.9);
                 })
-                .on("mouseout", (d) => {
+                .on("mouseout", function(d) {
 
 
-                    d3.select(this.el.nativeElement).selectAll("rect")
+                    d3.select(this).selectAll("rect")
                         .transition()
                         .duration(2000)
                         .style("opacity", 0);
 
-                    d3.select(this.el.nativeElement).selectAll("text")
+                    d3.select(this).selectAll("text")
                         .transition()
                         .duration(2000)
                         .style("opacity", 0);
@@ -4236,13 +4243,13 @@ export class GatherplotDirective {
                 .attr("height", 14)
                 .attr("rx", 5)
                 .attr("ry", 5)
-                .on("mouseover", (d) => {
-                    d3.select(this.el.nativeElement).style("fill", 'lightsteelblue');
+                .on("mouseover", function(d) {
+                    d3.select(this).style("fill", 'lightsteelblue');
                 })
-                .on("mouseout", (d) => {
+                .on("mouseout", function(d) {
 
 
-                    d3.select(this.el.nativeElement).style("fill", 'lightgray')
+                    d3.select(this).style("fill", 'lightgray')
 
                 })
                 .on("click", (d, i) => {
@@ -4635,14 +4642,14 @@ export class GatherplotDirective {
             .attr("y", 50)
             .attr("dy", ".35em")
             .style("text-anchor", "middle")
-            .text(d3.precisionRound(colorDomain[0], 1));
+            .text(colorDomain[0]);
 
         g.append("text")
             .attr("x", xScaleForHeatMap(values[values.length - 1]))
             .attr("y", 50)
             .attr("dy", ".35em")
             .style("text-anchor", "middle")
-            .text(d3.precisionRound(colorDomain[1], 1));
+            .text(colorDomain[1]);
 
     }
 
