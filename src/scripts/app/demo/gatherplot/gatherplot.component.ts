@@ -14,8 +14,6 @@ import * as d3 from 'd3';
 
 @Component({
   selector: 'my-demo',
-  encapsulation: ViewEncapsulation.None,
-  styleUrls: ['./gatherplot.css'],
   templateUrl: './gatherplot.component.html',
   providers: [ConfigService, DataService]
 })

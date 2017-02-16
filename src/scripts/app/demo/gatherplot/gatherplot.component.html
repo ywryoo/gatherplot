@@ -10,7 +10,7 @@
                                 <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
                             </div>
                         </div>
-                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false">
+                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
                             Try these buttons.</alert>
                         <div class="btn-group" [hidden]="!isScatter">
                                 <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
@@ -373,7 +373,7 @@
                                 <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
                             </div>
                         </div>
-                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false">
+                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
                             Try these buttons.</alert>
                         <div class="btn-group" [hidden]="!isScatter">
                                 <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
@@ -414,7 +414,7 @@
                             Try this check button.</alert>
                     </div>
                 </div>
-            </div>           
+            </div>
             <!--/span-->
         </div>
         <!--/row-->
