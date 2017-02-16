@@ -1,6 +1,6 @@
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-md-6">
                 <div>
                     <h5>
                         <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
@@ -51,53 +51,6 @@
                             Try this check button.</alert>
                     </div>
                 </div>
-                <accordion [closeOthers]="false">
-                    <accordion-group [isOpen]="isAdvancedOptionOpen">
-                        <div accordion-heading>
-                          <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': isAdvancedOptionOpen, 'glyphicon-chevron-right': !isAdvancedOptionOpen}"></i> Under the Hood (Advanced Option)
-                        </div>
-                        <div class="well">
-                            <div>
-                                <table class="table table-hover">
-                                    <tr>
-                                        <td>
-                                          <div [ngClass]="{tryMe: isBinSizeFocused}">
-                                              Data Binning Size:
-                                              <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
-                                              <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)"min="1" max="50">
-                                          </div>
-                                          <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
-                                              Try different values for a bin size.</alert>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div name="CSVurlForm">
-                                                Load CSV: {{customCSV}}
-                                                <br>
-                                                <input clas="input-xxlarge search-query" name="csvInput" type="text" [(ngModel)]="customCSV" placeholder="Enter the url of CSV">
-                                                <button class="btn btn-sm btn-default" (click)="changeActiveDataCustomCSV(customCSV)">Load</button>
-                                                <!-- <alert class="error" [hidden]="!csvInput.error.url">Not valid url!</alert> -->
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div>
-                                                If you want to try more option, you can use a dev version <a href="http://gatherplot.herokuapp.com" class="btn btn-link btn-default">here</a>!
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <!--/span-->
-                        </div>
-                        <!--/row-->
-                    </accordion-group>
-                </accordion>
-            </div>
-            <!--/span-->
-            <div class="col-md-4">
                 <div class="sidebar-nav">
                     <h3>Guided Tours</h3>
                     <accordion [closeOthers]="true">
@@ -362,19 +315,106 @@
                             </div>
                         </accordion-group>
                     </accordion>
-                    <!-- Matrix -->
-
-                    <!-- <div *ngFor="yConfig in configMatrix" class="matrixGroup">
-
-                        <div class="matrixRow" *ngFor="xConfig in yConfig">
-
-                            <div gatherplot class="GPLOM" data="nomaData" config="xConfig" border="nomaBorder" round="nomaRound" shaperenderingmode="nomaShapeRendering" (click)="d3OnClick(item)"></div>
-
-                        </div>
-                    </div> -->
+                    <accordion [closeOthers]="false">
+                        <accordion-group [isOpen]="isAdvancedOptionOpen">
+                            <div accordion-heading>
+                              <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': isAdvancedOptionOpen, 'glyphicon-chevron-right': !isAdvancedOptionOpen}"></i> Under the Hood (Advanced Option)
+                            </div>
+                            <div class="well">
+                                <div>
+                                    <table class="table table-hover">
+                                        <tr>
+                                            <td>
+                                              <div [ngClass]="{tryMe: isBinSizeFocused}">
+                                                  Data Binning Size:
+                                                  <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
+                                                  <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)"min="1" max="50">
+                                              </div>
+                                              <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
+                                                  Try different values for a bin size.</alert>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div name="CSVurlForm">
+                                                    Load CSV: {{customCSV}}
+                                                    <br>
+                                                    <input clas="input-xxlarge search-query" name="csvInput" type="text" [(ngModel)]="customCSV" placeholder="Enter the url of CSV">
+                                                    <button class="btn btn-sm btn-default" (click)="changeActiveDataCustomCSV(customCSV)">Load</button>
+                                                    <!-- <alert class="error" [hidden]="!csvInput.error.url">Not valid url!</alert> -->
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    If you want to try more option, you can use a dev version <a href="http://gatherplot.herokuapp.com" class="btn btn-link btn-default">here</a>!
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--/span-->
+                            </div>
+                            <!--/row-->
+                        </accordion-group>
+                    </accordion>
                 </div>
+            <!--/span-->
                 <!--/.well -->
             </div>
+            <div class="col-md-6">
+                <div>
+                    <h5>
+                        <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
+                            <div class="btn-group">
+                                <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
+                            </div>
+                        </div>
+                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false">
+                            Try these buttons.</alert>
+                        <div class="btn-group" [hidden]="!isScatter">
+                                <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
+                        </div>
+                    </h5>
+                    <h4 class="chart-title">{{activeData}}</h4>
+                    <div *ngFor="let alert of alerts">
+                        <alert [type]="alert.type" dismissible=true>{{alert.msg}}</alert>
+                    </div>
+                    <div [gatherplot]></div>
+                    <!--(click)="d3OnClick(item)" -->
+                    <div class="chart-simple-interface">
+                        <h5>Show me
+                            <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
+                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                            </select>&nbsp;vs&nbsp;.
+                            <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
+                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                            </select>
+                            <br>
+                            <br>
+                            Mark nodes with color according to
+                            <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
+                              <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                              <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                            </select>
+                        </h5>
+                        <div [ngClass]="{tryMe: isRelativeSelectFocused}">
+                            <h6>
+                                <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
+                        </div>
+                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
+                            Try this check button.</alert>
+                    </div>
+                </div>
+            </div>           
             <!--/span-->
         </div>
         <!--/row-->

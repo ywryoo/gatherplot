@@ -5,7 +5,8 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import { HostListener, Directive, Input, ElementRef, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { HostListener, Directive, Input, ElementRef, OnInit, OnDestroy, NgZone }
+  from '@angular/core';
 import * as d3 from 'd3';
 import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../shared/data.service';
@@ -15,8 +16,7 @@ import { ConfigService } from '../shared/config.service';
    selector: '[gatherplot]'
 })
 
-export class GatherplotDirective {
-  @Input('gatherplot')
+export class GatherplotDirective implements OnInit, OnDestroy {
   public data: any;
   public config: any;
   public border: any;
@@ -39,7 +39,6 @@ export class GatherplotDirective {
   public yValue: any;
   public xScale: any;
   public yScale: any;
-  private scale: number;
   public xAxis: any;
   public yAxis: any;
   public xMap: any;
@@ -72,6 +71,8 @@ export class GatherplotDirective {
   public initialInnerRadiusOfPieLens: any;
   public brush: any;
   public shiftKey: any;
+  @Input('gatherplot') private gatherplot: any;
+  private scale: number;
   private isInitialized: boolean;
   private configSubscription: Subscription;
   private roundSubscription: Subscription;
@@ -81,37 +82,25 @@ export class GatherplotDirective {
   private contextSubscription: Subscription;
   private dataSubscription: Subscription;
 
-  constructor(private el: ElementRef, private zone: NgZone, private configService: ConfigService, private dataService: DataService) {
+  constructor(private el: ElementRef, private zone: NgZone,
+              private configService: ConfigService, private dataService: DataService) {
   }
-  /*
-      this.$watch(() => {
-          return angular.element(window)[0].innerWidth;
-      }, () => {
-          return this.handleConfigChange(renderData, this.config);
-      });
 
-      this.$watch(() => {
-          return this.comment;
-      }, function(newVals, oldVals) {
-          if (newVals === true) {
-              return this.handleConfigChange(renderData, this.config);
-          }
-      }, false);
-
-  */
-  ngOnInit() {
+  public ngOnInit() {
     this.isInitialized = false;
 
     this.configSubscription = this.configService.config$
          .subscribe((config) => {
-           if(config !== null && config !== undefined) {
+           if (config !== null && config !== undefined) {
              this.config = config;
              this.xdim = config.xDim;
              this.ydim = config.yDim;
-             if((config.dims !== null && config.dims !== undefined && Object.keys(config.dims).length !== 0)
-               &&(this.data !== null && this.data !== undefined && Object.keys(this.data).length !== 0)) {
+             if ((config.dims !== null && config.dims !== undefined
+               && Object.keys(config.dims).length !== 0)
+               && (this.data !== null && this.data !== undefined
+               && Object.keys(this.data).length !== 0)) {
                this.identifyAndUpdateDimDataType();
-               if(this.isInitialized) {
+               if (this.isInitialized) {
                  this.handleConfigChange(this.data, config);
                } else {
                  this.renderDataChange(this.data, config);
@@ -141,17 +130,19 @@ export class GatherplotDirective {
            this.handleDimsumChange(dimsum);
          });
     this.contextSubscription = this.configService.context$
-         .subscribe(context => this.context = context);
+         .subscribe((context) => this.context = context);
     this.dataSubscription = this.dataService.data$
          .subscribe((data) => {
-          if(data !== null && data !== undefined && Object.keys(data).length !== 0) {
+          if (data !== null && data !== undefined && Object.keys(data).length !== 0) {
             this.data = data;
-            if(this.config !== null && this.config !== undefined && this.config.dims !== null && this.config.dims !== undefined && Object.keys(this.config.dims).length !== 0) {
+            if (this.config !== null && this.config !== undefined
+              && this.config.dims !== null && this.config.dims !== undefined
+              && Object.keys(this.config.dims).length !== 0) {
               this.renderDataChange(data, this.config);
             }
           }
          });
-    //Constants and Setting Environment letiables
+    // Constants and Setting Environment letiables
     this.margin = 80;
     this.maxDotSize = 4;
 
@@ -165,18 +156,17 @@ export class GatherplotDirective {
     this.outerHeight = this.height + 2 * this.margin;
     this.colorNominal = d3.scaleOrdinal(d3.schemeCategory10);
     this.colorScaleForHeatMap = d3.scaleLinear()
-        .range(["#98c8fd", "#08306b"])
-        .interpolate(d3.interpolateHsl);  // tslint:disable-line
-    this.nest = <any>{};
+        .range([0x98c8fd, 0x08306b])
+        .interpolate(d3.interpolateHsl);
+    this.nest = <any> {};
 
     this.defaultBinSize = 10;
 
-    this.marginForBorderOfAxis = 0.5; //Margin for Border Of Axis
+    this.marginForBorderOfAxis = 0.5; // Margin for Border Of Axis
 
+    this.marginClusterRatio = 0.1; // Ratio of margin in the cluster
 
-    this.marginClusterRatio = 0.1; //Ratio of margin in the cluster
-
-    this.dimSetting = <any>{};
+    this.dimSetting = <any> {};
 
     this.config.binSize = this.defaultBinSize;
 
@@ -196,63 +186,61 @@ export class GatherplotDirective {
     this.brush = d3.brush();
     // dimsum = <any>{};
 
-    d3.select("body")
-        .attr("tabindex", 1)
-        .on("keydown.brush", this.keyflip.bind(this))
-        .on("keyup.brush", this.keyflip.bind(this))
+    d3.select('body')
+        .attr('tabindex', 1)
+        .on('keydown.brush', this.keyflip.bind(this))
+        .on('keyup.brush', this.keyflip.bind(this))
         .each(() => {
             focus();
         });
 
-    // .value("title");
+    // .value('title');
 
     if (!this.config.matrixMode) {
 
         this.labelDiv = d3.select(this.el.nativeElement)
-            .append("div")
-            .attr("class", "btn-group")
+            .append('div')
+            .attr('class', 'btn-group')
             .html('<a class="btn btn-default" title="Pan and Zoom" id="toolbarPanZoom"><i class="fa fa-search-plus"></i></a><a class="btn btn-default" title="Select" id="toolbarSelect"><i class="fa fa-square-o"></i></a><a class="btn btn-default" title="Reset" id="toolbarReset"><i class="fa fa-undo"></i></a>');
     }
     this.svg = d3.select(this.el.nativeElement)
-        .append("svg:svg");
+        .append('svg:svg');
 
-    this.svgGroup = this.svg.append("g")
-        .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
+    this.svgGroup = this.svg.append('g')
+        .attr('transform', 'translate(' + this.margin + ',' + this.margin + ')');
 
-    this.maskGroup = this.svgGroup.append("g")
-        .attr("class", "masks");
+    this.maskGroup = this.svgGroup.append('g')
+        .attr('class', 'masks');
 
-    this.nodeGroup = this.maskGroup.append("g")
-        .attr("class", "nodes");
+    this.nodeGroup = this.maskGroup.append('g')
+        .attr('class', 'nodes');
 
-    this.nodeGroup.append("rect")
-        .attr("class", "overlay")
-        .attr("width", this.width)
-        .attr("height", this.height);
+    this.nodeGroup.append('rect')
+        .attr('class', 'overlay')
+        .attr('width', this.width)
+        .attr('height', this.height);
 
-    this.brushGroup = this.svg.append("g")
-        .attr("transform", "translate(" + this.margin + "," + this.margin + ")");
+    this.brushGroup = this.svg.append('g')
+        .attr('transform', 'translate(' + this.margin + ',' + this.margin + ')');
 
+    this.xAxisNodes = this.svgGroup.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + this.height + ')');
 
-    this.xAxisNodes = this.svgGroup.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + this.height + ")");
+    this.yAxisNodes = this.svgGroup.append('g')
+        .attr('class', 'y axis');
 
+    this.tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0);
 
-    this.yAxisNodes = this.svgGroup.append("g")
-        .attr("class", "y axis");
-
-    this.tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
-    this.clusterControlBox = d3.select("body").append("div")
-        .attr("class", "clusterControlBox")
-        .style("opacity", 0);
+    this.clusterControlBox = d3.select('body').append('div')
+        .attr('class', 'clusterControlBox')
+        .style('opacity', 0);
 
   }
 
-  ngOnDestroy() {
+  public ngOnDestroy() {
     // prevent memory leak when component is destroyed
     this.configSubscription.unsubscribe();
     this.borderSubscription.unsubscribe();
@@ -262,22 +250,23 @@ export class GatherplotDirective {
     this.shapeRenderingSubscription.unsubscribe();
     this.dataSubscription.unsubscribe();
   }
+
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  public onResize(event) {
     this.zone.run(() => {});
+    this.handleConfigChange(this.data, this.config);
   }
+
   /*
-  data: "=",
-  config: "=",
-  border: "=",
-  round: "=",
-  xdim: "@",
-  ydim: "@",
-  shapeRenderingMode: "=",
-  dimsum: "=",
-  context: "=",
-  comment: "=",
-  onClick: '&'*/
+        this.$watch(() => {
+            return this.comment;
+        }, function(newVals, oldVals) {
+            if (newVals === true) {
+                return this.handleConfigChange(renderData, this.config);
+            }
+        }, false);
+
+    */
 
     public handleDimsumChange(newDimsum) {
         if (!this.node) {
@@ -290,11 +279,9 @@ export class GatherplotDirective {
             return;
         }
 
+        this.node.classed('selected', (d) => {
 
-
-        this.node.classed("selected", (d) => {
-
-            if (this.dimsum.selectionSpace.indexOf(d.id) == -1) {
+            if (this.dimsum.selectionSpace.indexOf(d.id) === -1) {
 
                 d.selected = false;
             } else {
@@ -305,15 +292,14 @@ export class GatherplotDirective {
             return d.selected;
         });
 
-        this.dimsum.source = "gatherplot";
+        this.dimsum.source = 'gatherplot';
 
     }
 
-
     public renderBorderChange(isBorder) {
 
-        this.svgGroup.selectAll(".dot")
-            .style("stroke", (d) => {
+        this.svgGroup.selectAll('.dot')
+            .style('stroke', (d) => {
                 return isBorder ? 'black' : 'none';
             });
 
@@ -321,13 +307,13 @@ export class GatherplotDirective {
 
     public renderRoundChange(isRound) {
 
-        this.svgGroup.selectAll(".dot")
+        this.svgGroup.selectAll('.dot')
             .transition()
             .duration(500)
-            .attr("rx", (d) => {
+            .attr('rx', (d) => {
                 return isRound ? +d.nodeWidth / 2 : 0;
             })
-            .attr("ry", (d) => {
+            .attr('ry', (d) => {
                 return isRound ? +d.nodeWidth / 2 : 0;
             });
 
@@ -335,81 +321,81 @@ export class GatherplotDirective {
 
     public renderShapeRenderingChange(newShapeRendering) {
 
-        this.svgGroup.selectAll(".dot")
-            .style("shape-rendering", newShapeRendering);
+        this.svgGroup.selectAll('.dot')
+            .style('shape-rendering', newShapeRendering);
 
     }
 
     public reloadDataToSVG() {
-        this.svgGroup.selectAll("*").remove();
+        this.svgGroup.selectAll('*').remove();
 
-        this.maskGroup = this.svgGroup.append("g")
-            .attr("class", "masks");
+        this.maskGroup = this.svgGroup.append('g')
+            .attr('class', 'masks');
 
-        this.nodeGroup = this.maskGroup.append("g")
-            .attr("class", "nodes");
+        this.nodeGroup = this.maskGroup.append('g')
+            .attr('class', 'nodes');
 
-        this.maskGroup.selectAll("rect").remove();
+        this.maskGroup.selectAll('rect').remove();
 
         this.drawBackground();
 
         if (this.config.matrixMode === false) {
 
-            this.node = this.nodeGroup.selectAll(".dot")
+            this.node = this.nodeGroup.selectAll('.dot')
                 .data(this.data)
-                .enter().append("rect")
-                .attr("class", "dot")
-                .on("mouseover", (d) => {
+                .enter().append('rect')
+                .attr('class', 'dot')
+                .on('mouseover', (d) => {
 
                     this.tooltip.transition()
                         .duration(500)
-                        .style("opacity", 0);
-
+                        .style('opacity', 0);
 
                     this.tooltip.transition()
                         .duration(200)
-                        .style("opacity", 0.9);
+                        .style('opacity', 0.9);
 
-
-                    this.tooltip.html(this.xdim + ":" + this.xOriginalValue(d) + "<br/>" + this.ydim + ":" + this.yOriginalValue(d) + "<br/>" + this.config.colorDim + ":" + this.colorOriginalValue(d) + "")
-                        .style("left", (d3.event.pageX + 5) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");
+                    this.tooltip.html(this.xdim + ':' + this.xOriginalValue(d) + '<br/>' + this.ydim + ':' + this.yOriginalValue(d) + '<br/>' + this.config.colorDim + ':' + this.colorOriginalValue(d) + '')
+                        .style('left', (d3.event.pageX + 5) + 'px')
+                        .style('top', (d3.event.pageY - 28) + 'px');
                 })
-                .on("mouseout", (d) => {
+                .on('mouseout', (d) => {
                     this.tooltip.transition()
                         .duration(500)
-                        .style("opacity", 0);
+                        .style('opacity', 0);
                 })
-                .on("mousedown", function(d) {
-                    if (d3.event.shiftKey) d3.select(this).classed("selected", d.selected = !d.selected); // TODO
-                    else this.node.classed("selected", (p) => {
+                .on('mousedown', function(d) {
+                    if (d3.event.shiftKey) {
+                      d3.select(this).classed('selected', d.selected = !d.selected);
+                    } else {
+                      this.node.classed('selected', (p) => {
                         return p.selected = d === p;
-                    });
+                      });
+                    }
                 });
 
         } else {
 
-            this.nodeGroup.selectAll(".dot")
+            this.nodeGroup.selectAll('.dot')
                 .data(this.data)
-                .enter().append("rect")
-                .attr("class", "dot");
+                .enter().append('rect')
+                .attr('class', 'dot');
 
-            this.svg.on("mouseover", (d) => {
+            this.svg.on('mouseover', (d) => {
                     this.tooltip.transition()
                         .duration(200)
-                        .style("opacity", 0.9);
+                        .style('opacity', 0.9);
 
-
-                    this.tooltip.html("<h3>" + this.xdim + " vs " + this.ydim + "</h3>")
-                        .style("left", (d3.event.pageX + 5) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");
+                    this.tooltip.html('<h3>' + this.xdim + ' vs ' + this.ydim + '</h3>')
+                        .style('left', (d3.event.pageX + 5) + 'px')
+                        .style('top', (d3.event.pageY - 28) + 'px');
                 })
-                .on("mouseout", (d) => {
+                .on('mouseout', (d) => {
                     this.tooltip.transition()
                         .duration(500)
-                        .style("opacity", 0);
+                        .style('opacity', 0);
                 })
-                /*.on("click", (d) => {
+                /*.on('click', (d) => {
 
                     return this.onClick({
                         item: {
@@ -423,7 +409,7 @@ export class GatherplotDirective {
         }
 
 
-        this.dimSetting = <any>{};
+        this.dimSetting = <any> {};
 
 
     }
@@ -557,7 +543,7 @@ export class GatherplotDirective {
             return this.identifyOrdinalDimDataType(dim);
         } else {
 
-            return "nominal";
+            return 'nominal';
         }
 
     }
@@ -566,10 +552,10 @@ export class GatherplotDirective {
 
         if (this.isSemiOrdinalDim(dim)) {
 
-            return "semiOrdinal";
+            return 'semiOrdinal';
         } else {
 
-            return "ordinal";
+            return 'ordinal';
         }
 
     }
@@ -980,12 +966,12 @@ export class GatherplotDirective {
         if(itemsOnLens.length === 0) {
         return;
         }
-        this.nodeGroup.selectAll(".dot")
+        this.nodeGroup.selectAll('.dot')
             .data(itemsOnLens, (d) => {
                 return d.id;
             }).remove();
 
-        let lensItems = this.nodeGroup.selectAll(".lensItems")
+        let lensItems = this.nodeGroup.selectAll('.lensItems')
             .data(itemsOnLens, (d) => {
                 return d.id;
             });
@@ -994,69 +980,69 @@ export class GatherplotDirective {
         //Transition from previous place to new place
         lensItems.transition()
             .duration(500)
-            .attr("width", (d) => {
+            .attr('width', (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidthLens;
             })
-            .attr("height", (d) => {
+            .attr('height', (d) => {
                 return +d.nodeHeightLens;
             })
-            .attr("x", (d) => {
+            .attr('x', (d) => {
                 return d.lensX;
             })
-            .attr("y", (d) => {
+            .attr('y', (d) => {
                 return d.lensY;
             })
-            .attr("transform", (d, i) => {
+            .attr('transform', (d, i) => {
 
-                // if (d.cancer== "Cancer") {
+                // if (d.cancer== 'Cancer') {
                 //     console.log(height);
                 // }
-                return "translate(" + (d.XOffsetLens) + "," + (-(d.YOffsetLens)) + ") ";
+                return 'translate(' + (d.XOffsetLens) + ',' + (-(d.YOffsetLens)) + ') ';
             });
         //Enter
         //Append new circle
         //Transition from Original place to new place
 
-        lensItems.enter().append("rect")
+        lensItems.enter().append('rect')
             .classed('lensItems', true)
             .classed('dot', false)
-            .attr("y", this.yMap)
-            .attr("x", this.xMap)
-            .attr("width", (d) => {
+            .attr('y', this.yMap)
+            .attr('x', this.xMap)
+            .attr('width', (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidth;
             })
-            .attr("height", (d) => {
+            .attr('height', (d) => {
                 return +d.nodeHeight;
             })
-            .attr("rx", (d) => {
+            .attr('rx', (d) => {
                 return this.round ? +5 : 0;
             })
-            .attr("ry", (d) => {
+            .attr('ry', (d) => {
                 return this.round ? +5 : 0;
             })
 
-        .style("fill", (d) => {
+        .style('fill', (d) => {
                 return this.color(d[this.config.colorDim]);
             })
             .transition()
             .duration(500)
-            .attr("x", (d) => {
+            .attr('x', (d) => {
                 return d.lensX;
             })
-            .attr("y", (d) => {
+            .attr('y', (d) => {
                 return d.lensY;
             })
-            .attr("width", (d) => {
+            .attr('width', (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidthLens;
             })
-            .attr("height", (d) => {
+            .attr('height', (d) => {
                 return +d.nodeHeightLens;
             })
-            .attr("transform", (d, i) => {
-                return "translate(" + (d.XOffsetLens) + "," + (-(d.YOffsetLens)) + ") ";
+            .attr('transform', (d, i) => {
+                return 'translate(' + (d.XOffsetLens) + ',' + (-(d.YOffsetLens)) + ') ';
             });
 
 
@@ -1068,17 +1054,17 @@ export class GatherplotDirective {
             .classed('lensItems', false)
             .transition()
             .duration(500)
-            .attr("width", (d) => {
+            .attr('width', (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidth;
             })
-            .attr("height", (d) => {
+            .attr('height', (d) => {
                 return +d.nodeHeight;
             })
-            .attr("y", this.yMap)
-            .attr("x", this.xMap)
-            .attr("transform", (d, i) => {
-                return "translate(" + (d.XOffset) + "," + (-(d.YOffset)) + ") ";
+            .attr('y', this.yMap)
+            .attr('x', this.xMap)
+            .attr('transform', (d, i) => {
+                return 'translate(' + (d.XOffset) + ',' + (-(d.YOffset)) + ') ';
             });
 
     }
@@ -1164,9 +1150,9 @@ export class GatherplotDirective {
         let xPos, yPos;
 
         let lensInfo = <any>{};
-        d3.select(dom) //TODO
-            .attr("x", xPos = Math.max(this.initialLensSize / 2, Math.min(this.width - this.initialLensSize / 2, d3.event.x)) - this.initialLensSize / 2)
-            .attr("y", yPos = Math.max(this.initialLensSize / 2, Math.min(this.height - this.initialLensSize / 2, d3.event.y)) - this.initialLensSize / 2);
+        d3.select(dom)
+            .attr('x', xPos = Math.max(this.initialLensSize / 2, Math.min(this.width - this.initialLensSize / 2, d3.event.x)) - this.initialLensSize / 2)
+            .attr('y', yPos = Math.max(this.initialLensSize / 2, Math.min(this.height - this.initialLensSize / 2, d3.event.y)) - this.initialLensSize / 2);
 
         // labelDiv.text(xPos);
 
@@ -1189,8 +1175,8 @@ export class GatherplotDirective {
         let lensInfo = <any>{};
 
         d3.select(dom)
-            .attr("x", xPos = Math.max(this.initialHistLensWidth / 2, Math.min(this.width - this.initialHistLensWidth / 2, d3.event.x)) - this.initialHistLensWidth / 2)
-            .attr("y", yPos = Math.max(this.initialHistLensHeight / 2, Math.min(this.height - this.initialHistLensHeight / 2, d3.event.y)) - this.initialHistLensHeight / 2);
+            .attr('x', xPos = Math.max(this.initialHistLensWidth / 2, Math.min(this.width - this.initialHistLensWidth / 2, d3.event.x)) - this.initialHistLensWidth / 2)
+            .attr('y', yPos = Math.max(this.initialHistLensHeight / 2, Math.min(this.height - this.initialHistLensHeight / 2, d3.event.y)) - this.initialHistLensHeight / 2);
 
         // labelDiv.text(xPos);
 
@@ -1212,8 +1198,8 @@ export class GatherplotDirective {
         let lensInfo = <any>{};
 
         d3.select(dom)
-            .attr("x", xPos = Math.max(this.initialLensSize / 2, Math.min(this.width - this.initialLensSize / 2, d3.event.x)) - this.initialLensSize / 2)
-            .attr("y", yPos = Math.max(this.initialLensSize / 2, Math.min(this.height - this.initialLensSize / 2, d3.event.y)) - this.initialLensSize / 2);
+            .attr('x', xPos = Math.max(this.initialLensSize / 2, Math.min(this.width - this.initialLensSize / 2, d3.event.x)) - this.initialLensSize / 2)
+            .attr('y', yPos = Math.max(this.initialLensSize / 2, Math.min(this.height - this.initialLensSize / 2, d3.event.y)) - this.initialLensSize / 2);
 
         // labelDiv.text(xPos);
 
@@ -1236,8 +1222,8 @@ export class GatherplotDirective {
         let xPos, yPos;
 
         d3.select(dom)
-            .attr("cx", xPos = Math.max(this.initialLensSize, Math.min(this.width - this.initialLensSize, d3.event.x)))
-            .attr("cy", yPos = Math.max(this.initialLensSize, Math.min(this.height - this.initialLensSize, d3.event.y)));
+            .attr('cx', xPos = Math.max(this.initialLensSize, Math.min(this.width - this.initialLensSize, d3.event.x)))
+            .attr('cy', yPos = Math.max(this.initialLensSize, Math.min(this.height - this.initialLensSize, d3.event.y)));
 
         // labelDiv.text(xPos);
 
@@ -1250,22 +1236,22 @@ export class GatherplotDirective {
         this.clearLens();
 
         let drag = d3.drag()
-            .on("drag", function() {
+            .on('drag', function() {
               //'this' now DOM Element; Should use 'self' for original scope.
               self.dragmoveRectLens(this);
             })
-            .on("start", () => {
+            .on('start', () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
             });
 
 
 
-        this.nodeGroup.append("rect")
-            .attr("class", "lens")
-            .attr("x", this.width / 2)
-            .attr("y", this.height / 2)
-            .attr("width", this.initialLensSize)
-            .attr("height", this.initialLensSize)
+        this.nodeGroup.append('rect')
+            .attr('class', 'lens')
+            .attr('x', this.width / 2)
+            .attr('y', this.height / 2)
+            .attr('width', this.initialLensSize)
+            .attr('height', this.initialLensSize)
             .call(drag);
 
         this.drawInitialRectLensItems(this.width / 2 + this.initialLensSize / 2, this.height / 2 + this.initialLensSize / 2, this.initialLensSize, this.initialLensSize);
@@ -1277,20 +1263,20 @@ export class GatherplotDirective {
         this.clearLens();
 
         let drag = d3.drag()
-            .on("drag", function() {
+            .on('drag', function() {
               //'this' now DOM Element; Should use 'self' for original scope.
               self.dragmoveHistLens(this);
             })
-            .on("start", () => {
+            .on('start', () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
             });
 
-        this.nodeGroup.append("rect")
-            .attr("class", "lens")
-            .attr("x", this.width / 2)
-            .attr("y", this.height / 2)
-            .attr("width", this.initialHistLensWidth)
-            .attr("height", this.initialHistLensHeight)
+        this.nodeGroup.append('rect')
+            .attr('class', 'lens')
+            .attr('x', this.width / 2)
+            .attr('y', this.height / 2)
+            .attr('width', this.initialHistLensWidth)
+            .attr('height', this.initialHistLensHeight)
             .call(drag);
 
         this.drawInitialHistLensItems(this.width / 2 + this.initialHistLensWidth / 2, this.height / 2 + this.initialHistLensHeight / 2, this.initialHistLensWidth, this.initialHistLensHeight);
@@ -1303,22 +1289,22 @@ export class GatherplotDirective {
         this.clearLens();
 
         let drag = d3.drag()
-            .on("drag", function() {
+            .on('drag', function() {
               //'this' now DOM Element; Should use 'self' for original scope.
               self.dragmovePieLens(this);
             })
-            .on("start", () => {
+            .on('start', () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
             });
 
-        this.nodeGroup.append("rect")
-            .attr("class", "lens")
-            .attr("x", this.width / 2)
-            .attr("y", this.height / 2)
-            .attr("width", this.initialLensSize)
-            .attr("height", this.initialLensSize)
-            .attr("rx", this.initialLensSize / 2)
-            .attr("ry", this.initialLensSize / 2)
+        this.nodeGroup.append('rect')
+            .attr('class', 'lens')
+            .attr('x', this.width / 2)
+            .attr('y', this.height / 2)
+            .attr('width', this.initialLensSize)
+            .attr('height', this.initialLensSize)
+            .attr('rx', this.initialLensSize / 2)
+            .attr('ry', this.initialLensSize / 2)
             .call(drag);
 
         this.drawInitialPieLensItems(this.width / 2 + this.initialHistLensWidth / 2, this.height / 2 + this.initialHistLensHeight / 2, this.initialHistLensWidth, this.initialHistLensHeight);
@@ -1327,19 +1313,19 @@ export class GatherplotDirective {
 
     public handleLensChange(config) {
 
-        if (config.lens === "noLens" || config.isGather !== 'scatter') {
+        if (config.lens === 'noLens' || config.isGather !== 'scatter') {
 
             this.clearLens();
 
-        } else if (config.lens === "rectLens") {
+        } else if (config.lens === 'rectLens') {
 
             this.handleRectLensChange();
 
-        } else if (config.lens === "histLens") {
+        } else if (config.lens === 'histLens') {
 
             this.handleHistLensChange();
 
-        } else if (config.lens === "pieLens") {
+        } else if (config.lens === 'pieLens') {
 
             this.handlePieLensChange();
         }
@@ -1348,24 +1334,24 @@ export class GatherplotDirective {
 
     public clearLens() {
 
-        this.nodeGroup.selectAll(".lens").remove();
-        if(!this.nodeGroup.selectAll(".lensItems").empty()) {
-            this.nodeGroup.selectAll(".lensItems")
+        this.nodeGroup.selectAll('.lens').remove();
+        if(!this.nodeGroup.selectAll('.lensItems').empty()) {
+            this.nodeGroup.selectAll('.lensItems')
                 .classed('dot', true)
                 .classed('lensItems', false)
                 .transition()
                 .duration(500)
-                .attr("width", (d) => {
+                .attr('width', (d) => {
                     // console.log(initialSquareLenth);
                     return +d.nodeWidth;
                 })
-                .attr("height", (d) => {
+                .attr('height', (d) => {
                     return +d.nodeHeight;
                 })
-                .attr("y", this.yMap)
-                .attr("x", this.xMap)
-                .attr("transform", (d, i) => {
-                    return "translate(" + (d.XOffset) + "," + (-(d.YOffset)) + ") ";
+                .attr('y', this.yMap)
+                .attr('x', this.xMap)
+                .attr('transform', (d, i) => {
+                    return 'translate(' + (d.XOffset) + ',' + (-(d.YOffset)) + ') ';
                 });
 
         }
@@ -1374,12 +1360,12 @@ export class GatherplotDirective {
     public updateSizeSVG(config) {
         // XPadding = 60;
         // YPadding = 30;
-        //Update size of SVG
+        // Update size of SVG
 
         if (config.matrixMode === false) {
             this.outerWidth = d3.select(this.el.nativeElement).node().offsetWidth;
         } else {
-            this.outerWidth = d3.select(".matrixGroup").node().offsetWidth;
+//            this.outerWidth = d3.select('.matrixGroup').node().offsetWidth;
 
             this.outerWidth = this.outerWidth / (this.config.dims.length) - 2;
         }
@@ -1396,10 +1382,9 @@ export class GatherplotDirective {
 
     public renderConfigChange(data, config) {
 
-
         this.updateSizeSVG(config);
 
-        //Call separate render for the rendering
+        // Call separate render for the rendering
 
         this.drawPlot();
 
@@ -1413,20 +1398,13 @@ export class GatherplotDirective {
 
     public configZoomToolbar() {
 
-        d3.select("#toolbarPanZoom").on("click", setZoomMode.bind(this));
-
-
-        function setZoomMode() {
-
-            this.configZoom();
-        }
-
+        d3.select('#toolbarPanZoom').on('click', this.configZoom.bind(this));
 
     }
 
     public configBrushToolbar() {
 
-        d3.select("#toolbarSelect").on("click", setSelectMode.bind(this));
+        d3.select('#toolbarSelect').on('click', setSelectMode.bind(this));
 
         function setSelectMode() {
 
@@ -1436,49 +1414,54 @@ export class GatherplotDirective {
     }
 
     public configBrush() {
-      const self = this;
-        this.brush = this.brushGroup.append("g")
+        const self = this;
+        this.brush = this.brushGroup.append('g')
             .datum(() => {
                 return {
                     selected: false,
                     previouslySelected: false
                 };
             })
-            .attr("class", "brush")
+            .attr('class', 'brush')
             .call(d3.brush()
-                .extent([[0,0], [this.width, this.height]])
-                .on("start", (d) => {
+                .extent([[0, 0], [this.width, this.height]])
+                .on('start', (d0) => {
                     this.node.each((d) => {
 
-                        // if (d.Name.indexOf("ciera") > 0) {
+                        // if (d.Name.indexOf('ciera') > 0) {
                         //     console.log(d);
                         // }
 
                         d.previouslySelected = d3.event.sourceEvent.shiftKey && d.selected;
                     });
                 })
-                .on("brush", () => {
+                .on('brush', () => {
                     let extent = d3.event.target.extent();
 
-                    this.node.classed("selected", (d) => {
+                    this.node.classed('selected', (d) => {
 
                     //     return d.selected = d.previouslySelected ^
-                    //         (xScale(extent[0][0]) <= xMap(d) && xMap(d) < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d) && yMap(d) > yScale(extent[1][1]));
+                    //         (xScale(extent[0][0]) <= xMap(d) && xMap(d)
+                    // < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d)
+                    //  && yMap(d) > yScale(extent[1][1]));
                     // });
 
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
 
-                        if (d.previouslySelected ^ (this.xScale(extent()[0][0]) <= this.xMap(d) && this.xMap(d) < this.xScale(extent()[1][0]) && this.yScale(extent()[0][1]) >= this.yMap(d) && this.yMap(d) > this.yScale(extent()[1][1]))) {
+                        if (d.previouslySelected
+                          && (this.xScale(extent()[0][0]) <= this.xMap(d)
+                          &&  this.xScale(extent()[1][0] > this.xMap(d))
+                          && this.yScale(extent()[0][1]) >= this.yMap(d)
+                          && this.yScale(extent()[1][1]) < this.yMap(d))) {
 
-                            if (nodeIndex == -1) {
+                            if (nodeIndex === -1) {
                                 this.dimsum.selectionSpace.push(d.id);
                             }
                         } else {
 
-                            if (nodeIndex != -1) {
+                            if (nodeIndex !== -1) {
                                 this.dimsum.selectionSpace.splice(nodeIndex, 1);
                             }
-
 
                         }
 
@@ -1486,20 +1469,19 @@ export class GatherplotDirective {
                     this.zone.run(() => {});
                     this.handleDimsumChange(this.dimsum);
                 })
-                .on("end", () => {
-                    console.log(d3.event)
+                .on('end', function () {
+                      d3.selectAll('.brush').remove();
+              //      if (!d3.event.sourceEvent) {return;}
+              //      d3.select(this).call(d3.event.target.move, null);
+                    // console.log(this);
 //                    d3.event.target.clear();
-                //   this.brushGroup.select(".brush").call(this.brush.move, null);
-      //              d3.select(this).call(d3.event.sourceEvent);
+                  //  this.brush.move()
+                //    this.brushGroup.select('.brush').call(.move, null);
+
                 }));
 
-
-
-        d3.select("#toolbarSelect").classed("active", true);
-        d3.select("#toolbarPanZoom").classed("active", false);
-
-
-
+        d3.select('#toolbarSelect').classed('active', true);
+        d3.select('#toolbarPanZoom').classed('active', false);
 
     }
 
@@ -1509,10 +1491,10 @@ export class GatherplotDirective {
         this.zoom.translate(this.context.translate);
         this.zoom.scaleTo(this.context.scale);
 
-        this.svgGroup.select(".x.axis").call(this.xAxis);
-        this.svgGroup.select(".y.axis").call(this.yAxis);
+        this.svgGroup.select('.x.axis').each(this.xAxis);
+        this.svgGroup.select('.y.axis').each(this.yAxis);
 
-        this.nodeGroup.attr("transform", "translate(" + this.context.translate[0] + ',' + this.context.translate[1] + ")scale(" + this.context.scale + ")");
+        this.nodeGroup.attr('transform', 'translate(' + this.context.translate[0] + ',' + this.context.translate[1] + ')scale(' + this.context.scale + ')');
 
 
         this.comment = false;
@@ -1521,18 +1503,13 @@ export class GatherplotDirective {
 
     public configZoom() {
 
-
-        d3.selectAll(".brush").remove();
-          console.log([this.xScale(0), this.yScale(0)], [this.xScale(1), this.yScale(1)])
+        d3.selectAll('.brush').remove();
 
         this.zoom = d3.zoom()
             .scaleExtent([1, 100])
-            .on("zoom", zoomed.bind(this));
-
+            .on('zoom', zoomed.bind(this));
 
         this.svgGroup.call(this.zoom);
-
-
 
         function zoomed() {
 
@@ -1540,11 +1517,14 @@ export class GatherplotDirective {
 
             // this.comment = false;
 
-
             // zoom.x(this.xScale).y(this.yScale);
 
-            this.svgGroup.select(".x.axis").call(this.xAxis);
-            this.svgGroup.select(".y.axis").call(this.yAxis);
+            this.svgGroup.select('.x.axis').call(
+              this.xAxis.scale(d3.event.transform.rescaleX(this.xScale))
+            );
+            this.svgGroup.select('.y.axis').call(
+              this.yAxis.scale(d3.event.transform.rescaleY(this.yScale))
+            );
 
             this.context.translate = [d3.event.transform.x, d3.event.transform.y];
             this.context.scale = d3.event.transform.k;
@@ -1553,19 +1533,18 @@ export class GatherplotDirective {
         //    this.context.xDomain = this.xScale.scale(d3.event.transform.k).domain();
           //  this.context.yDomain = this.yScale.scale(d3.event.transform.k).domain();
 
-            this.nodeGroup.attr("transform", "translate(" + d3.event.transform.x + "," + d3.event.transform.y + ")scale(" + d3.event.transform.k + ")");
-
-
+            this.nodeGroup.attr('transform', 'translate(' + d3.event.transform.x +
+              ',' + d3.event.transform.y + ')scale(' + d3.event.transform.k + ')');
 
         }
 
         this.setClipPathForAxes();
 
-        d3.select("#toolbarReset").on("click", reset.bind(this));
+        d3.select('#toolbarReset').on('click', reset.bind(this));
 
-        d3.select("#toolbarSelect").classed("active", false);
+        d3.select('#toolbarSelect').classed('active', false);
 
-        d3.select("#toolbarPanZoom").classed("active", true);
+        d3.select('#toolbarPanZoom').classed('active', true);
 
         function reset() {
 
@@ -1573,20 +1552,19 @@ export class GatherplotDirective {
 
             this.nodeGroup.transition()
                 .duration(700)
-                .attr("transform", "translate(0,0) scale(1)");
+                .attr('transform', 'translate(0,0) scale(1)');
 
             this.context.translate = [0, 0];
             this.context.scale = 1;
 
             // this.zone.run();
 
-            d3.transition("resetZoom").duration(700).tween("zoom", () => {
+            d3.transition('resetZoom').duration(700).tween('zoom', () => {
 
                 let range = this.getExtentConsideringXY(this.xdim, this.ydim);
 
                 let xRange = range.xRange;
                 let yRange = range.yRange;
-
 
                 if (this.config.isGather === 'gather') {
 
@@ -1594,26 +1572,29 @@ export class GatherplotDirective {
 
                     if (typeOfXYDim === 'XNomYOrd') {
 
-                        let yRange = this.getExtentFromCalculatedPointsForBinnedGather(this.ydim);
+                        yRange = this.getExtentFromCalculatedPointsForBinnedGather(this.ydim);
 
                     } else if (typeOfXYDim === 'XOrdYNom') {
 
-                        let xRange = this.getExtentFromCalculatedPointsForBinnedGather(this.xdim);
+                        xRange = this.getExtentFromCalculatedPointsForBinnedGather(this.xdim);
 
                     }
 
                 }
 
-                let ix = d3.interpolate(this.xScale.domain(), xRange),
-                    iy = d3.interpolate(this.yScale.domain(), yRange);
+                let ix = d3.interpolate(this.xScale.domain(), xRange);
+                let iy = d3.interpolate(this.yScale.domain(), yRange);
 
                 return (t) => {
-                    this.zoom.scaleTo(1);
+                //    this.zoom.scaleTo(1);
 
           //          this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
-
-                    this.svgGroup.select(".x.axis").call(this.xAxis);
-                    this.svgGroup.select(".y.axis").call(this.yAxis);
+            /*        this.svgGroup.select('.x.axis').call(
+                      this.xAxis.scale(this.xScale.domain(ix(t)))
+                    );
+                    this.svgGroup.select('.y.axis').call(
+                      this.yAxis.scale(this.yScale.domain(iy(t)))
+                    );*/
                 };
             });
         }
@@ -1633,7 +1614,6 @@ export class GatherplotDirective {
 
     }
 
-
     public resetSelection() {
 
         if (!this.dimsum) {
@@ -1648,27 +1628,25 @@ export class GatherplotDirective {
 
     public setClipPathForAxes() {
 
-        let clipXAxis = this.xAxisNodes.append("clipPath")
-            .attr("id", "clipXAxis")
-            .append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", this.width)
-            .attr("height", this.margin);
+        let clipXAxis = this.xAxisNodes.append('clipPath')
+            .attr('id', 'clipXAxis')
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this.width)
+            .attr('height', this.margin);
 
-        this.xAxisNodes.attr("clip-path", "url(#clipXAxis)");
+        this.xAxisNodes.attr('clip-path', 'url(#clipXAxis)');
 
+        let clipYAxis = this.yAxisNodes.append('clipPath')
+            .attr('id', 'clipYAxis')
+            .append('rect')
+            .attr('x', -300)
+            .attr('y', -40)
+            .attr('width', 300)
+            .attr('height', this.height + 40);
 
-        let clipYAxis = this.yAxisNodes.append("clipPath")
-            .attr("id", "clipYAxis")
-            .append("rect")
-            .attr("x", -300)
-            .attr("y", -40)
-            .attr("width", 300)
-            .attr("height", this.height + 40);
-
-        this.yAxisNodes.attr("clip-path", "url(#clipYAxis)");
-
+        this.yAxisNodes.attr('clip-path', 'url(#clipYAxis)');
 
     }
 
@@ -1686,23 +1664,23 @@ export class GatherplotDirective {
 
     public drawBackground() {
 
-        this.nodeGroup.append("rect")
-            .attr("class", "overlay")
-            .attr("width", this.width)
-            .attr("height", this.height);
+        this.nodeGroup.append('rect')
+            .attr('class', 'overlay')
+            .attr('width', this.width)
+            .attr('height', this.height);
     }
 
     public drawMask() {
 
-        let clip = this.maskGroup.append("clipPath")
-            .attr("id", "clip")
-            .append("rect")
-            .attr("x", 0)
-            .attr("y", 0)
-            .attr("width", this.width)
-            .attr("height", this.height);
+        let clip = this.maskGroup.append('clipPath')
+            .attr('id', 'clip')
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', this.width)
+            .attr('height', this.height);
 
-        this.maskGroup.attr("clip-path", "url(#clip)");
+        this.maskGroup.attr('clip-path', 'url(#clip)');
 
 
     }
@@ -1726,14 +1704,14 @@ export class GatherplotDirective {
 
     public drawBoundaryForMatrix() {
 
-        this.svgGroup.selectAll(".matrixFrame").remove();
+        this.svgGroup.selectAll('.matrixFrame').remove();
 
-        this.svgGroup.append("rect")
-            .attr("class", "matrixFrame")
-            .attr("x", -this.margin)
-            .attr("y", -this.margin)
-            .attr("width", this.width + 2 * this.margin - 2)
-            .attr("height", this.height + 2 * this.margin - 2);
+        this.svgGroup.append('rect')
+            .attr('class', 'matrixFrame')
+            .attr('x', -this.margin)
+            .attr('y', -this.margin)
+            .attr('width', this.width + 2 * this.margin - 2)
+            .attr('height', this.height + 2 * this.margin - 2);
 
 
     }
@@ -2121,13 +2099,13 @@ export class GatherplotDirective {
             return this.yScale(this.yValue(d));
         };
 
-    };
+    }
 
     public xOriginalValue(d) {
 
         return d[this.xdim];
 
-    };
+    }
 
 
     public yOriginalValue(d) {
@@ -2352,12 +2330,12 @@ export class GatherplotDirective {
 
 
 
-        console.log(loopCount + ": NumBin = " + numBin);
+        console.log(loopCount + ': NumBin = ' + numBin);
 
-        console.log(loopCount + ": increment = " + increment);
+        console.log(loopCount + ': increment = ' + increment);
 
 
-        console.log(loopCount + ": maxCrowdedBinCount = " + this.getMaxCrowdedBinCount(ordDim, nomDim, numBin));
+        console.log(loopCount + ': maxCrowdedBinCount = ' + this.getMaxCrowdedBinCount(ordDim, nomDim, numBin));
 
         numBin = numBin + 1;
 
@@ -2606,7 +2584,7 @@ export class GatherplotDirective {
 
         } else {
 
-            console.log("Unsupported DimName in getDimValueFunc");
+            console.log('Unsupported DimName in getDimValueFunc');
         }
 
     }
@@ -2855,7 +2833,7 @@ export class GatherplotDirective {
             return true;
         } else {
 
-            alert("Unidentified dimension type");
+            alert('Unidentified dimension type');
         }
     }
 
@@ -3109,7 +3087,7 @@ export class GatherplotDirective {
 
         let lengthInLongEdge, lengthInShortEdge;
 
-        if (this.config.relativeMode === "absolute") {
+        if (this.config.relativeMode === 'absolute') {
 
             lengthInLongEdge = this.getNodesSizeForAbsolute();
             lengthInShortEdge = lengthInLongEdge;
@@ -3408,9 +3386,9 @@ export class GatherplotDirective {
             });
 
             this.colorScaleForHeatMap = d3.scaleLinear()
-                .range(['#98c8fd', '#08306b'])
+                .range([0x98c8fd, 0x08306b])
                 .domain(colorDomain)
-                .interpolate(d3.interpolateHsl);
+                .interpolate(d3.interpolateHsl) // tslint-disabled:line;
 
             this.color = this.colorScaleForHeatMap;
         } else {
@@ -3427,41 +3405,41 @@ export class GatherplotDirective {
     public writeNodesInSVG() {
         // debugger;
 
-        // this.nodeGroup.attr("transform", "translate(" + margin + "," + margin + ") rotate(0 80 660)");
+        // this.nodeGroup.attr('transform', 'translate(' + margin + ',' + margin + ') rotate(0 80 660)');
 
-        this.nodeGroup.attr("transform", "translate(0,0) rotate(0 80 660)");
+        this.nodeGroup.attr('transform', 'translate(0,0) rotate(0 80 660)');
 
 
-        this.nodeGroup.selectAll(".dot")
+        this.nodeGroup.selectAll('.dot')
             .data(this.data, (d) => {
                 return +d.id;
             })
-            .style("fill", (d) => {
+            .style('fill', (d) => {
                 return this.color(d[this.config.colorDim]);
             })
             .transition()
             .duration(1500)
-            .attr("x", this.xMap.bind(this))
-            .attr("y", this.yMap.bind(this))
-            .attr("width", (d) => {
+            .attr('x', this.xMap.bind(this))
+            .attr('y', this.yMap.bind(this))
+            .attr('width', (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidth;
             })
-            .attr("height", (d) => {
+            .attr('height', (d) => {
                 return +d.nodeHeight;
             })
-            .attr("rx", (d) => {
+            .attr('rx', (d) => {
                 return this.round ? +5 : 0;
             })
-            .attr("ry", (d) => {
+            .attr('ry', (d) => {
                 return this.round ? +5 : 0;
             })
-            .attr("transform", (d, i) => {
+            .attr('transform', (d, i) => {
 
-                // if (d.cancer== "Cancer") {
+                // if (d.cancer== 'Cancer') {
                 //     console.log(height);
                 // }
-                return "translate(" + (d.XOffset) + "," + (-(d.YOffset)) + ") ";
+                return 'translate(' + (d.XOffset) + ',' + (-(d.YOffset)) + ') ';
             });
 
     }
@@ -3471,36 +3449,36 @@ export class GatherplotDirective {
 
 
 
-        this.nodeGroup.selectAll(".dot")
+        this.nodeGroup.selectAll('.dot')
             .data(this.data, (d) => {
                 return +d.id;
             })
-            .style("fill", (d) => {
+            .style('fill', (d) => {
                 return this.color(d[this.config.colorDim]);
             })
             .transition()
             .duration(0)
-            .attr("x", this.xMap.bind(this))
-            .attr("y", this.yMap.bind(this))
-            .attr("width", (d) => {
+            .attr('x', this.xMap.bind(this))
+            .attr('y', this.yMap.bind(this))
+            .attr('width', (d) => {
                 // console.log(initialSquareLenth);
                 return +d.nodeWidth;
             })
-            .attr("height", (d) => {
+            .attr('height', (d) => {
                 return +d.nodeHeight;
             })
-            .attr("rx", (d) => {
+            .attr('rx', (d) => {
                 return this.round ? +5 : 0;
             })
-            .attr("ry", (d) => {
+            .attr('ry', (d) => {
                 return this.round ? +5 : 0;
             })
-            .attr("transform", (d, i) => {
+            .attr('transform', (d, i) => {
 
-                // if (d.cancer== "Cancer") {
+                // if (d.cancer== 'Cancer') {
                 //     console.log(height);
                 // }
-                return "translate(" + (d.XOffset) + "," + (-(d.YOffset)) + ") ";
+                return 'translate(' + (d.XOffset) + ',' + (-(d.YOffset)) + ') ';
             });
 
         let angleRad = Math.atan(this.height / this.width);
@@ -3508,12 +3486,11 @@ export class GatherplotDirective {
         let angleDeg = 90 - angleRad * 180 / Math.PI;
 
 
-        this.nodeGroup.attr("transform", " translate(" + this.margin + "," + this.margin + ")  rotate(" + angleDeg + "," + "0" + "," + this.yScale.range()[0] + ")");
+        this.nodeGroup.attr('transform', ' translate(' + this.margin + ',' + this.margin + ')  rotate(' + angleDeg + ',' + '0' + ',' + this.yScale.range()[0] + ')');
 
     }
 
     public labelGenerator(dimName) {
-
         if (!dimName) {
 
             return (d) => {
@@ -3535,13 +3512,10 @@ export class GatherplotDirective {
 
             return (d) => {
 
-
-
                 return this.getKeys(dimName)[d];
 
             };
         }
-
 
     }
 
@@ -3554,13 +3528,14 @@ export class GatherplotDirective {
             };
         } else if (this.dimSetting[dimName].dimType === 'ordinal') {
 
-            let binDistanceFormatter = d3.format("3,.1f");
+            let binDistanceFormatter = d3.format('3,.1f');
 
             return (d, i) => {
 
                 let binValue = d3.map(this.dimSetting[dimName].keyValue).keys()[i];
 
-                return binDistanceFormatter(+binValue) + '\u00B1' + binDistanceFormatter(+this.dimSetting[dimName].halfOfBinDistance);
+                return binDistanceFormatter(+binValue) + '\u00B1'
+                + binDistanceFormatter(+this.dimSetting[dimName].halfOfBinDistance);
             };
         } else if (this.dimSetting[dimName].dimType === 'semiOrdinal') {
 
@@ -3572,13 +3547,10 @@ export class GatherplotDirective {
 
             return (d, i) => {
 
-
-
                 return this.getKeys(dimName)[i];
 
             };
         }
-
 
     }
 
@@ -3591,7 +3563,7 @@ export class GatherplotDirective {
                 return a - b;
             });
 
-        let binDistanceFormatter = d3.format("3,.0f");
+        let binDistanceFormatter = d3.format('3,.0f');
 
 
         return (d, i) => {
@@ -3743,22 +3715,20 @@ export class GatherplotDirective {
 
     public setStylesForAxesAndTicks() {
 
-        this.svg.selectAll(".domain")
-            .style("stroke", "black")
-            .style("stroke-width", 1)
-            .style("fill", "none");
+        this.svg.selectAll('.domain')
+            .style('stroke', 'black')
+            .style('stroke-width', 2);
 
-        this.svg.selectAll(".bracket")
-            .style("stroke", "black")
-            .style("stroke-width", 1)
-            .style("fill", "none");
+        this.svg.selectAll('.bracket')
+            .style('stroke', 'black')
+            .style('stroke-width', 1);
 
 
     }
 
     public drawAxesLinesAndTicksForScatter() {
 
-        this.svg.selectAll(".axis").remove();
+        this.svg.selectAll('.axis').remove();
 
         this.drawXAxisLinesAndTicksForScatter();
         this.drawYAxisLinesAndTicksForScatter();
@@ -3767,7 +3737,7 @@ export class GatherplotDirective {
 
     public drawAxesLinesAndTicksForSameOrdDimGather() {
 
-        this.svg.selectAll(".axis").remove();
+        this.svg.selectAll('.axis').remove();
 
         this.drawXAxisLinesAndTicksForSameOrdDimGather();
         this.drawYAxisLinesAndTicksForSameOrdDimGather();
@@ -3776,40 +3746,39 @@ export class GatherplotDirective {
     public drawXAxisLinesAndTicksForScatter() {
 
         this.xAxis = d3.axisBottom(this.xScale)
-            .ticks(this.tickGenerator(this.xdim))
+            .ticks(this.tickGenerator(this.xdim)/*, */)
             .tickFormat(this.labelGenerator(this.xdim));
 
-
-        this.xAxisNodes = this.svgGroup.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (this.height) + ")")
+        this.xAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + (this.height) + ')')
             .call(this.xAxis);
 
         this.xAxisNodes.selectAll('text')
-            .style("font-size", 12);
+            .style('font-size', 12);
 
 
-        this.svg.selectAll(".x .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "black");
+        this.svg.selectAll('.x .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'black');
     }
 
     public drawYAxisLinesAndTicksForScatter() {
 
         this.yAxis = d3.axisLeft(this.yScale)
-            .ticks(this.tickGenerator(this.ydim))
+            .ticks(this.tickGenerator(this.ydim)/*, */)
             .tickFormat(this.labelGenerator(this.ydim));
 
-        this.yAxisNodes = this.svgGroup.append("g")
-            .attr("class", "y axis")
+        this.yAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'y axis')
             .call(this.yAxis);
 
         this.yAxisNodes.selectAll('text')
-            .style("font-size", 12);
+            .style('font-size', 12);
 
-        this.svg.selectAll(".y .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "black");
+        this.svg.selectAll('.y .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'black');
 
     }
 
@@ -3820,22 +3789,22 @@ export class GatherplotDirective {
 
         let ticks = this.tickValueGeneratorForOrdinalGather(this.xdim);
 
-         this.xAxis = d3.axisBottom(this.xScale)
-             .tickValues(ticks)
-             .tickFormat(this.labelGeneratorForOrdinalGather(this.xdim))
-             .tickSize(0); //Provides 0 size ticks at center position for gather
+        this.xAxis = d3.axisBottom(this.xScale)
+            .tickValues(ticks)
+            .tickFormat(this.labelGeneratorForOrdinalGather(this.xdim))
+            .tickSize(0); // Provides 0 size ticks at center position for gather
 
-        this.xAxisNodes = this.svgGroup.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (this.height) + ")")
+        this.xAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + (this.height) + ')')
             .call(this.xAxis);
 
         this.xAxisNodes.selectAll('text')
-            .style("font-size", 12);
+            .style('font-size', 12);
 
-        this.svg.selectAll(".x .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "black");
+        this.svg.selectAll('.x .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'black');
 
     }
 
@@ -3843,21 +3812,21 @@ export class GatherplotDirective {
 
         let ticks = this.tickValueGeneratorForOrdinalGather(this.ydim);
 
-         this.yAxis = d3.axisLeft(this.yScale)
-             .tickValues(ticks)
-             .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
-             .tickSize(0); //Provides 0 size ticks at center position for gather
+        this.yAxis = d3.axisLeft(this.yScale)
+            .tickValues(ticks)
+            .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
+            .tickSize(0); // Provides 0 size ticks at center position for gather
 
-        this.yAxisNodes = this.svgGroup.append("g")
-            .attr("class", "y axis")
+        this.yAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'y axis')
             .call(this.yAxis);
 
         this.yAxisNodes.selectAll('text')
-            .style("font-size", 12);
+            .style('font-size', 12);
 
-        this.svg.selectAll(".y .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "black");
+        this.svg.selectAll('.y .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'black');
 
     }
 
@@ -3869,25 +3838,24 @@ export class GatherplotDirective {
 
         let domain = [calculatedPositions[0], calculatedPositions[calculatedPositions.length - 1]];
 
-
         let xScaleForSameOrdDimGather = d3.scaleLinear().domain(domain).range([0, this.width]);
 
-         this.xAxis = d3.axisBottom(xScaleForSameOrdDimGather)
-             .tickValues(ticks)
-             .tickFormat(this.labelGeneratorForOrdinalGather(this.xdim))
-             .tickSize(0); //Provides 0 size ticks at center position for gather
+        this.xAxis = d3.axisBottom(xScaleForSameOrdDimGather)
+            .tickValues(ticks)
+            .tickFormat(this.labelGeneratorForOrdinalGather(this.xdim))
+            .tickSize(0); // Provides 0 size ticks at center position for gather
 
-        this.xAxisNodes = this.svgGroup.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (this.height) + ")")
+        this.xAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + (this.height) + ')')
             .call(this.xAxis);
 
         this.xAxisNodes.selectAll('text')
-            .style("font-size", 12);
+            .style('font-size', 12);
 
-        this.svg.selectAll(".x .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "black");
+        this.svg.selectAll('.x .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'black');
 
     }
 
@@ -3908,23 +3876,23 @@ export class GatherplotDirective {
              .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
              .tickSize(0); //Provides 0 size ticks at center position for gather
 
-        this.yAxisNodes = this.svgGroup.append("g")
-            .attr("class", "y axis")
+        this.yAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'y axis')
             .call(this.yAxis);
 
         this.yAxisNodes.selectAll('text')
-            .style("font-size", 12);
+            .style('font-size', 12);
 
-        this.svg.selectAll(".y .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "black");
+        this.svg.selectAll('.y .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'black');
 
 
     }
 
 
 
-    //returns path string d for <path d="This string">
+    //returns path string d for <path d='This string'>
     //a curly brace between x1,y1 and x2,y2, w pixels wide
     //and q factor, .5 is normal, higher q = more expressive bracket
     public makeCurlyBrace(x1, y1, x2, y2, w, q) {
@@ -3952,17 +3920,17 @@ export class GatherplotDirective {
         let qx4 = (x1 - .75 * len * dx) + (1 - q) * w * dy;
         let qy4 = (y1 - .75 * len * dy) - (1 - q) * w * dx;
 
-        return ("M " + x1 + " " + y1 +
-            " Q " + qx1 + " " + qy1 + " " + qx2 + " " + qy2 +
-            " T " + tx1 + " " + ty1 +
-            " M " + x2 + " " + y2 +
-            " Q " + qx3 + " " + qy3 + " " + qx4 + " " + qy4 +
-            " T " + tx1 + " " + ty1);
+        return ('M ' + x1 + ' ' + y1 +
+            ' Q ' + qx1 + ' ' + qy1 + ' ' + qx2 + ' ' + qy2 +
+            ' T ' + tx1 + ' ' + ty1 +
+            ' M ' + x2 + ' ' + y2 +
+            ' Q ' + qx3 + ' ' + qy3 + ' ' + qx4 + ' ' + qy4 +
+            ' T ' + tx1 + ' ' + ty1);
     }
 
     public drawAxesLinesAndTicksForGather() {
 
-        this.svg.selectAll(".axis").remove();
+        this.svg.selectAll('.axis').remove();
 
         this.drawXAxisLinesAndTicksForGather();
         this.drawYAxisLinesAndTicksForGather();
@@ -3998,311 +3966,277 @@ export class GatherplotDirective {
 
     public drawXAxisLinesAndTicksForNominalGather() {
 
-         this.xAxis = d3.axisBottom(this.xScale)
-             .tickValues(this.tickValueGeneratorForGather(this.xdim))
-             .tickFormat(this.labelGeneratorForGather(this.xdim))
-             .tickSize(0); //Provides 0 size ticks at center position for gather
+        this.xAxis = d3.axisBottom(this.xScale)
+            .tickValues(this.tickValueGeneratorForGather(this.xdim))
+            .tickFormat(this.labelGeneratorForGather(this.xdim))
+            .tickSize(0); // Provides 0 size ticks at center position for gather
 
-        this.svg.selectAll(".axis").remove();
+        this.svg.selectAll('.axis').remove();
 
-        this.xAxisNodes = this.svgGroup.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (this.height) + ")")
+        this.xAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + (this.height) + ')')
             .call(this.xAxis);
 
         this.xAxisNodes.selectAll('text')
-            .style("font-size", 10);
+            .style('font-size', 10);
 
-        d3.selectAll(".x .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "white");
+        d3.selectAll('.x .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'white');
 
-        let xAxisBracketGroup = this.xAxisNodes.selectAll(".tick")
-            .append("g")
-            .attr("x", this.xBracketGroup.bind(this))
-            .attr("y", 0)
-            .attr("class", "x controlButtonBracketGroup")
-            .attr("width", this.widthBracketGroup.bind(this))
-            .attr("height", 30)
-            .attr("rx", 5)
-            .attr("ry", 5);
+        let xAxisBracketGroup = this.xAxisNodes.selectAll('.tick')
+            .append('g')
+            .attr('x', this.xBracketGroup.bind(this))
+            .attr('y', 0)
+            .attr('class', 'x controlButtonBracketGroup')
+            .attr('width', this.widthBracketGroup.bind(this))
+            .attr('height', 30)
+            .attr('rx', 5)
+            .attr('ry', 5);
 
         if (this.config.isInteractiveAxis) {
-
-
-
             xAxisBracketGroup
-                .on("mouseover", function(d) {
-                    d3.select(this).selectAll("rect")
-                        .style("opacity", 0.7);
-                    d3.select(this).selectAll("text")
-                        .style("opacity", 0.7);
+                .on('mouseover', function(d) {
+                    d3.select(this).selectAll('rect')
+                        .style('opacity', 0.7);
+                    d3.select(this).selectAll('text')
+                        .style('opacity', 0.7);
                 })
-                .on("mouseout", function(d) {
+                .on('mouseout', function(d) {
 
 
-                    d3.select(this).selectAll("rect")
+                    d3.select(this).selectAll('rect')
                         .transition()
                         .duration(1500)
-                        .style("opacity", 0);
+                        .style('opacity', 0);
 
-                    d3.select(this).selectAll("text")
+                    d3.select(this).selectAll('text')
                         .transition()
                         .duration(1500)
-                        .style("opacity", 0);
+                        .style('opacity', 0);
                 });
 
 
 
-            xAxisBracketGroup.append("text")
-                .style("opacity", 0)
-                .style("fill", "black")
-                .attr("x", 0)
-                .attr("y", 60 - 30)
-                .attr("class", "x controlButtonBracket")
-                .attr("width", this.widthBracketGroup.bind(this))
-                .attr("height", 10)
-                .attr("dy", 10)
-                .style("text-anchor", "middle")
-                .text("Minimize");
+            xAxisBracketGroup.append('text')
+                .style('opacity', 0)
+                .style('fill', 'black')
+                .attr('x', 0)
+                .attr('y', 60 - 30)
+                .attr('class', 'x controlButtonBracket')
+                .attr('width', this.widthBracketGroup.bind(this))
+                .attr('height', 10)
+                .attr('dy', 10)
+                .style('text-anchor', 'middle')
+                .text('Minimize');
 
-            xAxisBracketGroup.append("text")
-                .style("opacity", 0)
-                .style("fill", "black")
-                .attr("x", 0)
-                .attr("y", 60 - 14)
-                .attr("class", "x controlButtonBracket")
-                .attr("width", this.widthBracketGroup.bind(this))
-                .attr("height", 10)
-                .attr("dy", 10)
-                .style("text-anchor", "middle")
-                .text("Maximize");
-
-
+            xAxisBracketGroup.append('text')
+                .style('opacity', 0)
+                .style('fill', 'black')
+                .attr('x', 0)
+                .attr('y', 60 - 14)
+                .attr('class', 'x controlButtonBracket')
+                .attr('width', this.widthBracketGroup.bind(this))
+                .attr('height', 10)
+                .attr('dy', 10)
+                .style('text-anchor', 'middle')
+                .text('Maximize');
             //     });
 
-            xAxisBracketGroup.append("rect")
-                .style("opacity", 0)
-                .style("fill", "gray")
-                .attr("x", this.xBracketGroup.bind(this))
-                .attr("y", 60 - 32)
-                .attr("class", "x controlButtonBracket")
-                .attr("width", this.widthBracketGroup.bind(this))
-                .attr("height", 14)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .on("mouseover", function(d) {
-                    d3.select(this).style("fill", 'lightsteelblue');
+            xAxisBracketGroup.append('rect')
+                .style('opacity', 0)
+                .style('fill', 'gray')
+                .attr('x', this.xBracketGroup.bind(this))
+                .attr('y', 60 - 32)
+                .attr('class', 'x controlButtonBracket')
+                .attr('width', this.widthBracketGroup.bind(this))
+                .attr('height', 14)
+                .attr('rx', 5)
+                .attr('ry', 5)
+                .on('mouseover', function(d) {
+                    d3.select(this).style('fill', 'lightsteelblue');
                 })
-                .on("mouseout", function(d) {
+                .on('mouseout', function(d) {
 
-
-                    d3.select(this).style("fill", 'lightgray')
+                    d3.select(this).style('fill', 'lightgray')
 
                 })
-                .on("click", (d, i) => {
+                .on('click', (d, i) => {
 
                     this.toggleMinimizeCluster(this.xdim, i);
                 });
 
-            xAxisBracketGroup.append("rect")
-                .style("opacity", 0)
-                .style("fill", "gray")
-                .attr("x", this.xBracketGroup.bind(this))
-                .attr("y", 60 - 16)
-                .attr("class", "x controlButtonBracket")
-                .attr("width", this.widthBracketGroup.bind(this))
-                .attr("height", 14)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .on("mouseover", function(d) {
-                    d3.select(this).style("fill", 'green');
+            xAxisBracketGroup.append('rect')
+                .style('opacity', 0)
+                .style('fill', 'gray')
+                .attr('x', this.xBracketGroup.bind(this))
+                .attr('y', 60 - 16)
+                .attr('class', 'x controlButtonBracket')
+                .attr('width', this.widthBracketGroup.bind(this))
+                .attr('height', 14)
+                .attr('rx', 5)
+                .attr('ry', 5)
+                .on('mouseover', function(d) {
+                    d3.select(this).style('fill', 'green');
                 })
-                .on("mouseout", function(d) {
+                .on('mouseout', function(d) {
 
-
-                    d3.select(this).style("fill", 'lightgray')
+                    d3.select(this).style('fill', 'lightgray');
 
                 })
-                .on("click", (d, i) => {
-                    console.log(d);
+                .on('click', (d, i) => {
                     // toggleMinimizeCluster(this.xdim, i);
                     this.toggleMaximizeCluster(this.xdim, i);
                 });
 
-
-
         }
 
-
-
-
-        xAxisBracketGroup.append("path")
-            .attr("class", "x bracket")
+        xAxisBracketGroup.append('path')
+            .attr('class', 'x bracket')
             .transition()
             .duration(500)
-            .attr("d", this.pathXBracket.bind(this));
-
-
-
+            .attr('d', this.pathXBracket.bind(this));
 
     }
 
-
     public drawYAxisLinesAndTicksForNominalGather() {
 
+        this.yAxis = d3.axisLeft(this.yScale)
+            .tickValues(this.tickValueGeneratorForGather(this.ydim))
+            .tickFormat(this.labelGeneratorForGather(this.ydim))
+            .tickSize(0); // Provides 0 size ticks at center position for gather
 
-
-
-         this.yAxis = d3.axisLeft(this.yScale)
-             .tickValues(this.tickValueGeneratorForGather(this.ydim))
-             .tickFormat(this.labelGeneratorForGather(this.ydim))
-             .tickSize(0); //Provides 0 size ticks at center position for gather
-
-
-        this.yAxisNodes = this.svgGroup.append("g")
-            .attr("class", "y axis")
+        this.yAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'y axis')
             .call(this.yAxis);
 
-
         this.yAxisNodes.selectAll('text')
-            .style("font-size", 10);
+            .style('font-size', 10);
 
-        d3.selectAll(".y .tick line")
-            .style("stroke-width", 1)
-            .style("stroke", "white");
+        d3.selectAll('.y .tick line')
+            .style('stroke-width', 1)
+            .style('stroke', 'white');
 
-
-        let yAxisBracketGroup = this.yAxisNodes.selectAll(".tick")
-            .append("g")
-            .attr("x", 0)
-            .attr("y", this.yBracketGroup.bind(this))
-            .attr("class", "y controlButtonBracketGroup")
-            .attr("width", this.margin)
-            .attr("height", this.heightBracketGroup.bind(this))
-            .attr("rx", 5)
-            .attr("ry", 5);
-
-
+        let yAxisBracketGroup = this.yAxisNodes.selectAll('.tick')
+            .append('g')
+            .attr('x', 0)
+            .attr('y', this.yBracketGroup.bind(this))
+            .attr('class', 'y controlButtonBracketGroup')
+            .attr('width', this.margin)
+            .attr('height', this.heightBracketGroup.bind(this))
+            .attr('rx', 5)
+            .attr('ry', 5);
 
         if (this.config.isInteractiveAxis) {
 
             yAxisBracketGroup
-                .on("mouseover", function(d) {
-                    d3.select(this).selectAll("rect")
-                        .style("opacity", 0.9);
-                    d3.select(this).selectAll("text")
-                        .style("opacity", 0.9);
+                .on('mouseover', function(d) {
+                    d3.select(this).selectAll('rect')
+                        .style('opacity', 0.9);
+                    d3.select(this).selectAll('text')
+                        .style('opacity', 0.9);
                 })
-                .on("mouseout", function(d) {
+                .on('mouseout', function(d) {
 
-
-                    d3.select(this).selectAll("rect")
+                    d3.select(this).selectAll('rect')
                         .transition()
                         .duration(2000)
-                        .style("opacity", 0);
+                        .style('opacity', 0);
 
-                    d3.select(this).selectAll("text")
+                    d3.select(this).selectAll('text')
                         .transition()
                         .duration(2000)
-                        .style("opacity", 0);
+                        .style('opacity', 0);
                 });
 
+            yAxisBracketGroup.append('text')
+                .style('opacity', 0)
+                .style('fill', 'black')
+                .attr('x', 20)
+                .attr('y', 0)
+                .attr('class', 'y controlButtonBracket')
+                .attr('width', 20)
+                .attr('height', this.heightBracketGroup.bind(this))
+                .attr('dy', 10)
+                .style('text-anchor', 'left')
+                .text('Minimize');
 
-
-            yAxisBracketGroup.append("text")
-                .style("opacity", 0)
-                .style("fill", "black")
-                .attr("x", 20)
-                .attr("y", 0)
-                .attr("class", "y controlButtonBracket")
-                .attr("width", 20)
-                .attr("height", this.heightBracketGroup.bind(this))
-                .attr("dy", 10)
-                .style("text-anchor", "left")
-                .text("Minimize");
-
-            yAxisBracketGroup.append("text")
-                .style("opacity", 0)
-                .style("fill", "black")
-                .attr("x", 110)
-                .attr("y", 0)
-                .attr("class", "y controlButtonBracket")
-                .attr("width", 10)
-                .attr("height", this.heightBracketGroup.bind(this))
-                .attr("dy", 10)
-                .style("text-anchor", "left")
-                .text("Maximize");
-
+            yAxisBracketGroup.append('text')
+                .style('opacity', 0)
+                .style('fill', 'black')
+                .attr('x', 110)
+                .attr('y', 0)
+                .attr('class', 'y controlButtonBracket')
+                .attr('width', 10)
+                .attr('height', this.heightBracketGroup.bind(this))
+                .attr('dy', 10)
+                .style('text-anchor', 'left')
+                .text('Maximize');
 
             //     });
 
-            yAxisBracketGroup.append("rect")
-                .style("opacity", 0)
-                .style("fill", "gray")
-                .attr("x", 10)
-                .attr("y", -2)
-                .attr("class", "y controlButtonBracket")
-                .attr("width", this.margin)
-                .attr("height", 14)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .on("mouseover", function(d) {
-                    d3.select(this).style("fill", 'lightsteelblue');
+            yAxisBracketGroup.append('rect')
+                .style('opacity', 0)
+                .style('fill', 'gray')
+                .attr('x', 10)
+                .attr('y', -2)
+                .attr('class', 'y controlButtonBracket')
+                .attr('width', this.margin)
+                .attr('height', 14)
+                .attr('rx', 5)
+                .attr('ry', 5)
+                .on('mouseover', function(d) {
+                    d3.select(this).style('fill', 'lightsteelblue');
                 })
-                .on("mouseout", function(d) {
+                .on('mouseout', function(d) {
 
-
-                    d3.select(this).style("fill", 'lightgray')
+                    d3.select(this).style('fill', 'lightgray');
 
                 })
-                .on("click", (d, i) => {
+                .on('click', (d, i) => {
 
                     this.toggleMinimizeCluster(this.ydim, i);
                 });
 
-            yAxisBracketGroup.append("rect")
-                .style("opacity", 0)
-                .style("fill", "gray")
-                .attr("x", 100)
-                .attr("y", -2)
-                .attr("class", "y controlButtonBracket")
-                .attr("width", this.margin)
-                .attr("height", 14)
-                .attr("rx", 5)
-                .attr("ry", 5)
-                .on("mouseover", (d) => {
-                    d3.select(this.el.nativeElement).style("fill", 'green');
+            yAxisBracketGroup.append('rect')
+                .style('opacity', 0)
+                .style('fill', 'gray')
+                .attr('x', 100)
+                .attr('y', -2)
+                .attr('class', 'y controlButtonBracket')
+                .attr('width', this.margin)
+                .attr('height', 14)
+                .attr('rx', 5)
+                .attr('ry', 5)
+                .on('mouseover', (d) => {
+                    d3.select(this.el.nativeElement).style('fill', 'green');
                 })
-                .on("mouseout", (d) => {
+                .on('mouseout', (d) => {
 
-
-                    d3.select(this.el.nativeElement).style("fill", 'lightgray')
+                    d3.select(this.el.nativeElement).style('fill', 'lightgray');
 
                 })
-                .on("click", (d, i) => {
+                .on('click', (d, i) => {
                     console.log(d);
                     // toggleMinimizeCluster(this.xdim, i);
-                    this.toggleMaximizeCluster(this.ydim, i)
+                    this.toggleMaximizeCluster(this.ydim, i);
                 });
 
         }
 
-        this.yAxisNodes.selectAll(".tick")
-            .append("path")
-            .attr("class", "y bracket")
+        this.yAxisNodes.selectAll('.tick')
+            .append('path')
+            .attr('class', 'y bracket')
             .transition()
             .duration(500)
-            .attr("d", this.pathYBracket.bind(this));
-
-
+            .attr('d', this.pathYBracket.bind(this));
 
     }
 
     public toggleMinimizeCluster(dim, i) {
 
-
-        let key = <any>d3.map(this.dimSetting[dim].keyValue).values()[i];
+        let key = <any> d3.map(this.dimSetting[dim].keyValue).values()[i];
 
         let keyObject = this.dimSetting[dim].keyValue[key.keyValue];
 
@@ -4314,8 +4248,7 @@ export class GatherplotDirective {
 
     public toggleMaximizeCluster(dim, i) {
 
-
-        let key = <any>d3.map(this.dimSetting[dim].keyValue).values()[i];
+        let key = <any> d3.map(this.dimSetting[dim].keyValue).values()[i];
 
         let keyObject = this.dimSetting[dim].keyValue[key.keyValue];
 
@@ -4323,25 +4256,20 @@ export class GatherplotDirective {
 
         let keyValue = d3.map(this.dimSetting[dim].keyValue).values();
 
-
         if (keyObject.isMaximized === true) {
-
 
             keyValue.forEach((d: any) => {
 
                 d.isMinimized = true;
 
-
             });
 
             keyObject.isMinimized = false;
-
 
         } else {
             keyValue.forEach((d: any) => {
 
                 d.isMinimized = false;
-
 
             });
 
@@ -4360,8 +4288,8 @@ export class GatherplotDirective {
         let length = this.lengthOfCluster(dim, key, this.xScale);
 
         if (length === 0) {
-            return ("M 0 0 " +
-                " L 0 " + 10);
+            return ('M 0 0 ' +
+                ' L 0 ' + 10);
         } else {
 
             return this.makeCurlyBrace(-length / 2, 2, length / 2, 2, 10, 0.6);
@@ -4377,8 +4305,8 @@ export class GatherplotDirective {
         let length = this.lengthOfCluster(dim, key, this.yScale);
 
         if (length === 0) {
-            return ("M 0 0 " +
-                " L -10 " + 0);
+            return ('M 0 0 ' +
+                ' L -10 ' + 0);
         } else {
 
             return this.makeCurlyBrace(-2, length / 2, -2, -length / 2, 10, 0.6);
@@ -4542,19 +4470,21 @@ export class GatherplotDirective {
     public drawAxesLabel() {
 
         this.xAxisNodes
-            .append("text")
-            .attr("class", "axislabel")
-            .attr("x", this.width / 2)
-            .attr("y", 56)
-            .style("text-anchor", "middle")
+            .append('text')
+            .attr('class', 'axislabel')
+            .attr('x', this.width / 2)
+            .attr('y', 56)
+            .attr("fill", "black")
+            .style('text-anchor', 'middle')
             .text(this.xdim);
 
         //Setup Y axis
 
         this.yAxisNodes
-            .append("text")
-            .attr("class", "axislabel")
-            .style("text-anchor", "middle")
+            .append('text')
+            .attr('class', 'axislabel')
+            .attr("fill", "black")
+            .style('text-anchor', 'middle')
             .attr('transform', (d, i) => { // NEW
                 let vert = this.height / 2; // NEW
                 // let horz = -margin / 2; // NEW
@@ -4565,8 +4495,8 @@ export class GatherplotDirective {
 
 
         // yAxisNodes
-        //     .append("text")
-        //     .attr("class", "axislabel")
+        //     .append('text')
+        //     .attr('class', 'axislabel')
         //     .text(findDisplayName(this.ydim))
         //     .attr('transform', (d, i) => { // NEW
         //         let vert = height / 2; // NEW
@@ -4600,7 +4530,7 @@ export class GatherplotDirective {
 
     public resetLegends() {
 
-        let legendGroup = this.svg.selectAll(".legend").remove();
+        let legendGroup = this.svg.selectAll('.legend').remove();
 
     }
 
@@ -4620,39 +4550,39 @@ export class GatherplotDirective {
 
         let values = d3.range(colorDomain[0], colorDomain[1], (colorDomain[1] - colorDomain[0]) / widthHeatMap);
 
-        let g = this.svg.append("g")
-            .attr("class", "legend");
+        let g = this.svg.append('g')
+            .attr('class', 'legend');
 
 
 
-        let heatmap = g.selectAll("rect")
+        let heatmap = g.selectAll('rect')
             .data(values)
-            .enter().append("rect")
-            .attr("x", xScaleForHeatMap)
-            .attr("y", 20)
-            .attr("width", 1)
-            .attr("height", heightHeatMap)
-            .style("fill", this.colorScaleForHeatMap);
+            .enter().append('rect')
+            .attr('x', xScaleForHeatMap)
+            .attr('y', 20)
+            .attr('width', 1)
+            .attr('height', heightHeatMap)
+            .style('fill', this.colorScaleForHeatMap);
 
-        g.append("text")
-            .attr("x", this.width + 12)
-            .attr("y", 10)
-            .attr("dy", ".35em")
-            .style("text-anchor", "middle")
+        g.append('text')
+            .attr('x', this.width + 12)
+            .attr('y', 10)
+            .attr('dy', '.35em')
+            .style('text-anchor', 'middle')
             .text(this.config.colorDim);
 
-        g.append("text")
-            .attr("x", xScaleForHeatMap(values[0]))
-            .attr("y", 50)
-            .attr("dy", ".35em")
-            .style("text-anchor", "middle")
+        g.append('text')
+            .attr('x', xScaleForHeatMap(values[0]))
+            .attr('y', 50)
+            .attr('dy', '.35em')
+            .style('text-anchor', 'middle')
             .text(colorDomain[0]);
 
-        g.append("text")
-            .attr("x", xScaleForHeatMap(values[values.length - 1]))
-            .attr("y", 50)
-            .attr("dy", ".35em")
-            .style("text-anchor", "middle")
+        g.append('text')
+            .attr('x', xScaleForHeatMap(values[values.length - 1]))
+            .attr('y', 50)
+            .attr('dy', '.35em')
+            .style('text-anchor', 'middle')
             .text(colorDomain[1]);
 
     }
@@ -4660,7 +4590,7 @@ export class GatherplotDirective {
     public drawNominalLegends() {
 
 
-        let legendGroup = this.svg.selectAll(".legend")
+        let legendGroup = this.svg.selectAll('.legend')
             .data(this.getKeys(this.config.colorDim), (d) => {
                 return d;
             });
@@ -4668,41 +4598,41 @@ export class GatherplotDirective {
         legendGroup.exit().remove();
 
 
-        let legend = legendGroup.enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", (d, i) => {
-                return "translate(0," + (i * 20 + 5) + ")";
+        let legend = legendGroup.enter().append('g')
+            .attr('class', 'legend')
+            .attr('transform', (d, i) => {
+                return 'translate(0,' + (i * 20 + 5) + ')';
             });
 
-        legend.append("rect")
-            .attr("x", this.width - 18)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", (d) => {
+        legend.append('rect')
+            .attr('x', this.width - 18)
+            .attr('width', 18)
+            .attr('height', 18)
+            .style('fill', (d) => {
                 return this.color(d);
             });
 
-        legend.append("text")
-            .attr("x", this.width + 5)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "left")
+        legend.append('text')
+            .attr('x', this.width + 5)
+            .attr('y', 9)
+            .attr('dy', '.35em')
+            .style('text-anchor', 'left')
             .text((d) => {
                 return d;
             });
 
 
 
-        let g = this.svg.append("g")
-            .attr("class", "legend");
+        let g = this.svg.append('g')
+            .attr('class', 'legend');
 
 
 
-        g.append("text")
-            .attr("x", this.width - 24)
-            .attr("y", 10)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
+        g.append('text')
+            .attr('x', this.width - 24)
+            .attr('y', 10)
+            .attr('dy', '.35em')
+            .style('text-anchor', 'end')
             .text(this.config.colorDim);
 
 
