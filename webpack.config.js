@@ -13,8 +13,7 @@ const packageInfo = require('./package.json')
 
 const appConfig = {
   app: packageInfo.appPath || 'app',
-  dist: 'dist/static',
-  deploy: '../gp2-core/static/gatherplot'
+  dist: 'dist/static'
 }
 
 const prodConfig = {
