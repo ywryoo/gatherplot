@@ -203,7 +203,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
 
 
-      d3.tsv('data/Titanic.txt', (error, tdata: any) => {
+      d3.tsv('static/data/Titanic.txt', (error, tdata: any) => {
           let count = 0;
 
           tdata.map((d) => {
@@ -815,7 +815,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
       this.activeData = 'Cars Data';
 
-      d3.csv('data/cars.csv', (error, tdata: any) => {
+      d3.csv('static/data/cars.csv', (error, tdata: any) => {
           let count = 0;
 
           tdata.map((d) => {
@@ -1029,7 +1029,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
       this.activeData = 'Electronic Health Records (EHR)';
 
-      d3.csv('data/trauma.csv', (error, tdata: any) => {
+      d3.csv('static/data/trauma.csv', (error, tdata: any) => {
           let count = 0;
 
           tdata.map((d) => {
@@ -1063,7 +1063,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
       this.activeData = 'CommentIQ - Comments Data';
 
-      d3.csv('data/gatherplotFeatures.csv', (error, tdata: any) => {
+      d3.csv('static/data/gatherplotFeatures.csv', (error, tdata: any) => {
           let count = 0;
 
           tdata.map((d) => {
@@ -1097,7 +1097,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
       this.activeData = 'CommentIQ - Articles Data';
 
-      d3.csv('data/articlesForGatherplot.csv', (error, tdata: any) => {
+      d3.csv('static/data/articlesForGatherplot.csv', (error, tdata: any) => {
           let count = 0;
 
           tdata.map((d) => {

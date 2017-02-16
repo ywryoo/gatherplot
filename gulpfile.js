@@ -41,7 +41,7 @@ gulp.task('clean', (done) => {
 gulp.task('copyImages', (done) => {
   gulp.src(appConfig.app + '/images/**/*')
       .pipe(imagemin())
-      .pipe(gulp.dest(appConfig.dist + '/images'))
+      .pipe(gulp.dest(appConfig.dist + '/static/images'))
       .on('end', done)
 })
 
@@ -58,22 +58,31 @@ gulp.task('copyHtmls', (done) => {
       .on('end', done)
 })
 
-gulp.task('copyVendors', (done) => {
-  gulp.src([
-    'node_modules/bootstrap/dist/**/*',
-    'node_modules/font-awesome/css/font-awesome.min.css',
-    'node_modules/font-awesome/fonts/**/*',
-    'node_modules/jquery/dist/jquery.min.js'
-  ], {
-    base: 'node_modules'
-  })
-      .pipe(gulp.dest(appConfig.dist + '/vendor'))
+gulp.task('copyBootstrap', (done) => {
+  gulp.src('node_modules/bootstrap/dist/**/*')
+      .pipe(gulp.dest(appConfig.dist + '/static/vendor/bootstrap'))
       .on('end', done)
+})
+
+gulp.task('copyFontAwesome', (done) => {
+  gulp.src('node_modules/font-awesome/**/*')
+      .pipe(gulp.dest(appConfig.dist + '/static/vendor/font-awesome'))
+      .on('end', done)
+})
+
+gulp.task('copyJquery', (done) => {
+  gulp.src('node_modules/jquery/dist/jquery.min.js')
+      .pipe(gulp.dest(appConfig.dist + '/static/vendor/jquery'))
+      .on('end', done)
+})
+
+gulp.task('copyVendors',  ['copyBootstrap', 'copyFontAwesome', 'copyJquery'], (done) => {
+  done()
 })
 
 gulp.task('copyData', (done) => {
   gulp.src(appConfig.app + '/data/**/*')
-      .pipe(gulp.dest(appConfig.dist + '/data'))
+      .pipe(gulp.dest(appConfig.dist + '/static/data'))
       .on('end', done)
 })
 
@@ -110,9 +119,8 @@ gulp.task('watch', ['copy', 'watchApp'], () => {
   gulp.watch(appConfig.app + '/*.html', ['copyHtmls'])
   gulp.watch([
     'node_modules/bootstrap/dist/**/*',
-    'node_modules/font-awesome/css/font-awesome.min.css',
-    'node_modules/font-awesome/fonts/**/*',
-    'node_modules/jquery/dist/jquery.min.js'
+    'node_modules/font-awesome/**/*',
+    'node_modules/jquery/**/*'
   ], ['watchVendors'])
 
   browserSync.init({
