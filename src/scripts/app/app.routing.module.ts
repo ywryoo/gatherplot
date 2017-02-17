@@ -6,10 +6,17 @@
  */
 
 import { NgModule }              from '@angular/core';
-import { RouterModule, Routes }  from '@angular/router';
+import { FormsModule }      from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule, Routes } from '@angular/router';
+import { AccordionModule } from 'ng2-bootstrap/accordion';
+import { ButtonsModule } from 'ng2-bootstrap/buttons';
+import { AlertModule } from 'ng2-bootstrap/alert';
 
-import { GatherplotComponent }  from './demo/gatherplot/gatherplot.component';
+import { GatherplotComponent } from './demo/gatherplot/gatherplot.component';
+import { GatherplotDirective } from './demo/gatherplot/gatherplot.directive';
 import { PageNotFoundComponent }  from './error/404';
+
 
 const appRoutes: Routes = [
   { path: '', component: GatherplotComponent },
@@ -29,7 +36,17 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [
+    BrowserModule
+    FormsModule,
+    AccordionModule.forRoot(),
+    ButtonsModule.forRoot(),
+    AlertModule.forRoot(),
     RouterModule.forRoot(appRoutes, { useHash: true })
+  ],
+  declarations: [
+    PageNotFoundComponent,
+    GatherplotComponent,
+    GatherplotDirective
   ],
   exports: [
     RouterModule

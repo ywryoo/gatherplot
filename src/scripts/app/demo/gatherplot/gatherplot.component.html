@@ -1,421 +1,419 @@
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6">
-                <div>
-                    <h5>
-                        <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
-                            <div class="btn-group">
-                                <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
-                            </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div>
+                <h5>
+                    <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
+                        <div class="btn-group">
+                            <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
                         </div>
-                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
-                            Try these buttons.</alert>
-                        <div class="btn-group" [hidden]="!isScatter">
-                                <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
-                        </div>
-                    </h5>
-                    <h4 class="chart-title">{{activeData}}</h4>
-                    <div *ngFor="let alert of alerts">
-                        <alert [type]="alert.type" dismissible=true>{{alert.msg}}</alert>
                     </div>
-                    <div [gatherplot]></div>
-                    <!--(click)="d3OnClick(item)" -->
-                    <div class="chart-simple-interface">
-                        <h5>Show me
-                            <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
-                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
-                            </select>&nbsp;vs&nbsp;.
-                            <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
-                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
-                            </select>
-                            <br>
-                            <br>
-                            Mark nodes with color according to
-                            <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
-                              <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                              <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
-                            </select>
-                        </h5>
-                        <div [ngClass]="{tryMe: isRelativeSelectFocused}">
-                            <h6>
-                                <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
-                        </div>
-                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
-                            Try this check button.</alert>
+                    <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
+                        Try these buttons.</alert>
+                    <div class="btn-group" [hidden]="!isScatter">
+                            <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
                     </div>
+                </h5>
+                <h4 class="chart-title">{{activeData}}</h4>
+                <div *ngFor="let alert of alerts">
+                    <alert [type]="alert.type" dismissible=true>{{alert.msg}}</alert>
                 </div>
-                <div class="sidebar-nav">
-                    <h3>Guided Tours</h3>
-                    <accordion [closeOthers]="true">
-
-                        <accordion-group [isOpen]="isCarsOpen">
-                            <div accordion-heading> <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isCarsOpen, 'glyphicon-chevron-right': !isCarsOpen}"></i>
-                              Cars Dataset
-                              <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataCars()">Load</button>
-                            </div>
-                            <div>
-                                <table class="table table-hover table-condensed">
-                                    <tr>
-                                        <td>This example introduces gatherplots.</td>
-                                    </tr>
-                                    <tr>
-                                        <td>First, start with scatterplots.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default chart-instruction" (click)="changeConfigCarsScatterplots()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Scatterplots produces overplotting with Cylinders.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsScatterOneNominal()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Jittering can help determine a size of each group.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsJitterOneNominal()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>However, when there are multiple subgroups, it is hard to judge the distribution.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsJitterOneNominalWithColor()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Gatherplots make overview of the distribution easier.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsGatherOneNominalWithColor()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>It can be used with two nominal variables, too.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsGatherTwoNominalWithColor()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Stacking nodes works with continuous variables as color dimension.</td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsGatherTwoNominalWithContinuousColor()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </accordion-group>
-                        <accordion-group [isOpen]="isTitanicOpen">
-                            <div accordion-heading>
-                              <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isTitanicOpen, 'glyphicon-chevron-right': !isTitanicOpen}"></i>
-                              Survivor of Titanic
-                              <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataTitanic()">Load</button>
-                            </div>
-                            <div>
-                                <table class="table table-hover table-condensed">
-                                    <tr>
-                                        <td>
-                                            Let's explore advanced features of gatherplots.
-                                            First begin with all the people on board.
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicLoadAll()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>See how many people survived in general.</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicLoadAllSurvived()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Is there gender-wise difference?</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicGenderSurvived()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Add a class variable to analysis.</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicClassGenderSurvived()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>How we can compare subgroups within groups of different size?</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicClassGenderSurvivedRelative()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </accordion-group>
-                        <accordion-group [isOpen]="isMammoOpen">
-                            <div accordion-heading>
-                              <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isMammoOpen, 'glyphicon-chevron-right': !isMammoOpen}"></i>
-                              Bayesian Inference - Mammogram
-                              <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataMammo()">Load</button>
-                            </div>
-                            <p>The absolute/relative mode of gatherplot can be used to aid the decision process of the bayesian inference problem.</p>
-                            <p>The probability that a woman has breast cancer is 1%. The probability that the disease is detected by a mammography is 80%. The probability that the test detects the disease although the patient does not have it is 9.6%.
-                                <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoProblem()">Visualize</button>
-                            </p>
-                            <p>If a woman is tested as positive, what is the probability that she indeed has breast cancer?
-                              <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoAnswer()">Visualize</button>
-                            </p>
-                        </accordion-group>
-
-
-                        <!-- <accordion-group [isOpen]="isMatrixOpen">
-                            <div accordion-heading> <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isMatrixOpen, 'glyphicon-chevron-right': !isMatrixOpen}"></i> Gatherplot matrices (GPLOM)
-                            </div>
-
-                            <div>
-
-                                <table class="table table-hover table-condensed">
-
-                                    <tr>
-                                        You can create Gatherplots matrices (GPLOM), which are extension of scatterplot matrices (SPLOM).
-                                    </tr>
-                                    <td>Open it on a separate browser window. This supports Brushing and Linking. <strong> Please note it may take a while depending on the computing power of your computer </strong>.
-                                    </td>
-                                    <td>
-                                        <button class="pull-right btn btn-link btn-default " (click)="openGPLOM()">Open
-                                </a>
-                                    </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>
-                                                GPLOM as a navigational tool. Open it on a separate browser window.
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="openGPLOMNav()">Open
-                                </a>
-                                        </td>
-                                    </tr>
-
-                                </table>
-
-                            </div>
-
-
-
-                        </accordion-group>
- -->
-                        <accordion-group [isOpen]="isContinuousOpen">
-                            <div accordion-heading>
-                              <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isContinuousOpen, 'glyphicon-chevron-right': !isContinousOpen}"></i>
-                              Continuous Variables
-                              <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataContinuous()">Load</button>
-                            </div>
-                            <div>
-                                <table class="table table-hover table-condensed">
-                                    <tr>
-                                        <td>Gatherplots are also effective dealing with overplotting in continuous variables, too.
-                                            First create a random dataset with large nodes to create overplotting.
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousScatter()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>See how gatherplots handle this.</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousGather()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>You can change bin size, too.</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousGatherWithBinSize()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <p>Relative mode shows distributions of subgroups in minor groups enlarged.</p>
-                                        </td>
-                                        <td>
-                                            <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousGatherWithBinSizeRelative()">Visualize</button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </accordion-group>
-                        <accordion-group [isOpen]="isPatientOpen">
-                            <div accordion-heading>
-                              <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isPatientOpen, 'glyphicon-chevron-right': !isPatientOpen}"></i>
-                              Electronic Health Record (EHR)
-                              <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataEHR()">Load</button>
-                            </div>
-                            <div>
-                                <table class="table table-hover table-condensed">
-                                    <tr>
-                                        This example shows how gatherplot can be used to visualize EHR data
-                                    </tr>
-                                </table>
-                            </div>
-                        </accordion-group>
-                        <accordion-group [isOpen]="isLensOpen">
-                            <div accordion-heading>
-                              <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isLensOpen}"></i>
-                              Gatherlens
-                            </div>
-                            <div>
-                                <table class="table table-hover table-condensed">
-                                    <tr>
-                                        Gatherlens provides a new way to look into the crowded scatterplots.
-                                    </tr>
-                                    <!-- <td>Open it on a separate browser window.
-                                    </td>
-                                    <td>
-                                        <button class="pull-right btn btn-link btn-default " (click)="openLens()">Open
-                                </a>
-                                    </td> -->
-                                </table>
-                            </div>
-                        </accordion-group>
-                        <accordion-group [isOpen]="isVWViewerOpen">
-                            <div accordion-heading>
-                              <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isVWViewer}"></i>
-                              CommentIQ Dataset
-                            </div>
-                            <div>
-                                <table class="table table-hover table-condensed">
-                                    <tr>
-                                        <td>Load comments data</td>
-                                        <td>
-                                            <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataComments()">Load</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Load articles data</td>
-                                        <td>
-                                            <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataArticles()">Load</button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </accordion-group>
-                    </accordion>
-                    <accordion [closeOthers]="false">
-                        <accordion-group [isOpen]="isAdvancedOptionOpen">
-                            <div accordion-heading>
-                              <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': isAdvancedOptionOpen, 'glyphicon-chevron-right': !isAdvancedOptionOpen}"></i> Under the Hood (Advanced Option)
-                            </div>
-                            <div class="well">
-                                <div>
-                                    <table class="table table-hover">
-                                        <tr>
-                                            <td>
-                                              <div [ngClass]="{tryMe: isBinSizeFocused}">
-                                                  Data Binning Size:
-                                                  <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
-                                                  <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)"min="1" max="50">
-                                              </div>
-                                              <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
-                                                  Try different values for a bin size.</alert>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div name="CSVurlForm">
-                                                    Load CSV: {{customCSV}}
-                                                    <br>
-                                                    <input clas="input-xxlarge search-query" name="csvInput" type="text" [(ngModel)]="customCSV" placeholder="Enter the url of CSV">
-                                                    <button class="btn btn-sm btn-default" (click)="changeActiveDataCustomCSV(customCSV)">Load</button>
-                                                    <!-- <alert class="error" [hidden]="!csvInput.error.url">Not valid url!</alert> -->
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div>
-                                                    If you want to try more option, you can use a dev version <a href="http://gatherplot.herokuapp.com" class="btn btn-link btn-default">here</a>!
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <!--/span-->
-                            </div>
-                            <!--/row-->
-                        </accordion-group>
-                    </accordion>
-                </div>
-            <!--/span-->
-                <!--/.well -->
-            </div>
-            <div class="col-md-6">
-                <div>
-                    <h5>
-                        <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
-                            <div class="btn-group">
-                                <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
-                            </div>
-                        </div>
-                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
-                            Try these buttons.</alert>
-                        <div class="btn-group" [hidden]="!isScatter">
-                                <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
-                        </div>
+                <div [gatherplot]></div>
+                <!--(click)="d3OnClick(item)" -->
+                <div class="chart-simple-interface">
+                    <h5>Show me
+                        <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
+                            <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                            <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        </select>&nbsp;vs&nbsp;.
+                        <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
+                            <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                            <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        </select>
+                        <br>
+                        <br>
+                        Mark nodes with color according to
+                        <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
+                          <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                          <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        </select>
                     </h5>
-                    <h4 class="chart-title">{{activeData}}</h4>
-                    <div *ngFor="let alert of alerts">
-                        <alert [type]="alert.type" dismissible=true>{{alert.msg}}</alert>
+                    <div [ngClass]="{tryMe: isRelativeSelectFocused}">
+                        <h6>
+                            <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
                     </div>
-                    <div [gatherplot]></div>
-                    <!--(click)="d3OnClick(item)" -->
-                    <div class="chart-simple-interface">
-                        <h5>Show me
-                            <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
-                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
-                            </select>&nbsp;vs&nbsp;.
-                            <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
-                                <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                                <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
-                            </select>
-                            <br>
-                            <br>
-                            Mark nodes with color according to
-                            <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
-                              <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                              <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
-                            </select>
-                        </h5>
-                        <div [ngClass]="{tryMe: isRelativeSelectFocused}">
-                            <h6>
-                                <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
-                        </div>
-                        <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
-                            Try this check button.</alert>
-                    </div>
+                    <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
+                        Try this check button.</alert>
                 </div>
             </div>
-            <!--/span-->
         </div>
-        <!--/row-->
+        <div class="col-md-6">
+            <div>
+                <h5>
+                    <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
+                        <div class="btn-group">
+                            <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
+                        </div>
+                    </div>
+                    <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
+                        Try these buttons.</alert>
+                    <div class="btn-group" [hidden]="!isScatter">
+                            <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
+                    </div>
+                </h5>
+                <h4 class="chart-title">{{activeData}}</h4>
+                <div *ngFor="let alert of alerts">
+                    <alert [type]="alert.type" dismissible=true>{{alert.msg}}</alert>
+                </div>
+                <div [gatherplot]></div>
+                <!--(click)="d3OnClick(item)" -->
+                <div class="chart-simple-interface">
+                    <h5>Show me
+                        <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
+                            <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                            <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        </select>&nbsp;vs&nbsp;.
+                        <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
+                            <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                            <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        </select>
+                        <br>
+                        <br>
+                        Mark nodes with color according to
+                        <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
+                          <option *ngIf="!nomaConfig.dims">-- undefined --</option>
+                          <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        </select>
+                    </h5>
+                    <div [ngClass]="{tryMe: isRelativeSelectFocused}">
+                        <h6>
+                            <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
+                    </div>
+                    <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
+                        Try this check button.</alert>
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="row">
+        <div class="sidebar-nav">
+            <h3>Guided Tours</h3>
+            <accordion [closeOthers]="true">
+
+                <accordion-group [isOpen]="isCarsOpen">
+                    <div accordion-heading> <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isCarsOpen, 'glyphicon-chevron-right': !isCarsOpen}"></i>
+                      Cars Dataset
+                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataCars()">Load</button>
+                    </div>
+                    <div>
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                <td>This example introduces gatherplots.</td>
+                            </tr>
+                            <tr>
+                                <td>First, start with scatterplots.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default chart-instruction" (click)="changeConfigCarsScatterplots()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Scatterplots produces overplotting with Cylinders.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsScatterOneNominal()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Jittering can help determine a size of each group.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsJitterOneNominal()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>However, when there are multiple subgroups, it is hard to judge the distribution.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsJitterOneNominalWithColor()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Gatherplots make overview of the distribution easier.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsGatherOneNominalWithColor()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>It can be used with two nominal variables, too.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsGatherTwoNominalWithColor()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Stacking nodes works with continuous variables as color dimension.</td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default" (click)="changeConfigCarsGatherTwoNominalWithContinuousColor()">Visualize</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </accordion-group>
+                <accordion-group [isOpen]="isTitanicOpen">
+                    <div accordion-heading>
+                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isTitanicOpen, 'glyphicon-chevron-right': !isTitanicOpen}"></i>
+                      Survivor of Titanic
+                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataTitanic()">Load</button>
+                    </div>
+                    <div>
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                <td>
+                                    Let's explore advanced features of gatherplots.
+                                    First begin with all the people on board.
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicLoadAll()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>See how many people survived in general.</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicLoadAllSurvived()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Is there gender-wise difference?</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicGenderSurvived()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Add a class variable to analysis.</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicClassGenderSurvived()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>How we can compare subgroups within groups of different size?</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicClassGenderSurvivedRelative()">Visualize</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </accordion-group>
+                <accordion-group [isOpen]="isMammoOpen">
+                    <div accordion-heading>
+                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isMammoOpen, 'glyphicon-chevron-right': !isMammoOpen}"></i>
+                      Bayesian Inference - Mammogram
+                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataMammo()">Load</button>
+                    </div>
+                    <p>The absolute/relative mode of gatherplot can be used to aid the decision process of the bayesian inference problem.</p>
+                    <p>The probability that a woman has breast cancer is 1%. The probability that the disease is detected by a mammography is 80%. The probability that the test detects the disease although the patient does not have it is 9.6%.
+                        <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoProblem()">Visualize</button>
+                    </p>
+                    <p>If a woman is tested as positive, what is the probability that she indeed has breast cancer?
+                      <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoAnswer()">Visualize</button>
+                    </p>
+                </accordion-group>
+
+
+                <!-- <accordion-group [isOpen]="isMatrixOpen">
+                    <div accordion-heading> <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isMatrixOpen, 'glyphicon-chevron-right': !isMatrixOpen}"></i> Gatherplot matrices (GPLOM)
+                    </div>
+
+                    <div>
+
+                        <table class="table table-hover table-condensed">
+
+                            <tr>
+                                You can create Gatherplots matrices (GPLOM), which are extension of scatterplot matrices (SPLOM).
+                            </tr>
+                            <td>Open it on a separate browser window. This supports Brushing and Linking. <strong> Please note it may take a while depending on the computing power of your computer </strong>.
+                            </td>
+                            <td>
+                                <button class="pull-right btn btn-link btn-default " (click)="openGPLOM()">Open
+                        </a>
+                            </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>
+                                        GPLOM as a navigational tool. Open it on a separate browser window.
+                                    </p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="openGPLOMNav()">Open
+                        </a>
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+
+
+                </accordion-group>-->
+
+                <accordion-group [isOpen]="isContinuousOpen">
+                    <div accordion-heading>
+                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isContinuousOpen, 'glyphicon-chevron-right': !isContinousOpen}"></i>
+                      Continuous Variables
+                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataContinuous()">Load</button>
+                    </div>
+                    <div>
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                <td>Gatherplots are also effective dealing with overplotting in continuous variables, too.
+                                    First create a random dataset with large nodes to create overplotting.
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousScatter()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>See how gatherplots handle this.</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousGather()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>You can change bin size, too.</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousGatherWithBinSize()">Visualize</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Relative mode shows distributions of subgroups in minor groups enlarged.</p>
+                                </td>
+                                <td>
+                                    <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousGatherWithBinSizeRelative()">Visualize</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </accordion-group>
+                <accordion-group [isOpen]="isPatientOpen">
+                    <div accordion-heading>
+                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isPatientOpen, 'glyphicon-chevron-right': !isPatientOpen}"></i>
+                      Electronic Health Record (EHR)
+                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataEHR()">Load</button>
+                    </div>
+                    <div>
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                This example shows how gatherplot can be used to visualize EHR data
+                            </tr>
+                        </table>
+                    </div>
+                </accordion-group>
+                <accordion-group [isOpen]="isLensOpen">
+                    <div accordion-heading>
+                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isLensOpen}"></i>
+                      Gatherlens
+                    </div>
+                    <div>
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                Gatherlens provides a new way to look into the crowded scatterplots.
+                            </tr>
+                            <!-- <td>Open it on a separate browser window.
+                            </td>
+                            <td>
+                                <button class="pull-right btn btn-link btn-default " (click)="openLens()">Open
+                        </a>
+                            </td> -->
+                        </table>
+                    </div>
+                </accordion-group>
+                <accordion-group [isOpen]="isVWViewerOpen">
+                    <div accordion-heading>
+                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isVWViewer}"></i>
+                      CommentIQ Dataset
+                    </div>
+                    <div>
+                        <table class="table table-hover table-condensed">
+                            <tr>
+                                <td>Load comments data</td>
+                                <td>
+                                    <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataComments()">Load</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Load articles data</td>
+                                <td>
+                                    <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataArticles()">Load</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </accordion-group>
+            </accordion>
+            <accordion [closeOthers]="false">
+                <accordion-group [isOpen]="isAdvancedOptionOpen">
+                    <div accordion-heading>
+                      <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': isAdvancedOptionOpen, 'glyphicon-chevron-right': !isAdvancedOptionOpen}"></i> Under the Hood (Advanced Option)
+                    </div>
+                    <div class="well">
+                        <div>
+                            <table class="table table-hover">
+                                <tr>
+                                    <td>
+                                      <div [ngClass]="{tryMe: isBinSizeFocused}">
+                                          Data Binning Size:
+                                          <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
+                                          <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)"min="1" max="50">
+                                      </div>
+                                      <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
+                                          Try different values for a bin size.</alert>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div name="CSVurlForm">
+                                            Load CSV: {{customCSV}}
+                                            <br>
+                                            <input clas="input-xxlarge search-query" name="csvInput" type="text" [(ngModel)]="customCSV" placeholder="Enter the url of CSV">
+                                            <button class="btn btn-sm btn-default" (click)="changeActiveDataCustomCSV(customCSV)">Load</button>
+                                            <!-- <alert class="error" [hidden]="!csvInput.error.url">Not valid url!</alert> -->
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            If you want to try more option, you can use a dev version <a href="http://gatherplot.herokuapp.com" class="btn btn-link btn-default">here</a>!
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!--/span-->
+                    </div>
+                    <!--/row-->
+                </accordion-group>
+            </accordion>
+        </div>
+    </div>
+</div>

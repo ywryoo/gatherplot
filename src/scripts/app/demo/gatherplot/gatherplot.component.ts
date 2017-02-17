@@ -1,4 +1,5 @@
 /**
+ * From https://github.com/intuinno/gatherplot/blob/master/app/scripts/controllers/demoCtrl.js
  * Created by Yangwook Ryoo on 2017.
  *
  * This source code is licensed under the MIT license found in the
