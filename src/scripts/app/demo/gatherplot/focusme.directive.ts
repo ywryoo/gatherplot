@@ -8,18 +8,18 @@
 import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
-   selector: '[focusMe]'
+    selector: '[focusMe]'
 })
 
 export class FocusmeDirective {
-  constructor(private el: ElementRef) {
-    // to address @blesh's comment, set attribute value to 'false'
-    // on blur event:
-/*    el.bind('blur', function() {
-        console.log('blur');
-        scope.$apply(model.assign(scope, false));
-    });*/
-  }
+    constructor(private el: ElementRef) {
+        // to address @blesh's comment, set attribute value to 'false'
+        // on blur event:
+        /*    el.bind('blur', function() {
+                console.log('blur');
+                scope.$apply(model.assign(scope, false));
+            });*/
+    }
 }
   /*
   var model = $parse(attrs.focusMe);

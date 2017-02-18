@@ -14,1115 +14,1115 @@ import { Subscription } from 'rxjs/Subscription';
 import * as d3 from 'd3';
 
 @Component({
-  selector: 'my-demo',
-  templateUrl: './gatherplot.component.html',
-  providers: [ConfigService, DataService]
+    selector: 'my-demo',
+    templateUrl: './gatherplot.component.html',
+    providers: [ConfigService, DataService]
 })
 
 export class GatherplotComponent implements OnInit, OnDestroy {
-  public configMatrix: any;
-  public customCSV: any;
-  public loadedData: any;
-  public onlyNumbers: any;
-//  public dimsum: any;
-  public nomaConfig: any;
-//  public context: any;
-//  public nomaBorder: any;
-//  public nomaShapeRendering: any;
-  public alerts: any;
-  public isPlotSelectFocused: any;
-  public isScatter: any;
-  public isRelativeSelectFocused: boolean;
-  public isBinSizeFocused: boolean;
-  public activeData: string;
-  public isAdvancedOptionOpen: boolean;
-  public isCarsOpen: boolean;
-  private configSubscription: Subscription;
-//  private roundSubscription: Subscription;
-//  private borderSubscription: Subscription;
-//  private shapeRenderingSubscription: Subscription;
-//  private dimsumSubscription: Subscription;
-//  private contextSubscription: Subscription;
-//  private dataSubscription: Subscription;
-  constructor(private configService: ConfigService, private dataService: DataService) {
-}
-  ngOnInit() {
-    this.configSubscription = this.configService.config$
-         .subscribe((config) => {
-           //For getting default settings
-           this.nomaConfig = config;
-           this.isScatter = (config.isGather === 'scatter');
-         });
-//    this.borderSubscription = this.configService.border$
-//         .subscribe(border => this.nomaBorder = border);
-//    this.shapeRenderingSubscription = this.configService.shapeRendering$
-//         .subscribe(shapeRendering => this.nomaShapeRendering = shapeRendering);
-//    this.dimsumSubscription = this.configService.dimsum$
-//         .subscribe(dimsum => this.dimsum = dimsum);
-//    this.contextSubscription = this.configService.context$
-//         .subscribe(context => this.context = context);
-
-    this.changeActiveDataCars();
-  }
-
-  ngOnDestroy() {
-    // prevent memory leak when component is destroyed
-    this.configSubscription.unsubscribe();
-//    this.borderSubscription.unsubscribe();
-//    this.shapeRenderingSubscription.unsubscribe();
-//    this.dimsumSubscription.unsubscribe();
-//    this.contextSubscription.unsubscribe();
-  }
-
-  private updateIsGather(isGather: string) {
-    this.nomaConfig.isGather = isGather;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  private updateLens(lens: string) {
-    this.nomaConfig.lens = lens;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  private updateXDim(xDim: string) {
-    this.nomaConfig.xDim = xDim;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  private updateYDim(yDim: string) {
-    this.nomaConfig.yDim = yDim;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  private updateColorDim(colorDim: string) {
-    this.nomaConfig.colorDim = colorDim;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  private updateRelativeMode(relativeMode: boolean) {
-    this.nomaConfig.relativeMode = relativeMode ? 'relative' : 'absolute';
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  private validateAndUpdateBinsize(binSize: number)  {
-    (binSize < 0 || binSize > 50) ? this.nomaConfig.binSize = 10 : this.nomaConfig.binSize = binSize;
-    this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
-
-  public addAlert(messageType, messageContent) {
-      this.alerts.push({
-          msg: messageContent,
-          type: messageType
-      });
-  }
-
-  public focusElement(element) {
-      element = true;
-  }
-
-  public resetTutMsg() {
-      this.alerts = [];
-      this.isPlotSelectFocused = false;
-      this.isRelativeSelectFocused = false;
-      this.isBinSizeFocused = false;
-  }
-
-  public d3OnClick(item: any) {
-      this.nomaConfig.xDim = item.xDim;
-      this.nomaConfig.yDim = item.yDim;
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      // alert(item.name);
-  }
-/*
-  public openGPLOM() {
-      $window.open('/gplom.html', '_blank');
-  }
-
-  public openLens() {
-      $window.open('/lens.html', '_blank');
-  }
-
-
-  public openGPLOMNav() {
-      $window.open('/indexmatrixNav.html', '_blank');
-  }
-
-
-  // this.$watch()
-  public changeGPLOM() {
-      loadGPLOM();
-  }*/
-
-
-  public changeActiveDataCustomCSV(customCSV) {
-      this.resetTutMsg();
-
-
-      this.activeData = 'Cars Data';
-
-      d3.csv(customCSV, (error, tdata: any) => {
-          let count = 0;
-
-          tdata.map((d) => {
-              d.id = count;
-              count += 1;
-          });
-
-          this.dataService.setData(tdata);
-          this.nomaConfig.dims = d3.keys(tdata[0]);
-
-          let index = this.nomaConfig.dims.indexOf('id');
-          this.nomaConfig.dims.splice(index, 1);
-
-
-          index = this.nomaConfig.dims.indexOf('Name');
-          this.nomaConfig.dims.splice(index, 1);
-
-
-          this.nomaConfig.xDim = null;
-          this.nomaConfig.yDim = null;
-          this.nomaConfig.colorDim = null;
-
-          this.nomaConfig.isGather = 'gather';
-          this.nomaConfig.relativeMode = 'absolute';
-          this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      });
-
-
-
-
-  }
-
-  public changeActiveDataTitanic() {
-      this.resetTutMsg();
-
-
-      this.activeData = 'Survivors of Titanic';
-
-      let lowMeanHighSDRandomNumberGenerator = d3.randomNormal(30, 5);
-      let highMeanLowSDRandomNumberGenerator = d3.randomNormal(50, 10);
-
-
-
-      d3.tsv('static/data/Titanic.txt', (error, tdata: any) => {
-          let count = 0;
-
-          tdata.map((d) => {
-              d.id = count;
-              count += 1;
-
-      // if (d.Survived === 'Yes') {
-
-      //     let a = Math.random();
-
-      //     if (d.Class === 'First') {
-
-
-
-      //         if (a < 0.202325) {
-      //             d.Port = 'Southhampton';
-      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
-
-      //         } else if (a < 0.26496) {
-      //             d.Port = 'Queenstown';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
-
-
-      //         } else if (a < 0.61064) {
-
-      //             d.Port = 'Cherbourg';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      //  highMeanLowSDRandomNumberGenerator();
-
-      //         } else {
-
-      //             d.Port = 'Belfast';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         }
-      //     } else if (d.Class === 'Second') {
-
-      //         if (a < 0.202325) {
-      //             d.Port = 'Southhampton';
-      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
-
-      //         } else if (a < 0.26496) {
-      //             d.Port = 'Queenstown';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
-
-
-      //         } else if (a < 0.61064) {
-
-      //             d.Port = 'Cherbourg';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         } else {
-
-      //             d.Port = 'Belfast';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         }
-      //     } else if (d.Class === 'Third') {
-
-      //         if (a < 0.431254) {
-      //             d.Port = 'Southhampton';
-      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
-
-      //         } else if (a < 0.51303) {
-      //             d.Port = 'Queenstown';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
-
-
-      //         } else if (a < 0.74983) {
-
-      //             d.Port = 'Cherbourg';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         } else {
-
-      //             d.Port = 'Belfast';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         }
-      //     } else if (d.Class === 'Crew') {
-
-      //         if (a < 0.278968) {
-      //             d.Port = 'Southhampton';
-      //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
-
-      //         } else if (a < 0.50005) {
-      //             d.Port = 'Queenstown';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
-
-
-      //         } else if (a < 0.75641) {
-
-      //             d.Port = 'Cherbourg';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         } else {
-
-      //             d.Port = 'Belfast';
-      //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //         }
-      //     }
-
-
-      // } else {
-      //     if (Math.random() > 0.5) {
-      //         d.Port = 'Southhampton';
-      //         d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
-
-      //     } else if (Math.random() > 0.4) {
-      //         d.Port = 'Queenstown';
-      //         d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
-
-
-      //     } else if (Math.random() > 0.5) {
-
-      //         d.Port = 'Cherbourg';
-      //         d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator();
-
-      //     } else {
-
-      //         d.Port = 'Belfast';
-      //         d.AgeInNumbers =
-      // Math.round((lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator()) * 0.7);
-
-      //     }
-
-      // }
-
-      // d.AgeInNumbers = Math.round((lowMeanHighSDRandomNumberGenerator() +
-      // highMeanLowSDRandomNumberGenerator()) * 0.7);
-
-
-          });
-
-
-
-          this.dataService.setData(tdata);
-          this.nomaConfig.dims = d3.keys(tdata[0]);
-
-          let index = this.nomaConfig.dims.indexOf('id');
-          this.nomaConfig.dims.splice(index, 1);
-
-          this.nomaConfig.xDim = this.nomaConfig.dims[0];
-          this.nomaConfig.yDim = this.nomaConfig.dims[1];
-          this.nomaConfig.colorDim = this.nomaConfig.dims[2];
-          this.configService.setConfig(Object.assign({}, this.nomaConfig));
-
-          this.loadGPLOM();
-
-      });
-
-
-  } // End  this.changeActiveDataTitanic()
-
-
-
-  public settingForTitanicLoadAll() {
-
-      this.resetTutMsg();
-
-
-      if (this.activeData !== 'Survivors of Titanic') {
-
-          this.changeActiveDataTitanic();
+    public configMatrix: any;
+    public customCSV: any;
+    public loadedData: any;
+    public onlyNumbers: any;
+    //  public dimsum: any;
+    public nomaConfig: any;
+    //  public context: any;
+    //  public nomaBorder: any;
+    //  public nomaShapeRendering: any;
+    public alerts: any;
+    public isPlotSelectFocused: any;
+    public isScatter: any;
+    public isRelativeSelectFocused: boolean;
+    public isBinSizeFocused: boolean;
+    public activeData: string;
+    public isAdvancedOptionOpen: boolean;
+    public isCarsOpen: boolean;
+    private configSubscription: Subscription;
+    //  private roundSubscription: Subscription;
+    //  private borderSubscription: Subscription;
+    //  private shapeRenderingSubscription: Subscription;
+    //  private dimsumSubscription: Subscription;
+    //  private contextSubscription: Subscription;
+    //  private dataSubscription: Subscription;
+    constructor(private configService: ConfigService, private dataService: DataService) {
+    }
+    ngOnInit() {
+        this.configSubscription = this.configService.config$
+            .subscribe((config) => {
+                //For getting default settings
+                this.nomaConfig = config;
+                this.isScatter = (config.isGather === 'scatter');
+            });
+        //    this.borderSubscription = this.configService.border$
+        //         .subscribe(border => this.nomaBorder = border);
+        //    this.shapeRenderingSubscription = this.configService.shapeRendering$
+        //         .subscribe(shapeRendering => this.nomaShapeRendering = shapeRendering);
+        //    this.dimsumSubscription = this.configService.dimsum$
+        //         .subscribe(dimsum => this.dimsum = dimsum);
+        //    this.contextSubscription = this.configService.context$
+        //         .subscribe(context => this.context = context);
+
+        this.changeActiveDataCars();
+    }
+
+    ngOnDestroy() {
+        // prevent memory leak when component is destroyed
+        this.configSubscription.unsubscribe();
+        //    this.borderSubscription.unsubscribe();
+        //    this.shapeRenderingSubscription.unsubscribe();
+        //    this.dimsumSubscription.unsubscribe();
+        //    this.contextSubscription.unsubscribe();
+    }
+
+    private updateIsGather(isGather: string) {
+        this.nomaConfig.isGather = isGather;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    private updateLens(lens: string) {
+        this.nomaConfig.lens = lens;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    private updateXDim(xDim: string) {
+        this.nomaConfig.xDim = xDim;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    private updateYDim(yDim: string) {
+        this.nomaConfig.yDim = yDim;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    private updateColorDim(colorDim: string) {
+        this.nomaConfig.colorDim = colorDim;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    private updateRelativeMode(relativeMode: boolean) {
+        this.nomaConfig.relativeMode = relativeMode ? 'relative' : 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    private validateAndUpdateBinsize(binSize: number) {
+        (binSize < 0 || binSize > 50) ? this.nomaConfig.binSize = 10 : this.nomaConfig.binSize = binSize;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    public addAlert(messageType, messageContent) {
+        this.alerts.push({
+            msg: messageContent,
+            type: messageType
+        });
+    }
+
+    public focusElement(element) {
+        element = true;
+    }
+
+    public resetTutMsg() {
+        this.alerts = [];
+        this.isPlotSelectFocused = false;
+        this.isRelativeSelectFocused = false;
+        this.isBinSizeFocused = false;
+    }
+
+    public d3OnClick(item: any) {
+        this.nomaConfig.xDim = item.xDim;
+        this.nomaConfig.yDim = item.yDim;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        // alert(item.name);
+    }
+    /*
+      public openGPLOM() {
+          $window.open('/gplom.html', '_blank');
+      }
+
+      public openLens() {
+          $window.open('/lens.html', '_blank');
       }
 
 
-
-      this.nomaConfig.xDim = null;
-      this.nomaConfig.yDim = null;
-      this.nomaConfig.colorDim = null;
-
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'Here X and Y axes are not defined. Gatherplots make it easy to have an undefined axis.  Check scatterplots and jittering when there is undefined axis.');
-      this.focusElement(this.isPlotSelectFocused);
-
-  }
-
-  public settingForTitanicLoadAllSurvived() {
-
-      this.resetTutMsg();
-
-
-      if (this.activeData !== 'Survivors of Titanic') {
-
-          this.changeActiveDataTitanic();
+      public openGPLOMNav() {
+          $window.open('/indexmatrixNav.html', '_blank');
       }
 
 
+      // this.$watch()
+      public changeGPLOM() {
+          loadGPLOM();
+      }*/
 
-      this.nomaConfig.xDim = null;
-      this.nomaConfig.yDim = null;
-      this.nomaConfig.colorDim = 'Survived';
 
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    public changeActiveDataCustomCSV(customCSV) {
+        this.resetTutMsg();
 
 
-  }
+        this.activeData = 'Cars Data';
 
+        d3.csv(customCSV, (error, tdata: any) => {
+            let count = 0;
 
-  public settingForTitanicGenderSurvived() {
+            tdata.map((d) => {
+                d.id = count;
+                count += 1;
+            });
 
-      this.resetTutMsg();
+            this.dataService.setData(tdata);
+            this.nomaConfig.dims = d3.keys(tdata[0]);
 
+            let index = this.nomaConfig.dims.indexOf('id');
+            this.nomaConfig.dims.splice(index, 1);
 
-      if (this.activeData !== 'Survivors of Titanic') {
 
-          this.changeActiveDataTitanic();
-      }
+            index = this.nomaConfig.dims.indexOf('Name');
+            this.nomaConfig.dims.splice(index, 1);
 
 
+            this.nomaConfig.xDim = null;
+            this.nomaConfig.yDim = null;
+            this.nomaConfig.colorDim = null;
 
-      this.nomaConfig.xDim = 'Sex';
-      this.nomaConfig.yDim = null;
-      this.nomaConfig.colorDim = 'Survived';
+            this.nomaConfig.isGather = 'gather';
+            this.nomaConfig.relativeMode = 'absolute';
+            this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        });
 
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'It looks like woman had survived more likely. Is this pattern clear in jittered scatterplots?');
-      this.focusElement(this.isPlotSelectFocused);
 
 
 
-  }
+    }
 
-  public settingForTitanicClassGenderSurvived() {
+    public changeActiveDataTitanic() {
+        this.resetTutMsg();
 
-      this.resetTutMsg();
 
+        this.activeData = 'Survivors of Titanic';
 
-      if (this.activeData !== 'Survivors of Titanic') {
+        let lowMeanHighSDRandomNumberGenerator = d3.randomNormal(30, 5);
+        let highMeanLowSDRandomNumberGenerator = d3.randomNormal(50, 10);
 
-          this.changeActiveDataTitanic();
-      }
 
 
+        d3.tsv('static/data/Titanic.txt', (error, tdata: any) => {
+            let count = 0;
 
-      this.nomaConfig.xDim = 'Class';
-      this.nomaConfig.yDim = 'Sex';
-      this.nomaConfig.colorDim = 'Survived';
+            tdata.map((d) => {
+                d.id = count;
+                count += 1;
 
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'The different number of elements in the group makes it difficult to compare the percentage directly. Especially male groups of Second, Third and Crew looks similar.');
+                // if (d.Survived === 'Yes') {
 
-  }
+                //     let a = Math.random();
 
-  public settingForTitanicClassGenderSurvivedRelative() {
+                //     if (d.Class === 'First') {
 
-      this.resetTutMsg();
 
 
-      if (this.activeData !== 'Survivors of Titanic') {
+                //         if (a < 0.202325) {
+                //             d.Port = 'Southhampton';
+                //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
 
-          this.changeActiveDataTitanic();
-      }
+                //         } else if (a < 0.26496) {
+                //             d.Port = 'Queenstown';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
 
 
+                //         } else if (a < 0.61064) {
 
-      this.nomaConfig.xDim = 'Class';
-      this.nomaConfig.yDim = 'Sex';
-      this.nomaConfig.colorDim = 'Survived';
+                //             d.Port = 'Cherbourg';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                //  highMeanLowSDRandomNumberGenerator();
 
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = true;
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info',
-        'The size of nodes changes to make the entire group size same '+
-        'in order to make comparison between groups easier. ' +
-        ' Now we can see that "male Crew" has better survival rate than' +
-        ' "male 2nd" or "male 3rd". ' +
-        ' Try abolute and relative mode yourself and please leave a feedback ' +
-        'about your experience.');
-      this.focusElement(this.isRelativeSelectFocused);
+                //         } else {
 
+                //             d.Port = 'Belfast';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
+                //         }
+                //     } else if (d.Class === 'Second') {
 
+                //         if (a < 0.202325) {
+                //             d.Port = 'Southhampton';
+                //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
 
-  }
+                //         } else if (a < 0.26496) {
+                //             d.Port = 'Queenstown';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
 
 
+                //         } else if (a < 0.61064) {
 
+                //             d.Port = 'Cherbourg';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
-  ///////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////
-  // change Active Data to the Bayesian Inference-Mammogram;
+                //         } else {
 
-  public changeActiveDataMammo() {
-      this.resetTutMsg();
+                //             d.Port = 'Belfast';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
-      // Config settings
-      let numberOfEntity = 3000;
-      let numDiscreteVar = 60;
+                //         }
+                //     } else if (d.Class === 'Third') {
 
-      this.activeData = 'Bayesian Inference - Mammogram';
-      let data = [];
+                //         if (a < 0.431254) {
+                //             d.Port = 'Southhampton';
+                //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
 
-      for (let count = 0; count < numberOfEntity; count++) {
+                //         } else if (a < 0.51303) {
+                //             d.Port = 'Queenstown';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
 
-          let temp = <any>{};
 
-          temp.id = count;
+                //         } else if (a < 0.74983) {
 
-          // temp.continous_letiable1 = Math.random();
-          // temp.continous_letiable2 = Math.random();
-          // temp.discrete_letiable = Math.round(Math.random() * (numDiscreteVar - 1));
+                //             d.Port = 'Cherbourg';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
-          // if (Math.random() > 0.3) {
-          //     temp.nominal_letiable = 'Male';
-          // } else {
-          //     temp.nominal_letiable = 'Female';
-          // }
+                //         } else {
 
-          if (Math.random() > 0.99) {
-              temp.cancer = 'Cancer';
+                //             d.Port = 'Belfast';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
-              if (Math.random() > 0.8) {
-                  temp.mammo = 'Negative Mamo';
-              } else {
-                  temp.mammo = 'Positive Mamo';
-              }
+                //         }
+                //     } else if (d.Class === 'Crew') {
 
-           } else {
-              temp.cancer = 'No cancer';
+                //         if (a < 0.278968) {
+                //             d.Port = 'Southhampton';
+                //             d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
 
-              if (Math.random() > 0.096) {
-                  temp.mammo = 'Negative Mamo';
-              } else {
-                  temp.mammo = 'Positive Mamo';
-              }
-          }
+                //         } else if (a < 0.50005) {
+                //             d.Port = 'Queenstown';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
 
-           // temp.descriptor = temp.cancer + ', ' + temp.mamo;
 
-          data.push(temp);
-      }
+                //         } else if (a < 0.75641) {
 
-      this.dataService.setData(data);
-      this.nomaConfig.dims = Object.keys(data[0]);
+                //             d.Port = 'Cherbourg';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
-      let index = this.nomaConfig.dims.indexOf('id');
-      this.nomaConfig.dims.splice(index, 1);
+                //         } else {
 
-      this.nomaConfig.xDim = null;
-      this.nomaConfig.yDim = null;
-      this.nomaConfig.colorDim = null;
+                //             d.Port = 'Belfast';
+                //             d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.loadGPLOM();
+                //         }
+                //     }
 
-      // this.$apply();
 
+                // } else {
+                //     if (Math.random() > 0.5) {
+                //         d.Port = 'Southhampton';
+                //         d.AgeInNumbers = highMeanLowSDRandomNumberGenerator();
 
-  } // End  this.changeActiveDataMammo()
+                //     } else if (Math.random() > 0.4) {
+                //         d.Port = 'Queenstown';
+                //         d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator();
 
-  public changeConfigMammoProblem() {
 
-      this.resetTutMsg();
+                //     } else if (Math.random() > 0.5) {
 
+                //         d.Port = 'Cherbourg';
+                //         d.AgeInNumbers = lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator();
 
+                //     } else {
 
-      if (this.activeData !== 'Bayesian Inference - Mammogram') {
+                //         d.Port = 'Belfast';
+                //         d.AgeInNumbers =
+                // Math.round((lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator()) * 0.7);
 
-          this.changeActiveDataMammo();
-      }
+                //     }
 
+                // }
 
+                // d.AgeInNumbers = Math.round((lowMeanHighSDRandomNumberGenerator() +
+                // highMeanLowSDRandomNumberGenerator()) * 0.7);
 
-      this.nomaConfig.xDim = 'cancer';
-      this.nomaConfig.yDim = null;
-      this.nomaConfig.colorDim = 'mammo';
 
-      this.nomaConfig.relativeMode = 'absolute';
-      this.nomaConfig.isGather = 'gather';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+            });
 
-  public changeConfigMammoAnswer() {
 
-      this.resetTutMsg();
 
-      if (this.activeData !== 'Bayesian Inference - Mammogram') {
+            this.dataService.setData(tdata);
+            this.nomaConfig.dims = d3.keys(tdata[0]);
 
-          this.changeActiveDataMammo();
-      }
+            let index = this.nomaConfig.dims.indexOf('id');
+            this.nomaConfig.dims.splice(index, 1);
 
+            this.nomaConfig.xDim = this.nomaConfig.dims[0];
+            this.nomaConfig.yDim = this.nomaConfig.dims[1];
+            this.nomaConfig.colorDim = this.nomaConfig.dims[2];
+            this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
-      this.nomaConfig.xDim = 'mammo';
-      this.nomaConfig.yDim = null;
-      this.nomaConfig.colorDim = 'cancer';
+            this.loadGPLOM();
 
-      this.nomaConfig.relativeMode = 'absolute';
-      this.nomaConfig.isGather = 'gather';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+        });
 
-  public changeActiveDataContinuous() {
-      this.resetTutMsg();
 
-      // Config settings
-      let numberOfEntity = 5000;
-      let numDiscreteVar = 60;
+    } // End  this.changeActiveDataTitanic()
 
-      this.activeData = 'Continuous Variables';
-      let data = [];
 
-      let lowMeanHighSDRandomNumberGenerator = d3.randomNormal(1, 2);
-      let highMeanLowSDRandomNumberGenerator = d3.randomNormal(4, 2);
 
-      for (let count = 0; count < numberOfEntity; count++) {
+    public settingForTitanicLoadAll() {
 
-          let temp = <any>{};
+        this.resetTutMsg();
 
-          temp.id = count;
 
+        if (this.activeData !== 'Survivors of Titanic') {
 
-          if (Math.random() > 0.7) {
-              temp.nominal = 'A';
-              temp.continuous1 = highMeanLowSDRandomNumberGenerator();
+            this.changeActiveDataTitanic();
+        }
 
-          } else if (Math.random() > 0.5) {
-              temp.nominal = 'B';
-              temp.continuous1 = lowMeanHighSDRandomNumberGenerator();
 
 
-          } else {
+        this.nomaConfig.xDim = null;
+        this.nomaConfig.yDim = null;
+        this.nomaConfig.colorDim = null;
 
-              temp.nominal = 'C';
-              temp.continuous1 = lowMeanHighSDRandomNumberGenerator() +
-                                 highMeanLowSDRandomNumberGenerator();
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
 
-          }
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'Here X and Y axes are not defined. Gatherplots make it easy to have an undefined axis.  Check scatterplots and jittering when there is undefined axis.');
+        this.focusElement(this.isPlotSelectFocused);
 
+    }
 
+    public settingForTitanicLoadAllSurvived() {
 
-          temp.continuous2 = (Math.random() * (numDiscreteVar - 1));
+        this.resetTutMsg();
 
-          temp.continuous3 = Math.random();
 
-          data.push(temp);
-      }
+        if (this.activeData !== 'Survivors of Titanic') {
 
-      this.dataService.setData(data);
-      this.nomaConfig.dims = d3.keys(data[0]);
+            this.changeActiveDataTitanic();
+        }
 
-      let index = this.nomaConfig.dims.indexOf('id');
-      this.nomaConfig.dims.splice(index, 1);
 
-      this.nomaConfig.xDim = 'continuous1';
-      this.nomaConfig.yDim = 'continuous2';
-      this.nomaConfig.colorDim = 'nominal';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.nomaConfig.isGather = 'scatter';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.loadGPLOM();
 
-      this.resetTutMsg();
+        this.nomaConfig.xDim = null;
+        this.nomaConfig.yDim = null;
+        this.nomaConfig.colorDim = 'Survived';
 
-  }
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
-  public settingForContinuousScatter() {
 
-      this.resetTutMsg();
+    }
 
-      if (this.activeData !== 'Continuous Variables') {
 
-          this.changeActiveDataContinuous();
-      }
+    public settingForTitanicGenderSurvived() {
 
-     // configService.setRound('absolute');
+        this.resetTutMsg();
 
-      this.nomaConfig.xDim = 'continuous1';
-      this.nomaConfig.yDim = 'continuous2';
-      this.nomaConfig.colorDim = 'nominal';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.nomaConfig.isGather = 'scatter';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'There is a severe overplotting over the range where X value is near 4.');
 
-  }
+        if (this.activeData !== 'Survivors of Titanic') {
 
-  public settingForContinuousGather() {
+            this.changeActiveDataTitanic();
+        }
 
-      this.resetTutMsg();
 
-      if (this.activeData !== 'Continuous Variables') {
 
-          this.changeActiveDataContinuous();
-      }
+        this.nomaConfig.xDim = 'Sex';
+        this.nomaConfig.yDim = null;
+        this.nomaConfig.colorDim = 'Survived';
 
-     // configService.setRound('absolute');
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'It looks like woman had survived more likely. Is this pattern clear in jittered scatterplots?');
+        this.focusElement(this.isPlotSelectFocused);
 
-      this.nomaConfig.xDim = 'continuous1';
-      this.nomaConfig.yDim = 'continuous2';
-      this.nomaConfig.colorDim = 'nominal';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.nomaConfig.isGather = 'gather';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'The trend over the region where overplotting was severe is now clear. However the other regions where there were only small number of nodes were is barely visible. ');
 
-  }
 
-  public updateBinSize(binSize) {
+    }
 
-      this.nomaConfig.binSize = binSize;
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      return 'success intuinno';
-  }
+    public settingForTitanicClassGenderSurvived() {
 
-  public updateBinSizeDefer(binSize) {
+        this.resetTutMsg();
 
-      let deferred = new Promise((resolve, reject) => {
-        setTimeout(() => {
-            // since this fn executes async in a future turn of the event loop, we need to wrap
-            // our code into an $apply call so that the model changes are properly observed.
-            if (this.updateBinSize(binSize)) {
-                resolve('Success!');
+
+        if (this.activeData !== 'Survivors of Titanic') {
+
+            this.changeActiveDataTitanic();
+        }
+
+
+
+        this.nomaConfig.xDim = 'Class';
+        this.nomaConfig.yDim = 'Sex';
+        this.nomaConfig.colorDim = 'Survived';
+
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'The different number of elements in the group makes it difficult to compare the percentage directly. Especially male groups of Second, Third and Crew looks similar.');
+
+    }
+
+    public settingForTitanicClassGenderSurvivedRelative() {
+
+        this.resetTutMsg();
+
+
+        if (this.activeData !== 'Survivors of Titanic') {
+
+            this.changeActiveDataTitanic();
+        }
+
+
+
+        this.nomaConfig.xDim = 'Class';
+        this.nomaConfig.yDim = 'Sex';
+        this.nomaConfig.colorDim = 'Survived';
+
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = true;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info',
+            'The size of nodes changes to make the entire group size same ' +
+            'in order to make comparison between groups easier. ' +
+            ' Now we can see that "male Crew" has better survival rate than' +
+            ' "male 2nd" or "male 3rd". ' +
+            ' Try abolute and relative mode yourself and please leave a feedback ' +
+            'about your experience.');
+        this.focusElement(this.isRelativeSelectFocused);
+
+
+
+
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////
+    // change Active Data to the Bayesian Inference-Mammogram;
+
+    public changeActiveDataMammo() {
+        this.resetTutMsg();
+
+        // Config settings
+        let numberOfEntity = 3000;
+        let numDiscreteVar = 60;
+
+        this.activeData = 'Bayesian Inference - Mammogram';
+        let data = [];
+
+        for (let count = 0; count < numberOfEntity; count++) {
+
+            let temp = <any>{};
+
+            temp.id = count;
+
+            // temp.continous_letiable1 = Math.random();
+            // temp.continous_letiable2 = Math.random();
+            // temp.discrete_letiable = Math.round(Math.random() * (numDiscreteVar - 1));
+
+            // if (Math.random() > 0.3) {
+            //     temp.nominal_letiable = 'Male';
+            // } else {
+            //     temp.nominal_letiable = 'Female';
+            // }
+
+            if (Math.random() > 0.99) {
+                temp.cancer = 'Cancer';
+
+                if (Math.random() > 0.8) {
+                    temp.mammo = 'Negative Mamo';
+                } else {
+                    temp.mammo = 'Positive Mamo';
+                }
+
             } else {
-                reject('Failure');
+                temp.cancer = 'No cancer';
+
+                if (Math.random() > 0.096) {
+                    temp.mammo = 'Negative Mamo';
+                } else {
+                    temp.mammo = 'Positive Mamo';
+                }
             }
-        }, 1000);
-      })
-      return deferred;
 
-  }
+            // temp.descriptor = temp.cancer + ', ' + temp.mamo;
 
+            data.push(temp);
+        }
 
-  public settingForContinuousGatherWithBinSize() {
+        this.dataService.setData(data);
+        this.nomaConfig.dims = Object.keys(data[0]);
 
+        let index = this.nomaConfig.dims.indexOf('id');
+        this.nomaConfig.dims.splice(index, 1);
 
-      this.resetTutMsg();
+        this.nomaConfig.xDim = null;
+        this.nomaConfig.yDim = null;
+        this.nomaConfig.colorDim = null;
 
-      if (this.activeData !== 'Continuous Variables') {
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.loadGPLOM();
 
-          this.changeActiveDataContinuous;
-      }
+        // this.$apply();
 
-     // configService.setRound('absolute');
 
-      this.nomaConfig.xDim = 'continuous1';
-      this.nomaConfig.yDim = 'continuous2';
-      this.nomaConfig.colorDim = 'nominal';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.nomaConfig.isGather = 'gather';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      let promise = this.updateBinSizeDefer(7);
+    } // End  this.changeActiveDataMammo()
 
-      promise.then((greeting) => {
-          console.log('Success: ' + greeting);
-      }).catch((reason) => {
-          alert('Failed: ' + reason);
-      }).then((update) => {
-          // alert('Got notification: ' + update);
-          this.isAdvancedOptionOpen = true;
-          this.addAlert('info', 'You can try different bin size at advanced options menu below.');
-          this.focusElement(this.isBinSizeFocused);
-      });
-      this.isAdvancedOptionOpen = true;
+    public changeConfigMammoProblem() {
 
-  }
+        this.resetTutMsg();
 
-  public settingForContinuousGatherWithBinSizeRelative() {
 
-      this.resetTutMsg();
 
-      if (this.activeData !== 'Continuous Variables') {
+        if (this.activeData !== 'Bayesian Inference - Mammogram') {
 
-          this.changeActiveDataContinuous();
-      }
+            this.changeActiveDataMammo();
+        }
 
-     // configService.setRound('absolute');
 
-      this.nomaConfig.xDim = 'continuous1';
-      this.nomaConfig.yDim = 'continuous2';
-      this.nomaConfig.colorDim = 'nominal';
-      this.nomaConfig.relativeMode = true;
-      this.nomaConfig.isGather = 'gather';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
-      this.addAlert('info', 'Here you can see that the distributions of sparse regions are more visible. It makes spotting outliers much easier. Compare absolute and relative mode to feel this change. Can you tell what is the underlying distribution of these random letiables?');
-      this.focusElement(this.isRelativeSelectFocused);
+        this.nomaConfig.xDim = 'cancer';
+        this.nomaConfig.yDim = null;
+        this.nomaConfig.colorDim = 'mammo';
 
-  }
+        this.nomaConfig.relativeMode = 'absolute';
+        this.nomaConfig.isGather = 'gather';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
 
+    public changeConfigMammoAnswer() {
 
+        this.resetTutMsg();
 
-  public changeActiveDataCars() {
-      this.resetTutMsg();
+        if (this.activeData !== 'Bayesian Inference - Mammogram') {
 
+            this.changeActiveDataMammo();
+        }
 
-      this.activeData = 'Cars Data';
 
-      d3.csv('static/data/cars.csv', (error, tdata: any) => {
-          let count = 0;
+        this.nomaConfig.xDim = 'mammo';
+        this.nomaConfig.yDim = null;
+        this.nomaConfig.colorDim = 'cancer';
 
-          tdata.map((d) => {
-              d.id = count;
-              count += 1;
-          });
+        this.nomaConfig.relativeMode = 'absolute';
+        this.nomaConfig.isGather = 'gather';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
 
-          this.dataService.setData(tdata);
-          this.nomaConfig.dims = d3.keys(tdata[0]);
+    public changeActiveDataContinuous() {
+        this.resetTutMsg();
 
-          let index = this.nomaConfig.dims.indexOf('id');
-          this.nomaConfig.dims.splice(index, 1);
+        // Config settings
+        let numberOfEntity = 5000;
+        let numDiscreteVar = 60;
 
+        this.activeData = 'Continuous Variables';
+        let data = [];
 
-          index = this.nomaConfig.dims.indexOf('Name');
-          this.nomaConfig.dims.splice(index, 1);
+        let lowMeanHighSDRandomNumberGenerator = d3.randomNormal(1, 2);
+        let highMeanLowSDRandomNumberGenerator = d3.randomNormal(4, 2);
 
+        for (let count = 0; count < numberOfEntity; count++) {
 
-          this.nomaConfig.xDim = 'Cylinders';
-          this.nomaConfig.yDim = 'MPG';
-          this.nomaConfig.colorDim = 'Origin';
+            let temp = <any>{};
 
-          this.nomaConfig.isGather = 'gather';
-          this.isCarsOpen = true;
-          this.nomaConfig.relativeMode = 'absolute';
-          this.configService.setConfig(Object.assign({}, this.nomaConfig));
-          this.loadGPLOM();
+            temp.id = count;
 
 
-      });
+            if (Math.random() > 0.7) {
+                temp.nominal = 'A';
+                temp.continuous1 = highMeanLowSDRandomNumberGenerator();
 
-  }
+            } else if (Math.random() > 0.5) {
+                temp.nominal = 'B';
+                temp.continuous1 = lowMeanHighSDRandomNumberGenerator();
 
-  public loadGPLOM() {
 
-      this.configMatrix = [];
+            } else {
 
-      for (let xIndex in this.nomaConfig.dims) {
-          if(this.nomaConfig.dims.hasOwnProperty(xIndex)) {
-              let xTemp = [];
+                temp.nominal = 'C';
+                temp.continuous1 = lowMeanHighSDRandomNumberGenerator() +
+                    highMeanLowSDRandomNumberGenerator();
 
-              for (let yIndex in this.nomaConfig.dims) {
-                  if(this.nomaConfig.dims.hasOwnProperty(yIndex)) {
-                      let temp = <any>{};
+            }
 
-                      temp.SVGAspectRatio = 1;
-                      temp.colorDim = '';
-                      temp.isGather = 'gather';
-                      temp.isInteractiveAxis = false;
-                      temp.relativeMode = 'absolute';
-                      temp.dims = this.nomaConfig.dims;
-                      temp.xDim = this.nomaConfig.dims[xIndex];
-                      temp.yDim = this.nomaConfig.dims[yIndex];
-                      temp.matrixMode = true;
-                      xTemp.push(temp);
-                  }
-              }
 
-             this.configMatrix.push(xTemp);
-          }
-      }
-  }
 
+            temp.continuous2 = (Math.random() * (numDiscreteVar - 1));
 
-  public changeConfigCarsScatterplots() {
+            temp.continuous3 = Math.random();
 
-      this.resetTutMsg();
+            data.push(temp);
+        }
 
-      if (this.activeData !== 'Cars Data') {
+        this.dataService.setData(data);
+        this.nomaConfig.dims = d3.keys(data[0]);
 
-          this.changeActiveDataCars();
-      }
+        let index = this.nomaConfig.dims.indexOf('id');
+        this.nomaConfig.dims.splice(index, 1);
 
-     // configService.setRound('absolute');
+        this.nomaConfig.xDim = 'continuous1';
+        this.nomaConfig.yDim = 'continuous2';
+        this.nomaConfig.colorDim = 'nominal';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.nomaConfig.isGather = 'scatter';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.loadGPLOM();
 
-      this.nomaConfig.xDim = 'Horsepower';
-      this.nomaConfig.yDim = 'MPG';
-      this.nomaConfig.colorDim = 'Origin';
-      this.nomaConfig.isGather = 'scatter';
-      this.nomaConfig.relativeMode = 'absolute';
+        this.resetTutMsg();
 
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+    }
 
-  public changeConfigCarsScatterOneNominal() {
+    public settingForContinuousScatter() {
 
-      this.resetTutMsg();
+        this.resetTutMsg();
 
-      if (this.activeData !== 'Cars Data') {
+        if (this.activeData !== 'Continuous Variables') {
 
-          this.changeActiveDataCars();
-      }
+            this.changeActiveDataContinuous();
+        }
 
-      // configService.setRound('absolute');
+        // configService.setRound('absolute');
 
-      this.nomaConfig.xDim = 'Cylinders';
-      this.nomaConfig.yDim = 'MPG';
-      this.nomaConfig.colorDim = null;
-      this.nomaConfig.isGather = 'scatter';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+        this.nomaConfig.xDim = 'continuous1';
+        this.nomaConfig.yDim = 'continuous2';
+        this.nomaConfig.colorDim = 'nominal';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.nomaConfig.isGather = 'scatter';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'There is a severe overplotting over the range where X value is near 4.');
 
-  public changeConfigCarsJitterOneNominal() {
+    }
 
-      this.resetTutMsg();
+    public settingForContinuousGather() {
 
-      if (this.activeData !== 'Cars Data') {
+        this.resetTutMsg();
 
-          this.changeActiveDataCars();
-      }
+        if (this.activeData !== 'Continuous Variables') {
 
-      // configService.setRound('absolute');
+            this.changeActiveDataContinuous();
+        }
 
-      this.nomaConfig.xDim = 'Cylinders';
-      this.nomaConfig.yDim = 'MPG';
-      this.nomaConfig.colorDim = null;
-      this.nomaConfig.isGather = 'jitter';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+        // configService.setRound('absolute');
 
-  public changeConfigCarsJitterOneNominalWithColor() {
+        this.nomaConfig.xDim = 'continuous1';
+        this.nomaConfig.yDim = 'continuous2';
+        this.nomaConfig.colorDim = 'nominal';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.nomaConfig.isGather = 'gather';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'The trend over the region where overplotting was severe is now clear. However the other regions where there were only small number of nodes were is barely visible. ');
 
-      this.resetTutMsg();
+    }
 
-      if (this.activeData !== 'Cars Data') {
+    public updateBinSize(binSize) {
 
-          this.changeActiveDataCars();
-      }
+        this.nomaConfig.binSize = binSize;
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        return 'success intuinno';
+    }
 
-      // configService.setRound('absolute');
+    public updateBinSizeDefer(binSize) {
 
-      this.nomaConfig.xDim = 'Cylinders';
-      this.nomaConfig.yDim = 'MPG';
-      this.nomaConfig.colorDim = 'Origin';
-      this.nomaConfig.isGather = 'jitter';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+        let deferred = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // since this fn executes async in a future turn of the event loop, we need to wrap
+                // our code into an $apply call so that the model changes are properly observed.
+                if (this.updateBinSize(binSize)) {
+                    resolve('Success!');
+                } else {
+                    reject('Failure');
+                }
+            }, 1000);
+        })
+        return deferred;
 
-  public changeConfigCarsGatherOneNominalWithColor() {
+    }
 
-      this.resetTutMsg();
 
-      if (this.activeData !== 'Cars Data') {
+    public settingForContinuousGatherWithBinSize() {
 
-          this.changeActiveDataCars();
-      }
 
-      // configService.setRound('absolute');
+        this.resetTutMsg();
 
-      this.nomaConfig.xDim = 'Cylinders';
-      this.nomaConfig.yDim = 'MPG';
-      this.nomaConfig.colorDim = 'Origin';
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-  }
+        if (this.activeData !== 'Continuous Variables') {
 
-  public changeConfigCarsGatherTwoNominalWithColor() {
+            this.changeActiveDataContinuous;
+        }
 
-      this.resetTutMsg();
+        // configService.setRound('absolute');
 
-      if (this.activeData !== 'Cars Data') {
+        this.nomaConfig.xDim = 'continuous1';
+        this.nomaConfig.yDim = 'continuous2';
+        this.nomaConfig.colorDim = 'nominal';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.nomaConfig.isGather = 'gather';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        let promise = this.updateBinSizeDefer(7);
 
-          this.changeActiveDataCars();
-      }
+        promise.then((greeting) => {
+            console.log('Success: ' + greeting);
+        }).catch((reason) => {
+            alert('Failed: ' + reason);
+        }).then((update) => {
+            // alert('Got notification: ' + update);
+            this.isAdvancedOptionOpen = true;
+            this.addAlert('info', 'You can try different bin size at advanced options menu below.');
+            this.focusElement(this.isBinSizeFocused);
+        });
+        this.isAdvancedOptionOpen = true;
 
-      // configService.setRound('absolute');
+    }
 
-      this.nomaConfig.xDim = 'Cylinders';
-      this.nomaConfig.yDim = 'Origin';
-      this.nomaConfig.colorDim = 'Origin';
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'Here Cylinders and Origin are both nominal letiables. Try what happens with scatterplots or jittering.');
-      this.focusElement(this.isPlotSelectFocused);
+    public settingForContinuousGatherWithBinSizeRelative() {
 
-  }
+        this.resetTutMsg();
 
-  public changeConfigCarsGatherTwoNominalWithContinuousColor() {
+        if (this.activeData !== 'Continuous Variables') {
 
-      this.resetTutMsg();
+            this.changeActiveDataContinuous();
+        }
 
-      if (this.activeData !== 'Cars Data') {
+        // configService.setRound('absolute');
 
-          this.changeActiveDataCars();
-      }
+        this.nomaConfig.xDim = 'continuous1';
+        this.nomaConfig.yDim = 'continuous2';
+        this.nomaConfig.colorDim = 'nominal';
+        this.nomaConfig.relativeMode = true;
+        this.nomaConfig.isGather = 'gather';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
 
-      // configService.setRound('absolute');
+        this.addAlert('info', 'Here you can see that the distributions of sparse regions are more visible. It makes spotting outliers much easier. Compare absolute and relative mode to feel this change. Can you tell what is the underlying distribution of these random letiables?');
+        this.focusElement(this.isRelativeSelectFocused);
 
-      this.nomaConfig.xDim = 'Cylinders';
-      this.nomaConfig.yDim = 'Origin';
-      this.nomaConfig.colorDim = 'Weight';
-      this.nomaConfig.isGather = 'gather';
-      this.nomaConfig.relativeMode = 'absolute';
-      this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      this.addAlert('info', 'Here the color of nodes represent a weight, which is continuous. Having ordered arrangement makes it easier to discern minute changes in colors.  Compare with scatterplots or jittering.');
-      this.focusElement(this.isPlotSelectFocused);
+    }
 
 
 
-  }
+    public changeActiveDataCars() {
+        this.resetTutMsg();
 
-  public changeActiveDataEHR() {
 
-      this.resetTutMsg();
+        this.activeData = 'Cars Data';
 
+        d3.csv('static/data/cars.csv', (error, tdata: any) => {
+            let count = 0;
 
-      this.activeData = 'Electronic Health Records (EHR)';
+            tdata.map((d) => {
+                d.id = count;
+                count += 1;
+            });
 
-      d3.csv('static/data/trauma.csv', (error, tdata: any) => {
-          let count = 0;
+            this.dataService.setData(tdata);
+            this.nomaConfig.dims = d3.keys(tdata[0]);
 
-          tdata.map((d) => {
-              d.id = count;
-              count += 1;
-          });
+            let index = this.nomaConfig.dims.indexOf('id');
+            this.nomaConfig.dims.splice(index, 1);
 
-          this.dataService.setData(tdata);
-          this.nomaConfig.dims = d3.keys(tdata[0]);
 
-          let index = this.nomaConfig.dims.indexOf('id');
-          this.nomaConfig.dims.splice(index, 1);
+            index = this.nomaConfig.dims.indexOf('Name');
+            this.nomaConfig.dims.splice(index, 1);
 
-          this.nomaConfig.xDim = '';
-          this.nomaConfig.yDim = '';
-          this.nomaConfig.colorDim = '';
 
-          this.nomaConfig.isGather = 'gather';
-          this.isCarsOpen = true;
-          this.nomaConfig.relativeMode = 'absolute';
+            this.nomaConfig.xDim = 'Cylinders';
+            this.nomaConfig.yDim = 'MPG';
+            this.nomaConfig.colorDim = 'Origin';
 
-          this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      });
+            this.nomaConfig.isGather = 'gather';
+            this.isCarsOpen = true;
+            this.nomaConfig.relativeMode = 'absolute';
+            this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.loadGPLOM();
 
-  }
 
-  public changeActiveDataComments() {
+        });
 
-      this.resetTutMsg();
+    }
 
+    public loadGPLOM() {
 
-      this.activeData = 'CommentIQ - Comments Data';
+        this.configMatrix = [];
 
-      d3.csv('static/data/gatherplotFeatures.csv', (error, tdata: any) => {
-          let count = 0;
+        for (let xIndex in this.nomaConfig.dims) {
+            if (this.nomaConfig.dims.hasOwnProperty(xIndex)) {
+                let xTemp = [];
 
-          tdata.map((d) => {
-              d.id = count;
-              count += 1;
-          });
+                for (let yIndex in this.nomaConfig.dims) {
+                    if (this.nomaConfig.dims.hasOwnProperty(yIndex)) {
+                        let temp = <any>{};
 
-          this.dataService.setData(tdata);
-          this.nomaConfig.dims = d3.keys(tdata[0]);
+                        temp.SVGAspectRatio = 1;
+                        temp.colorDim = '';
+                        temp.isGather = 'gather';
+                        temp.isInteractiveAxis = false;
+                        temp.relativeMode = 'absolute';
+                        temp.dims = this.nomaConfig.dims;
+                        temp.xDim = this.nomaConfig.dims[xIndex];
+                        temp.yDim = this.nomaConfig.dims[yIndex];
+                        temp.matrixMode = true;
+                        xTemp.push(temp);
+                    }
+                }
 
-          let index = this.nomaConfig.dims.indexOf('id');
-          this.nomaConfig.dims.splice(index, 1);
+                this.configMatrix.push(xTemp);
+            }
+        }
+    }
 
-          this.nomaConfig.xDim = '';
-          this.nomaConfig.yDim = '';
-          this.nomaConfig.colorDim = '';
 
-          this.nomaConfig.isGather = 'gather';
-          this.isCarsOpen = true;
-          this.nomaConfig.relativeMode = 'absolute';
+    public changeConfigCarsScatterplots() {
 
-          this.configService.setConfig(Object.assign({}, this.nomaConfig));
-      });
+        this.resetTutMsg();
 
-  }
+        if (this.activeData !== 'Cars Data') {
 
-  public changeActiveDataArticles() {
+            this.changeActiveDataCars();
+        }
 
-      this.resetTutMsg();
+        // configService.setRound('absolute');
 
+        this.nomaConfig.xDim = 'Horsepower';
+        this.nomaConfig.yDim = 'MPG';
+        this.nomaConfig.colorDim = 'Origin';
+        this.nomaConfig.isGather = 'scatter';
+        this.nomaConfig.relativeMode = 'absolute';
 
-      this.activeData = 'CommentIQ - Articles Data';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
 
-      d3.csv('static/data/articlesForGatherplot.csv', (error, tdata: any) => {
-          let count = 0;
+    public changeConfigCarsScatterOneNominal() {
 
-          tdata.map((d) => {
-              d.id = count;
-              count += 1;
-          });
+        this.resetTutMsg();
 
-          this.dataService.setData(tdata);
-          this.nomaConfig.dims = d3.keys(tdata[0]);
+        if (this.activeData !== 'Cars Data') {
 
-          let index = this.nomaConfig.dims.indexOf('id');
-          this.nomaConfig.dims.splice(index, 1);
+            this.changeActiveDataCars();
+        }
 
-          this.nomaConfig.xDim = '';
-          this.nomaConfig.yDim = '';
-          this.nomaConfig.colorDim = '';
+        // configService.setRound('absolute');
 
-          this.nomaConfig.isGather = 'gather';
-          this.isCarsOpen = true;
-          this.nomaConfig.relativeMode = 'absolute';
-          this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.nomaConfig.xDim = 'Cylinders';
+        this.nomaConfig.yDim = 'MPG';
+        this.nomaConfig.colorDim = null;
+        this.nomaConfig.isGather = 'scatter';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
 
-      });
+    public changeConfigCarsJitterOneNominal() {
 
-  }
+        this.resetTutMsg();
+
+        if (this.activeData !== 'Cars Data') {
+
+            this.changeActiveDataCars();
+        }
+
+        // configService.setRound('absolute');
+
+        this.nomaConfig.xDim = 'Cylinders';
+        this.nomaConfig.yDim = 'MPG';
+        this.nomaConfig.colorDim = null;
+        this.nomaConfig.isGather = 'jitter';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    public changeConfigCarsJitterOneNominalWithColor() {
+
+        this.resetTutMsg();
+
+        if (this.activeData !== 'Cars Data') {
+
+            this.changeActiveDataCars();
+        }
+
+        // configService.setRound('absolute');
+
+        this.nomaConfig.xDim = 'Cylinders';
+        this.nomaConfig.yDim = 'MPG';
+        this.nomaConfig.colorDim = 'Origin';
+        this.nomaConfig.isGather = 'jitter';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    public changeConfigCarsGatherOneNominalWithColor() {
+
+        this.resetTutMsg();
+
+        if (this.activeData !== 'Cars Data') {
+
+            this.changeActiveDataCars();
+        }
+
+        // configService.setRound('absolute');
+
+        this.nomaConfig.xDim = 'Cylinders';
+        this.nomaConfig.yDim = 'MPG';
+        this.nomaConfig.colorDim = 'Origin';
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+    }
+
+    public changeConfigCarsGatherTwoNominalWithColor() {
+
+        this.resetTutMsg();
+
+        if (this.activeData !== 'Cars Data') {
+
+            this.changeActiveDataCars();
+        }
+
+        // configService.setRound('absolute');
+
+        this.nomaConfig.xDim = 'Cylinders';
+        this.nomaConfig.yDim = 'Origin';
+        this.nomaConfig.colorDim = 'Origin';
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'Here Cylinders and Origin are both nominal letiables. Try what happens with scatterplots or jittering.');
+        this.focusElement(this.isPlotSelectFocused);
+
+    }
+
+    public changeConfigCarsGatherTwoNominalWithContinuousColor() {
+
+        this.resetTutMsg();
+
+        if (this.activeData !== 'Cars Data') {
+
+            this.changeActiveDataCars();
+        }
+
+        // configService.setRound('absolute');
+
+        this.nomaConfig.xDim = 'Cylinders';
+        this.nomaConfig.yDim = 'Origin';
+        this.nomaConfig.colorDim = 'Weight';
+        this.nomaConfig.isGather = 'gather';
+        this.nomaConfig.relativeMode = 'absolute';
+        this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.addAlert('info', 'Here the color of nodes represent a weight, which is continuous. Having ordered arrangement makes it easier to discern minute changes in colors.  Compare with scatterplots or jittering.');
+        this.focusElement(this.isPlotSelectFocused);
+
+
+
+    }
+
+    public changeActiveDataEHR() {
+
+        this.resetTutMsg();
+
+
+        this.activeData = 'Electronic Health Records (EHR)';
+
+        d3.csv('static/data/trauma.csv', (error, tdata: any) => {
+            let count = 0;
+
+            tdata.map((d) => {
+                d.id = count;
+                count += 1;
+            });
+
+            this.dataService.setData(tdata);
+            this.nomaConfig.dims = d3.keys(tdata[0]);
+
+            let index = this.nomaConfig.dims.indexOf('id');
+            this.nomaConfig.dims.splice(index, 1);
+
+            this.nomaConfig.xDim = '';
+            this.nomaConfig.yDim = '';
+            this.nomaConfig.colorDim = '';
+
+            this.nomaConfig.isGather = 'gather';
+            this.isCarsOpen = true;
+            this.nomaConfig.relativeMode = 'absolute';
+
+            this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        });
+
+    }
+
+    public changeActiveDataComments() {
+
+        this.resetTutMsg();
+
+
+        this.activeData = 'CommentIQ - Comments Data';
+
+        d3.csv('static/data/gatherplotFeatures.csv', (error, tdata: any) => {
+            let count = 0;
+
+            tdata.map((d) => {
+                d.id = count;
+                count += 1;
+            });
+
+            this.dataService.setData(tdata);
+            this.nomaConfig.dims = d3.keys(tdata[0]);
+
+            let index = this.nomaConfig.dims.indexOf('id');
+            this.nomaConfig.dims.splice(index, 1);
+
+            this.nomaConfig.xDim = '';
+            this.nomaConfig.yDim = '';
+            this.nomaConfig.colorDim = '';
+
+            this.nomaConfig.isGather = 'gather';
+            this.isCarsOpen = true;
+            this.nomaConfig.relativeMode = 'absolute';
+
+            this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        });
+
+    }
+
+    public changeActiveDataArticles() {
+
+        this.resetTutMsg();
+
+
+        this.activeData = 'CommentIQ - Articles Data';
+
+        d3.csv('static/data/articlesForGatherplot.csv', (error, tdata: any) => {
+            let count = 0;
+
+            tdata.map((d) => {
+                d.id = count;
+                count += 1;
+            });
+
+            this.dataService.setData(tdata);
+            this.nomaConfig.dims = d3.keys(tdata[0]);
+
+            let index = this.nomaConfig.dims.indexOf('id');
+            this.nomaConfig.dims.splice(index, 1);
+
+            this.nomaConfig.xDim = '';
+            this.nomaConfig.yDim = '';
+            this.nomaConfig.colorDim = '';
+
+            this.nomaConfig.isGather = 'gather';
+            this.isCarsOpen = true;
+            this.nomaConfig.relativeMode = 'absolute';
+            this.configService.setConfig(Object.assign({}, this.nomaConfig));
+
+        });
+
+    }
 
 }

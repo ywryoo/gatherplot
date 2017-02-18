@@ -2,6 +2,6 @@ Forked from [gatherplot](https://github.com/intuinno/gatherplot)
 
 Studying and refactoring
 
-License
-------------
+# License
+
 MIT License

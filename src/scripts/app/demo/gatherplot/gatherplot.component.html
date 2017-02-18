@@ -111,9 +111,8 @@
             <accordion [closeOthers]="true">
 
                 <accordion-group [isOpen]="isCarsOpen">
-                    <div accordion-heading> <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isCarsOpen, 'glyphicon-chevron-right': !isCarsOpen}"></i>
-                      Cars Dataset
-                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataCars()">Load</button>
+                    <div accordion-heading> <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isCarsOpen, 'glyphicon-chevron-right': !isCarsOpen}"></i> Cars Dataset
+                        <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataCars()">Load</button>
                     </div>
                     <div>
                         <table class="table table-hover table-condensed">
@@ -167,16 +166,14 @@
                 </accordion-group>
                 <accordion-group [isOpen]="isTitanicOpen">
                     <div accordion-heading>
-                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isTitanicOpen, 'glyphicon-chevron-right': !isTitanicOpen}"></i>
-                      Survivor of Titanic
-                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataTitanic()">Load</button>
+                        <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isTitanicOpen, 'glyphicon-chevron-right': !isTitanicOpen}"></i> Survivor of Titanic
+                        <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataTitanic()">Load</button>
                     </div>
                     <div>
                         <table class="table table-hover table-condensed">
                             <tr>
                                 <td>
-                                    Let's explore advanced features of gatherplots.
-                                    First begin with all the people on board.
+                                    Let's explore advanced features of gatherplots. First begin with all the people on board.
                                 </td>
                                 <td>
                                     <button class="pull-right btn btn-link btn-default " (click)="settingForTitanicLoadAll()">Visualize</button>
@@ -219,16 +216,15 @@
                 </accordion-group>
                 <accordion-group [isOpen]="isMammoOpen">
                     <div accordion-heading>
-                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isMammoOpen, 'glyphicon-chevron-right': !isMammoOpen}"></i>
-                      Bayesian Inference - Mammogram
-                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataMammo()">Load</button>
+                        <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isMammoOpen, 'glyphicon-chevron-right': !isMammoOpen}"></i> Bayesian Inference - Mammogram
+                        <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataMammo()">Load</button>
                     </div>
                     <p>The absolute/relative mode of gatherplot can be used to aid the decision process of the bayesian inference problem.</p>
                     <p>The probability that a woman has breast cancer is 1%. The probability that the disease is detected by a mammography is 80%. The probability that the test detects the disease although the patient does not have it is 9.6%.
                         <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoProblem()">Visualize</button>
                     </p>
                     <p>If a woman is tested as positive, what is the probability that she indeed has breast cancer?
-                      <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoAnswer()">Visualize</button>
+                        <button class="pull-right btn btn-link btn-default" (click)="changeConfigMammoAnswer()">Visualize</button>
                     </p>
                 </accordion-group>
 
@@ -273,15 +269,13 @@
 
                 <accordion-group [isOpen]="isContinuousOpen">
                     <div accordion-heading>
-                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isContinuousOpen, 'glyphicon-chevron-right': !isContinousOpen}"></i>
-                      Continuous Variables
-                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataContinuous()">Load</button>
+                        <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isContinuousOpen, 'glyphicon-chevron-right': !isContinousOpen}"></i> Continuous Variables
+                        <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataContinuous()">Load</button>
                     </div>
                     <div>
                         <table class="table table-hover table-condensed">
                             <tr>
-                                <td>Gatherplots are also effective dealing with overplotting in continuous variables, too.
-                                    First create a random dataset with large nodes to create overplotting.
+                                <td>Gatherplots are also effective dealing with overplotting in continuous variables, too. First create a random dataset with large nodes to create overplotting.
                                 </td>
                                 <td>
                                     <button class="pull-right btn btn-link btn-default " (click)="settingForContinuousScatter()">Visualize</button>
@@ -316,9 +310,8 @@
                 </accordion-group>
                 <accordion-group [isOpen]="isPatientOpen">
                     <div accordion-heading>
-                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isPatientOpen, 'glyphicon-chevron-right': !isPatientOpen}"></i>
-                      Electronic Health Record (EHR)
-                      <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataEHR()">Load</button>
+                        <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isPatientOpen, 'glyphicon-chevron-right': !isPatientOpen}"></i> Electronic Health Record (EHR)
+                        <button class="pull-right btn btn-xs btn-default" (click)="changeActiveDataEHR()">Load</button>
                     </div>
                     <div>
                         <table class="table table-hover table-condensed">
@@ -330,8 +323,7 @@
                 </accordion-group>
                 <accordion-group [isOpen]="isLensOpen">
                     <div accordion-heading>
-                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isLensOpen}"></i>
-                      Gatherlens
+                        <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isLensOpen}"></i> Gatherlens
                     </div>
                     <div>
                         <table class="table table-hover table-condensed">
@@ -349,8 +341,7 @@
                 </accordion-group>
                 <accordion-group [isOpen]="isVWViewerOpen">
                     <div accordion-heading>
-                      <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isVWViewer}"></i>
-                      CommentIQ Dataset
+                        <i class="pull-left glyphicon" [ngClass]="{'glyphicon-chevron-down': isLensOpen, 'glyphicon-chevron-right': !isVWViewer}"></i> CommentIQ Dataset
                     </div>
                     <div>
                         <table class="table table-hover table-condensed">
@@ -373,20 +364,20 @@
             <accordion [closeOthers]="false">
                 <accordion-group [isOpen]="isAdvancedOptionOpen">
                     <div accordion-heading>
-                      <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': isAdvancedOptionOpen, 'glyphicon-chevron-right': !isAdvancedOptionOpen}"></i> Under the Hood (Advanced Option)
+                        <i class="pull-right glyphicon" [ngClass]="{'glyphicon-chevron-down': isAdvancedOptionOpen, 'glyphicon-chevron-right': !isAdvancedOptionOpen}"></i> Under the Hood (Advanced Option)
                     </div>
                     <div class="well">
                         <div>
                             <table class="table table-hover">
                                 <tr>
                                     <td>
-                                      <div [ngClass]="{tryMe: isBinSizeFocused}">
-                                          Data Binning Size:
-                                          <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
-                                          <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)"min="1" max="50">
-                                      </div>
-                                      <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
-                                          Try different values for a bin size.</alert>
+                                        <div [ngClass]="{tryMe: isBinSizeFocused}">
+                                            Data Binning Size:
+                                            <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
+                                            <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50">
+                                        </div>
+                                        <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
+                                            Try different values for a bin size.</alert>
                                     </td>
                                 </tr>
                                 <tr>

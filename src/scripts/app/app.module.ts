@@ -12,16 +12,16 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent }  from './app.component';
 
 @NgModule({
-  imports:      [
-    BrowserModule,
-    AppRoutingModule
-  ],
-  declarations: [
-    AppComponent
-  ],
-  bootstrap:    [
-    AppComponent
-  ]
+    imports: [
+        BrowserModule,
+        AppRoutingModule
+    ],
+    declarations: [
+        AppComponent
+    ],
+    bootstrap: [
+        AppComponent
+    ]
 })
 
 export class AppModule { }

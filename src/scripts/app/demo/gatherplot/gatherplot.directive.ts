@@ -7,267 +7,267 @@
  */
 
 import { HostListener, Directive, Input, ElementRef, OnInit, OnDestroy, NgZone }
-  from '@angular/core';
+from '@angular/core';
 import * as d3 from 'd3';
 import { Subscription } from 'rxjs/Subscription';
 import { DataService } from '../shared/data.service';
 import { ConfigService } from '../shared/config.service';
 
 @Directive({
-   selector: '[gatherplot]'
+    selector: '[gatherplot]'
 })
 
 export class GatherplotDirective implements OnInit, OnDestroy {
-  public data: any;
-  public config: any;
-  public border: any;
-  public round: any;
-  public xdim: any;
-  public ydim: any;
-  public shaperenderingmode: any;
-  public dimsum: any;
-  public context: any;
-  public comment: any;
-  public width: any;
-  public height: any;
-  public outerWidth: any;
-  public outerHeight: any;
-  public colorNominal: any;
-  public color: any;
-  public colorScaleForHeatMap: any;
-  public renderData: any;
-  public xValue: any;
-  public yValue: any;
-  public xScale: any;
-  public yScale: any;
-  public xAxis: any;
-  public yAxis: any;
-  public xMap: any;
-  public yMap: any;
-  public nest: any;
-  public defaultBinSize: any;
-  public marginForBorderOfAxis: any;
-  public marginClusterRatio: any;
-  public node: any;
-  public svg: any;
-  public svgGroup: any;
-  public nodeGroup: any;
-  public brushGroup: any;
-  public xAxisNodes: any;
-  public yAxisNodes: any;
-  public maskGroup: any;
-  public tooltip: any;
-  public clusterControlBox: any;
-  public labelDiv: any;
-  public margin: any;
-  public zoom: any;
-  public maxDotSize: any;
-  public dimSetting: any;
-  public initialLensSize: any;
-  public initialRectLensWidth: any;
-  public initialRectLensHeight: any;
-  public initialCircleLensR: any;
-  public initialHistLensWidth: any;
-  public initialHistLensHeight: any;
-  public initialInnerRadiusOfPieLens: any;
-  public brush: any;
-  public shiftKey: any;
-  @Input('gatherplot') private gatherplot: any;
-  private scale: number;
-  private isInitialized: boolean;
-  private configSubscription: Subscription;
-  private roundSubscription: Subscription;
-  private borderSubscription: Subscription;
-  private shapeRenderingSubscription: Subscription;
-  private dimsumSubscription: Subscription;
-  private contextSubscription: Subscription;
-  private dataSubscription: Subscription;
+    public data: any;
+    public config: any;
+    public border: any;
+    public round: any;
+    public xdim: any;
+    public ydim: any;
+    public shaperenderingmode: any;
+    public dimsum: any;
+    public context: any;
+    public comment: any;
+    public width: any;
+    public height: any;
+    public outerWidth: any;
+    public outerHeight: any;
+    public colorNominal: any;
+    public color: any;
+    public colorScaleForHeatMap: any;
+    public renderData: any;
+    public xValue: any;
+    public yValue: any;
+    public xScale: any;
+    public yScale: any;
+    public xAxis: any;
+    public yAxis: any;
+    public xMap: any;
+    public yMap: any;
+    public nest: any;
+    public defaultBinSize: any;
+    public marginForBorderOfAxis: any;
+    public marginClusterRatio: any;
+    public node: any;
+    public svg: any;
+    public svgGroup: any;
+    public nodeGroup: any;
+    public brushGroup: any;
+    public xAxisNodes: any;
+    public yAxisNodes: any;
+    public maskGroup: any;
+    public tooltip: any;
+    public clusterControlBox: any;
+    public labelDiv: any;
+    public margin: any;
+    public zoom: any;
+    public maxDotSize: any;
+    public dimSetting: any;
+    public initialLensSize: any;
+    public initialRectLensWidth: any;
+    public initialRectLensHeight: any;
+    public initialCircleLensR: any;
+    public initialHistLensWidth: any;
+    public initialHistLensHeight: any;
+    public initialInnerRadiusOfPieLens: any;
+    public brush: any;
+    public shiftKey: any;
+    @Input('gatherplot') private gatherplot: any;
+    private scale: number;
+    private isInitialized: boolean;
+    private configSubscription: Subscription;
+    private roundSubscription: Subscription;
+    private borderSubscription: Subscription;
+    private shapeRenderingSubscription: Subscription;
+    private dimsumSubscription: Subscription;
+    private contextSubscription: Subscription;
+    private dataSubscription: Subscription;
 
-  constructor(private el: ElementRef, private zone: NgZone,
-              private configService: ConfigService, private dataService: DataService) {
-  }
-
-  public ngOnInit() {
-    this.isInitialized = false;
-
-    this.configSubscription = this.configService.config$
-         .subscribe((config) => {
-           if (config !== null && config !== undefined) {
-             this.config = config;
-             this.xdim = config.xDim;
-             this.ydim = config.yDim;
-             if ((config.dims !== null && config.dims !== undefined
-               && Object.keys(config.dims).length !== 0)
-               && (this.data !== null && this.data !== undefined
-               && Object.keys(this.data).length !== 0)) {
-               this.identifyAndUpdateDimDataType();
-               if (this.isInitialized) {
-                 this.handleConfigChange(this.data, config);
-               } else {
-                 this.renderDataChange(this.data, config);
-                 this.isInitialized = true;
-               }
-             }
-           }
-         });
-    this.borderSubscription = this.configService.border$
-         .subscribe((border) => {
-           this.border = border;
-           this.renderBorderChange(border);
-         });
-    this.roundSubscription = this.configService.round$
-         .subscribe((round) => {
-           this.round = round;
-           this.renderRoundChange(round);
-         });
-    this.shapeRenderingSubscription = this.configService.shapeRendering$
-         .subscribe((shapeRendering) => {
-           this.shaperenderingmode = shapeRendering;
-           this.renderShapeRenderingChange(shapeRendering);
-         });
-    this.dimsumSubscription = this.configService.dimsum$
-         .subscribe((dimsum) => {
-           this.dimsum = dimsum;
-           this.handleDimsumChange(dimsum);
-         });
-    this.contextSubscription = this.configService.context$
-         .subscribe((context) => this.context = context);
-    this.dataSubscription = this.dataService.data$
-         .subscribe((data) => {
-          if (data !== null && data !== undefined && Object.keys(data).length !== 0) {
-            this.data = data;
-            if (this.config !== null && this.config !== undefined
-              && this.config.dims !== null && this.config.dims !== undefined
-              && Object.keys(this.config.dims).length !== 0) {
-              this.renderDataChange(data, this.config);
-            }
-          }
-         });
-    // Constants and Setting Environment letiables
-    this.margin = 80;
-    this.maxDotSize = 4;
-
-    if (this.config.matrixMode === true) {
-        this.margin = 5;
-        this.maxDotSize = 5;
+    constructor(private el: ElementRef, private zone: NgZone,
+        private configService: ConfigService, private dataService: DataService) {
     }
-    this.width = 1040;
-    this.height = 820;
-    this.outerWidth = this.width + 2 * this.margin;
-    this.outerHeight = this.height + 2 * this.margin;
-    this.colorNominal = d3.scaleOrdinal(d3.schemeCategory10);
-    this.colorScaleForHeatMap = d3.scaleLinear()
-        .range([0x98c8fd, 0x08306b])
-        .interpolate(d3.interpolateHsl);
-    this.nest = <any> {};
 
-    this.defaultBinSize = 10;
+    public ngOnInit() {
+        this.isInitialized = false;
 
-    this.marginForBorderOfAxis = 0.5; // Margin for Border Of Axis
+        this.configSubscription = this.configService.config$
+            .subscribe((config) => {
+                if (config !== null && config !== undefined) {
+                    this.config = config;
+                    this.xdim = config.xDim;
+                    this.ydim = config.yDim;
+                    if ((config.dims !== null && config.dims !== undefined
+                        && Object.keys(config.dims).length !== 0)
+                        && (this.data !== null && this.data !== undefined
+                            && Object.keys(this.data).length !== 0)) {
+                        this.identifyAndUpdateDimDataType();
+                        if (this.isInitialized) {
+                            this.handleConfigChange(this.data, config);
+                        } else {
+                            this.renderDataChange(this.data, config);
+                            this.isInitialized = true;
+                        }
+                    }
+                }
+            });
+        this.borderSubscription = this.configService.border$
+            .subscribe((border) => {
+                this.border = border;
+                this.renderBorderChange(border);
+            });
+        this.roundSubscription = this.configService.round$
+            .subscribe((round) => {
+                this.round = round;
+                this.renderRoundChange(round);
+            });
+        this.shapeRenderingSubscription = this.configService.shapeRendering$
+            .subscribe((shapeRendering) => {
+                this.shaperenderingmode = shapeRendering;
+                this.renderShapeRenderingChange(shapeRendering);
+            });
+        this.dimsumSubscription = this.configService.dimsum$
+            .subscribe((dimsum) => {
+                this.dimsum = dimsum;
+                this.handleDimsumChange(dimsum);
+            });
+        this.contextSubscription = this.configService.context$
+            .subscribe((context) => this.context = context);
+        this.dataSubscription = this.dataService.data$
+            .subscribe((data) => {
+                if (data !== null && data !== undefined && Object.keys(data).length !== 0) {
+                    this.data = data;
+                    if (this.config !== null && this.config !== undefined
+                        && this.config.dims !== null && this.config.dims !== undefined
+                        && Object.keys(this.config.dims).length !== 0) {
+                        this.renderDataChange(data, this.config);
+                    }
+                }
+            });
+        // Constants and Setting Environment letiables
+        this.margin = 80;
+        this.maxDotSize = 4;
 
-    this.marginClusterRatio = 0.1; // Ratio of margin in the cluster
+        if (this.config.matrixMode === true) {
+            this.margin = 5;
+            this.maxDotSize = 5;
+        }
+        this.width = 1040;
+        this.height = 820;
+        this.outerWidth = this.width + 2 * this.margin;
+        this.outerHeight = this.height + 2 * this.margin;
+        this.colorNominal = d3.scaleOrdinal(d3.schemeCategory10);
+        this.colorScaleForHeatMap = d3.scaleLinear()
+            .range([0x98c8fd, 0x08306b])
+            .interpolate(d3.interpolateHsl);
+        this.nest = <any>{};
 
-    this.dimSetting = <any> {};
+        this.defaultBinSize = 10;
 
-    this.config.binSize = this.defaultBinSize;
+        this.marginForBorderOfAxis = 0.5; // Margin for Border Of Axis
 
-    this.initialLensSize = 100;
+        this.marginClusterRatio = 0.1; // Ratio of margin in the cluster
 
-    this.initialRectLensWidth = 100;
+        this.dimSetting = <any>{};
 
-    this.initialRectLensHeight = 100;
+        this.config.binSize = this.defaultBinSize;
 
-    this.initialCircleLensR = 50;
+        this.initialLensSize = 100;
 
-    this.initialHistLensWidth = 120;
-    this.initialHistLensHeight = 90;
-    this.scale = 1;
-    this.initialInnerRadiusOfPieLens = 20;
+        this.initialRectLensWidth = 100;
 
-    this.brush = d3.brush();
-    // dimsum = <any>{};
+        this.initialRectLensHeight = 100;
 
-    d3.select('body')
-        .attr('tabindex', 1)
-        .on('keydown.brush', this.keyflip.bind(this))
-        .on('keyup.brush', this.keyflip.bind(this))
-        .each(() => {
-            focus();
-        });
+        this.initialCircleLensR = 50;
 
-    // .value('title');
+        this.initialHistLensWidth = 120;
+        this.initialHistLensHeight = 90;
+        this.scale = 1;
+        this.initialInnerRadiusOfPieLens = 20;
 
-    if (!this.config.matrixMode) {
+        this.brush = d3.brush();
+        // dimsum = <any>{};
 
-        this.labelDiv = d3.select(this.el.nativeElement)
-            .append('div')
-            .attr('class', 'btn-group')
-            .html('<a class="btn btn-default" title="Pan and Zoom" id="toolbarPanZoom"><i class="fa fa-search-plus"></i></a><a class="btn btn-default" title="Select" id="toolbarSelect"><i class="fa fa-square-o"></i></a><a class="btn btn-default" title="Reset" id="toolbarReset"><i class="fa fa-undo"></i></a>');
+        d3.select('body')
+            .attr('tabindex', 1)
+            .on('keydown.brush', this.keyflip.bind(this))
+            .on('keyup.brush', this.keyflip.bind(this))
+            .each(() => {
+                focus();
+            });
+
+        // .value('title');
+
+        if (!this.config.matrixMode) {
+
+            this.labelDiv = d3.select(this.el.nativeElement)
+                .append('div')
+                .attr('class', 'btn-group')
+                .html('<a class="btn btn-default" title="Pan and Zoom" id="toolbarPanZoom"><i class="fa fa-search-plus"></i></a><a class="btn btn-default" title="Select" id="toolbarSelect"><i class="fa fa-square-o"></i></a><a class="btn btn-default" title="Reset" id="toolbarReset"><i class="fa fa-undo"></i></a>');
+        }
+        this.svg = d3.select(this.el.nativeElement)
+            .append('svg:svg');
+
+        this.svgGroup = this.svg.append('g')
+            .attr('transform', 'translate(' + this.margin + ',' + this.margin + ')');
+
+        this.maskGroup = this.svgGroup.append('g')
+            .attr('class', 'masks');
+
+        this.nodeGroup = this.maskGroup.append('g')
+            .attr('class', 'nodes');
+
+        this.nodeGroup.append('rect')
+            .attr('class', 'overlay')
+            .attr('width', this.width)
+            .attr('height', this.height);
+
+        this.brushGroup = this.svg.append('g')
+            .attr('transform', 'translate(' + this.margin + ',' + this.margin + ')');
+
+        this.xAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + this.height + ')');
+
+        this.yAxisNodes = this.svgGroup.append('g')
+            .attr('class', 'y axis');
+
+        this.tooltip = d3.select('body').append('div')
+            .attr('class', 'tooltip')
+            .style('opacity', 0);
+
+        this.clusterControlBox = d3.select('body').append('div')
+            .attr('class', 'clusterControlBox')
+            .style('opacity', 0);
+
     }
-    this.svg = d3.select(this.el.nativeElement)
-        .append('svg:svg');
 
-    this.svgGroup = this.svg.append('g')
-        .attr('transform', 'translate(' + this.margin + ',' + this.margin + ')');
+    public ngOnDestroy() {
+        // prevent memory leak when component is destroyed
+        this.configSubscription.unsubscribe();
+        this.borderSubscription.unsubscribe();
+        this.shapeRenderingSubscription.unsubscribe();
+        this.dimsumSubscription.unsubscribe();
+        this.contextSubscription.unsubscribe();
+        this.shapeRenderingSubscription.unsubscribe();
+        this.dataSubscription.unsubscribe();
+    }
 
-    this.maskGroup = this.svgGroup.append('g')
-        .attr('class', 'masks');
+    @HostListener('window:resize', ['$event'])
+    public onResize(event) {
+        this.zone.run(() => { });
+        this.handleConfigChange(this.data, this.config);
+    }
 
-    this.nodeGroup = this.maskGroup.append('g')
-        .attr('class', 'nodes');
+    /*
+          this.$watch(() => {
+              return this.comment;
+          }, function(newVals, oldVals) {
+              if (newVals === true) {
+                  return this.handleConfigChange(renderData, this.config);
+              }
+          }, false);
 
-    this.nodeGroup.append('rect')
-        .attr('class', 'overlay')
-        .attr('width', this.width)
-        .attr('height', this.height);
-
-    this.brushGroup = this.svg.append('g')
-        .attr('transform', 'translate(' + this.margin + ',' + this.margin + ')');
-
-    this.xAxisNodes = this.svgGroup.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + this.height + ')');
-
-    this.yAxisNodes = this.svgGroup.append('g')
-        .attr('class', 'y axis');
-
-    this.tooltip = d3.select('body').append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0);
-
-    this.clusterControlBox = d3.select('body').append('div')
-        .attr('class', 'clusterControlBox')
-        .style('opacity', 0);
-
-  }
-
-  public ngOnDestroy() {
-    // prevent memory leak when component is destroyed
-    this.configSubscription.unsubscribe();
-    this.borderSubscription.unsubscribe();
-    this.shapeRenderingSubscription.unsubscribe();
-    this.dimsumSubscription.unsubscribe();
-    this.contextSubscription.unsubscribe();
-    this.shapeRenderingSubscription.unsubscribe();
-    this.dataSubscription.unsubscribe();
-  }
-
-  @HostListener('window:resize', ['$event'])
-  public onResize(event) {
-    this.zone.run(() => {});
-    this.handleConfigChange(this.data, this.config);
-  }
-
-  /*
-        this.$watch(() => {
-            return this.comment;
-        }, function(newVals, oldVals) {
-            if (newVals === true) {
-                return this.handleConfigChange(renderData, this.config);
-            }
-        }, false);
-
-    */
+      */
 
     public handleDimsumChange(newDimsum) {
         if (!this.node) {
@@ -367,11 +367,11 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 })
                 .on('mousedown', function(d) {
                     if (d3.event.shiftKey) {
-                      d3.select(this).classed('selected', d.selected = !d.selected);
+                        d3.select(this).classed('selected', d.selected = !d.selected);
                     } else {
-                      this.node.classed('selected', (p) => {
-                        return p.selected = d === p;
-                      });
+                        this.node.classed('selected', (p) => {
+                            return p.selected = d === p;
+                        });
                     }
                 });
 
@@ -383,34 +383,34 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 .attr('class', 'dot');
 
             this.svg.on('mouseover', (d) => {
-                    this.tooltip.transition()
-                        .duration(200)
-                        .style('opacity', 0.9);
+                this.tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0.9);
 
-                    this.tooltip.html('<h3>' + this.xdim + ' vs ' + this.ydim + '</h3>')
-                        .style('left', (d3.event.pageX + 5) + 'px')
-                        .style('top', (d3.event.pageY - 28) + 'px');
-                })
+                this.tooltip.html('<h3>' + this.xdim + ' vs ' + this.ydim + '</h3>')
+                    .style('left', (d3.event.pageX + 5) + 'px')
+                    .style('top', (d3.event.pageY - 28) + 'px');
+            })
                 .on('mouseout', (d) => {
                     this.tooltip.transition()
                         .duration(500)
                         .style('opacity', 0);
                 })
-                /*.on('click', (d) => {
+            /*.on('click', (d) => {
 
-                    return this.onClick({
-                        item: {
-                            xDim: this.xdim,
-                            yDim: this.ydim
-                        }
-                    });
+                return this.onClick({
+                    item: {
+                        xDim: this.xdim,
+                        yDim: this.ydim
+                    }
                 });
+            });
 */
 
         }
 
 
-        this.dimSetting = <any> {};
+        this.dimSetting = <any>{};
 
 
     }
@@ -466,11 +466,11 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         });
 
         let encodingBinScale = d3.scaleLinear()
-            .range([0, numBin-1])
+            .range([0, numBin - 1])
             .domain([minValue, maxValue]);
 
         let decodingBinScale = d3.scaleLinear()
-            .domain([0, numBin-1])
+            .domain([0, numBin - 1])
             .range([minValue, maxValue]);
 
         let binKeys = d3.range(0, numBin, 1);
@@ -894,10 +894,10 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             // itemCountStart = count;
         }
 
-      //  for (let itemCount = 0; itemCount < numElement; itemCount++) {
+        //  for (let itemCount = 0; itemCount < numElement; itemCount++) {
 
 
-      //  }
+        //  }
 
         return layerSetting;
 
@@ -964,8 +964,8 @@ export class GatherplotDirective implements OnInit, OnDestroy {
     }
 
     public drawLensItems(itemsOnLens, lensInfo) {
-        if(itemsOnLens.length === 0) {
-        return;
+        if (itemsOnLens.length === 0) {
+            return;
         }
         this.nodeGroup.selectAll('.dot')
             .data(itemsOnLens, (d) => {
@@ -1024,7 +1024,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 return this.round ? +5 : 0;
             })
 
-        .style('fill', (d) => {
+            .style('fill', (d) => {
                 return this.color(d[this.config.colorDim]);
             })
             .transition()
@@ -1238,8 +1238,8 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         let drag = d3.drag()
             .on('drag', function() {
-              //'this' now DOM Element; Should use 'self' for original scope.
-              self.dragmoveRectLens(this);
+                //'this' now DOM Element; Should use 'self' for original scope.
+                self.dragmoveRectLens(this);
             })
             .on('start', () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
@@ -1265,8 +1265,8 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         let drag = d3.drag()
             .on('drag', function() {
-              //'this' now DOM Element; Should use 'self' for original scope.
-              self.dragmoveHistLens(this);
+                //'this' now DOM Element; Should use 'self' for original scope.
+                self.dragmoveHistLens(this);
             })
             .on('start', () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
@@ -1291,8 +1291,8 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         let drag = d3.drag()
             .on('drag', function() {
-              //'this' now DOM Element; Should use 'self' for original scope.
-              self.dragmovePieLens(this);
+                //'this' now DOM Element; Should use 'self' for original scope.
+                self.dragmovePieLens(this);
             })
             .on('start', () => {
                 d3.event.sourceEvent.stopPropagation(); // silence other listeners
@@ -1336,7 +1336,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
     public clearLens() {
 
         this.nodeGroup.selectAll('.lens').remove();
-        if(!this.nodeGroup.selectAll('.lensItems').empty()) {
+        if (!this.nodeGroup.selectAll('.lensItems').empty()) {
             this.nodeGroup.selectAll('.lensItems')
                 .classed('dot', true)
                 .classed('lensItems', false)
@@ -1366,7 +1366,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         if (config.matrixMode === false) {
             this.outerWidth = d3.select(this.el.nativeElement).node().offsetWidth;
         } else {
-//            this.outerWidth = d3.select('.matrixGroup').node().offsetWidth;
+            //            this.outerWidth = d3.select('.matrixGroup').node().offsetWidth;
 
             this.outerWidth = this.outerWidth / (this.config.dims.length) - 2;
         }
@@ -1441,19 +1441,19 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
                     this.node.classed('selected', (d) => {
 
-                    //     return d.selected = d.previouslySelected ^
-                    //         (xScale(extent[0][0]) <= xMap(d) && xMap(d)
-                    // < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d)
-                    //  && yMap(d) > yScale(extent[1][1]));
-                    // });
+                        //     return d.selected = d.previouslySelected ^
+                        //         (xScale(extent[0][0]) <= xMap(d) && xMap(d)
+                        // < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d)
+                        //  && yMap(d) > yScale(extent[1][1]));
+                        // });
 
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
 
                         if (d.previouslySelected
-                          && (this.xScale(extent()[0][0]) <= this.xMap(d)
-                          &&  this.xScale(extent()[1][0] > this.xMap(d))
-                          && this.yScale(extent()[0][1]) >= this.yMap(d)
-                          && this.yScale(extent()[1][1]) < this.yMap(d))) {
+                            && (this.xScale(extent()[0][0]) <= this.xMap(d)
+                                && this.xScale(extent()[1][0] > this.xMap(d))
+                                && this.yScale(extent()[0][1]) >= this.yMap(d)
+                                && this.yScale(extent()[1][1]) < this.yMap(d))) {
 
                             if (nodeIndex === -1) {
                                 this.dimsum.selectionSpace.push(d.id);
@@ -1467,17 +1467,17 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                         }
 
                     });
-                    this.zone.run(() => {});
+                    this.zone.run(() => { });
                     this.handleDimsumChange(this.dimsum);
                 })
-                .on('end', function () {
-                      d3.selectAll('.brush').remove();
-              //      if (!d3.event.sourceEvent) {return;}
-              //      d3.select(this).call(d3.event.target.move, null);
+                .on('end', function() {
+                    d3.selectAll('.brush').remove();
+                    //      if (!d3.event.sourceEvent) {return;}
+                    //      d3.select(this).call(d3.event.target.move, null);
                     // console.log(this);
-//                    d3.event.target.clear();
-                  //  this.brush.move()
-                //    this.brushGroup.select('.brush').call(.move, null);
+                    //                    d3.event.target.clear();
+                    //  this.brush.move()
+                    //    this.brushGroup.select('.brush').call(.move, null);
 
                 }));
 
@@ -1521,21 +1521,21 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             // zoom.x(this.xScale).y(this.yScale);
 
             this.svgGroup.select('.x.axis').call(
-              this.xAxis.scale(d3.event.transform.rescaleX(this.xScale))
+                this.xAxis.scale(d3.event.transform.rescaleX(this.xScale))
             );
             this.svgGroup.select('.y.axis').call(
-              this.yAxis.scale(d3.event.transform.rescaleY(this.yScale))
+                this.yAxis.scale(d3.event.transform.rescaleY(this.yScale))
             );
 
             this.context.translate = [d3.event.transform.x, d3.event.transform.y];
             this.context.scale = d3.event.transform.k;
 
             this.scale = d3.event.transform.k;
-        //    this.context.xDomain = this.xScale.scale(d3.event.transform.k).domain();
-          //  this.context.yDomain = this.yScale.scale(d3.event.transform.k).domain();
+            //    this.context.xDomain = this.xScale.scale(d3.event.transform.k).domain();
+            //  this.context.yDomain = this.yScale.scale(d3.event.transform.k).domain();
 
             this.nodeGroup.attr('transform', 'translate(' + d3.event.transform.x +
-              ',' + d3.event.transform.y + ')scale(' + d3.event.transform.k + ')');
+                ',' + d3.event.transform.y + ')scale(' + d3.event.transform.k + ')');
 
         }
 
@@ -1587,15 +1587,15 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 let iy = d3.interpolate(this.yScale.domain(), yRange);
 
                 return (t) => {
-                //    this.zoom.scaleTo(1);
+                    //    this.zoom.scaleTo(1);
 
-          //          this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
-            /*        this.svgGroup.select('.x.axis').call(
-                      this.xAxis.scale(this.xScale.domain(ix(t)))
-                    );
-                    this.svgGroup.select('.y.axis').call(
-                      this.yAxis.scale(this.yScale.domain(iy(t)))
-                    );*/
+                    //          this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
+                    /*        this.svgGroup.select('.x.axis').call(
+                              this.xAxis.scale(this.xScale.domain(ix(t)))
+                            );
+                            this.svgGroup.select('.y.axis').call(
+                              this.yAxis.scale(this.yScale.domain(iy(t)))
+                            );*/
                 };
             });
         }
@@ -1624,7 +1624,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         this.dimsum.selectionSpace = [];
         this.handleDimsumChange(this.dimsum);
-//        this.zone.run();
+        //        this.zone.run();
     }
 
     public setClipPathForAxes() {
@@ -2376,7 +2376,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             });
         });
 
-        return d3.max(maxValues)+1;
+        return d3.max(maxValues) + 1;
 
     }
 
@@ -3536,7 +3536,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 let binValue = d3.map(this.dimSetting[dimName].keyValue).keys()[i];
 
                 return binDistanceFormatter(+binValue) + '\u00B1'
-                + binDistanceFormatter(+this.dimSetting[dimName].halfOfBinDistance);
+                    + binDistanceFormatter(+this.dimSetting[dimName].halfOfBinDistance);
             };
         } else if (this.dimSetting[dimName].dimType === 'semiOrdinal') {
 
@@ -3872,10 +3872,10 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         let yScaleForSameOrdDimGather = d3.scaleLinear().domain(domain).range([this.height, 0])
 
-         this.yAxis = d3.axisLeft(yScaleForSameOrdDimGather)
-             .tickValues(ticks)
-             .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
-             .tickSize(0); //Provides 0 size ticks at center position for gather
+        this.yAxis = d3.axisLeft(yScaleForSameOrdDimGather)
+            .tickValues(ticks)
+            .tickFormat(this.labelGeneratorForOrdinalGather(this.ydim))
+            .tickSize(0); //Provides 0 size ticks at center position for gather
 
         this.yAxisNodes = this.svgGroup.append('g')
             .attr('class', 'y axis')
@@ -4237,7 +4237,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
     public toggleMinimizeCluster(dim, i) {
 
-        let key = <any> d3.map(this.dimSetting[dim].keyValue).values()[i];
+        let key = <any>d3.map(this.dimSetting[dim].keyValue).values()[i];
 
         let keyObject = this.dimSetting[dim].keyValue[key.keyValue];
 
@@ -4249,7 +4249,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
     public toggleMaximizeCluster(dim, i) {
 
-        let key = <any> d3.map(this.dimSetting[dim].keyValue).values()[i];
+        let key = <any>d3.map(this.dimSetting[dim].keyValue).values()[i];
 
         let keyObject = this.dimSetting[dim].keyValue[key.keyValue];
 

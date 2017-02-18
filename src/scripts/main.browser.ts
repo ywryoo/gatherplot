@@ -9,18 +9,18 @@ import { AppModule } from './app/app.module';
 export const platformRef = platformBrowserDynamic();
 
 export function main() {
-//  enableProdMode();
-  return platformRef.bootstrapModule(AppModule)
-    .catch((err) => console.error(err));
+    //  enableProdMode();
+    return platformRef.bootstrapModule(AppModule)
+        .catch((err) => console.error(err));
 }
 
 // support async tag or hmr
 switch (document.readyState) {
-  case 'interactive':
-  case 'complete':
-    main();
-    break;
-  case 'loading':
-  default:
-    document.addEventListener('DOMContentLoaded', () => main());
+    case 'interactive':
+    case 'complete':
+        main();
+        break;
+    case 'loading':
+    default:
+        document.addEventListener('DOMContentLoaded', () => main());
 }

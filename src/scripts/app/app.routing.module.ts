@@ -19,38 +19,38 @@ import { PageNotFoundComponent }  from './error/404';
 
 
 const appRoutes: Routes = [
-  { path: '', component: GatherplotComponent },
-//  { path: 'demo', component: DemoCtrl },
-//  { path: 'show/:dataset/:xDim/:yDim/:colorDim/:relativeMode', component: ShowCtrl },
-//  { path: 'dropbox/:dropbox_key/:dropbox_filename', component: DemoCtrl },
-//  { path: 'login', component: DemoCtrl },
-//  { path: 'account', component: DemoCtrl },
-//  { path: 'load/:csvKey/:comment?', component: DemoCtrl },
-//  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
-//  { path: 'matrix/:csvKey', component: DemoCtrl },
-//  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
-//  { path: 'upload', component: DemoCtrl },
-//  { path: 'browse', component: DemoCtrl },
-  { path: '**', component: PageNotFoundComponent }
+    { path: '', component: GatherplotComponent },
+    //  { path: 'demo', component: DemoCtrl },
+    //  { path: 'show/:dataset/:xDim/:yDim/:colorDim/:relativeMode', component: ShowCtrl },
+    //  { path: 'dropbox/:dropbox_key/:dropbox_filename', component: DemoCtrl },
+    //  { path: 'login', component: DemoCtrl },
+    //  { path: 'account', component: DemoCtrl },
+    //  { path: 'load/:csvKey/:comment?', component: DemoCtrl },
+    //  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
+    //  { path: 'matrix/:csvKey', component: DemoCtrl },
+    //  { path: 'inspect/:csvKey/:comment?', component: DemoCtrl },
+    //  { path: 'upload', component: DemoCtrl },
+    //  { path: 'browse', component: DemoCtrl },
+    { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({
-  imports: [
-    BrowserModule
-    FormsModule,
-    AccordionModule.forRoot(),
-    ButtonsModule.forRoot(),
-    AlertModule.forRoot(),
-    RouterModule.forRoot(appRoutes, { useHash: true })
-  ],
-  declarations: [
-    PageNotFoundComponent,
-    GatherplotComponent,
-    GatherplotDirective
-  ],
-  exports: [
-    RouterModule
-  ]
+    imports: [
+        BrowserModule,
+        FormsModule,
+        AccordionModule.forRoot(),
+        ButtonsModule.forRoot(),
+        AlertModule.forRoot(),
+        RouterModule.forRoot(appRoutes, { useHash: true })
+    ],
+    declarations: [
+        PageNotFoundComponent,
+        GatherplotComponent,
+        GatherplotDirective
+    ],
+    exports: [
+        RouterModule
+    ]
 })
 
-export class AppRoutingModule {}
+export class AppRoutingModule { }
