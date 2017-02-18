@@ -15,6 +15,7 @@ import { AlertModule } from 'ng2-bootstrap/alert';
 
 import { GatherplotComponent } from './demo/gatherplot/gatherplot.component';
 import { GatherplotDirective } from './demo/gatherplot/gatherplot.directive';
+import { SecondDirective } from './demo/gatherplot/second.directive';
 import { PageNotFoundComponent }  from './error/404';
 
 
@@ -46,6 +47,7 @@ const appRoutes: Routes = [
     declarations: [
         PageNotFoundComponent,
         GatherplotComponent,
+        SecondDirective,
         GatherplotDirective
     ],
     exports: [

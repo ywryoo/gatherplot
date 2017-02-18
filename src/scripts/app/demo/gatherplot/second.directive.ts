@@ -1,5 +1,4 @@
 /**
- * From https://github.com/intuinno/gatherplot/blob/master/app/scripts/directives/gatherplot.js
  * Created by Yangwook Ryoo on 2017.
  *
  * This source code is licensed under the MIT license found in the
@@ -14,10 +13,10 @@ import { DataService } from '../shared/data.service';
 import { ConfigService } from '../shared/config.service';
 
 @Directive({
-    selector: '[gatherplot]'
+    selector: '[second]'
 })
 
-export class GatherplotDirective implements OnInit, OnDestroy {
+export class SecondDirective implements OnInit, OnDestroy {
     public data: any;
     public config: any;
     public border: any;
@@ -71,8 +70,8 @@ export class GatherplotDirective implements OnInit, OnDestroy {
     public initialHistLensHeight: any;
     public initialInnerRadiusOfPieLens: any;
     public brush: any;
-    public ctrlKey: any;
-    @Input('gatherplot') private gatherplot: any;
+    public shiftKey: any;
+    @Input('second') private gatherplot: any;
     private scale: number;
     private isInitialized: boolean;
     private configSubscription: Subscription;
@@ -189,8 +188,10 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         d3.select('body')
             .attr('tabindex', 1)
-            .each(function () {
-                this.focus();
+            .on('keydown.brush', this.keyflip.bind(this))
+            .on('keyup.brush', this.keyflip.bind(this))
+            .each(() => {
+                focus();
             });
 
         // .value('title');
@@ -200,7 +201,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             this.labelDiv = d3.select(this.el.nativeElement)
                 .append('div')
                 .attr('class', 'btn-group')
-                .html('<a class="btn btn-default" title="Pan and Zoom" id="toolbarPanZoom"><i class="fa fa-search-plus"></i></a><a class="btn btn-default" title="Select" id="toolbarSelect"><i class="fa fa-square-o"></i></a><a class="btn btn-default" title="Reset" id="toolbarReset"><i class="fa fa-undo"></i></a>');
+                .html('<a class="btn btn-default" title="Pan and Zoom" id="toolbarPanZoomSecond"><i class="fa fa-search-plus"></i></a><a class="btn btn-default" title="Select" id="toolbarSelectSecond"><i class="fa fa-square-o"></i></a><a class="btn btn-default" title="Reset" id="toolbarResetSecond"><i class="fa fa-undo"></i></a>');
         }
         this.svg = d3.select(this.el.nativeElement)
             .append('svg:svg');
@@ -364,7 +365,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                         .style('opacity', 0);
                 })
                 .on('mousedown', function(d) {
-                    if (d3.event.ctrlKey) {
+                    if (d3.event.shiftKey) {
                         d3.select(this).classed('selected', d.selected = !d.selected);
                     } else {
                         this.node.classed('selected', (p) => {
@@ -441,11 +442,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             currentDimSetting.isBinned = false;
 
         }
-
-
     }
-
-
     public doBinningAndSetKeys(dimName, numBin) {
 
         let currentDimSetting = this.dimSetting[dimName];
@@ -1397,13 +1394,13 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
     public configZoomToolbar() {
 
-        d3.select('#toolbarPanZoom').on('click', this.configZoom.bind(this));
+        d3.select('#toolbarPanZoomSecond').on('click', this.configZoom.bind(this));
 
     }
 
     public configBrushToolbar() {
 
-        d3.select('#toolbarSelect').on('click', setSelectMode.bind(this));
+        d3.select('#toolbarSelectSecond').on('click', setSelectMode.bind(this));
 
         function setSelectMode() {
 
@@ -1414,29 +1411,44 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
     public configBrush() {
         const self = this;
-        this.brush = d3.brush()
-            .extent([[0, 0], [this.width, this.height]])
-            .on('start', (d0) => {
-                this.node.each((d) => {
-
-                    // if (d.Name.indexOf('ciera') > 0) {
-                    //     console.log(d);
-                    // }
-                    d.previouslySelected = d3.event.sourceEvent.ctrlKey && d.selected;
-                });
+        this.brush = this.brushGroup.append('g')
+            .datum(() => {
+                return {
+                    selected: false,
+                    previouslySelected: false
+                };
             })
-            .on('brush', () => {
-                let selection = d3.event.selection;
-                if(selection !== null) {
+            .attr('class', 'brush')
+            .call(d3.brush()
+                .extent([[0, 0], [this.width, this.height]])
+                .on('start', (d0) => {
+                    this.node.each((d) => {
+
+                        // if (d.Name.indexOf('ciera') > 0) {
+                        //     console.log(d);
+                        // }
+
+                        d.previouslySelected = d3.event.sourceEvent.shiftKey && d.selected;
+                    });
+                })
+                .on('brush', () => {
+                    let extent = d3.event.target.extent();
+
                     this.node.classed('selected', (d) => {
+
+                        //     return d.selected = d.previouslySelected ^
+                        //         (xScale(extent[0][0]) <= xMap(d) && xMap(d)
+                        // < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d)
+                        //  && yMap(d) > yScale(extent[1][1]));
+                        // });
 
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
 
                         if (d.previouslySelected
-                            || (selection[0][0] <= this.xMap(d)
-                                && selection[1][0] > this.xMap(d)
-                                && selection[0][1] <= this.yMap(d)
-                                && selection[1][1] > this.yMap(d))) {
+                            && (this.xScale(extent()[0][0]) <= this.xMap(d)
+                                && this.xScale(extent()[1][0] > this.xMap(d))
+                                && this.yScale(extent()[0][1]) >= this.yMap(d)
+                                && this.yScale(extent()[1][1]) < this.yMap(d))) {
 
                             if (nodeIndex === -1) {
                                 this.dimsum.selectionSpace.push(d.id);
@@ -1450,38 +1462,22 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                         }
 
                     });
+                    this.zone.run(() => { });
+                    this.handleDimsumChange(this.dimsum);
+                })
+                .on('end', function() {
+                    d3.selectAll('.brush').remove();
+                    //      if (!d3.event.sourceEvent) {return;}
+                    //      d3.select(this).call(d3.event.target.move, null);
+                    // console.log(this);
+                    //                    d3.event.target.clear();
+                    //  this.brush.move()
+                    //    this.brushGroup.select('.brush').call(.move, null);
 
-                }
-                //this.zone.run(() => { });
-                this.handleDimsumChange(this.dimsum);
-            })
-            .on('end', function() {
-                //d3.selectAll('.brush').remove();
-                //      if (!d3.event.sourceEvent) {return;}
-                //      d3.select(this).call(d3.event.target.move, null);
-                // console.log(this);
-                //                    d3.event.target.clear();
-                //  this.brush.move()
-            //    console.log(this)
-              //  console.log(d3.event)
-                //this.svg.select('.brush').call(this.brush.move, null);
-                if(d3.event.selection !== null && d3.event.sourceEvent !== null) {
-                    d3.event.target.move(self.brushGroup.select('.brush'), null);
-                }
-            });
+                }));
 
-        this.brushGroup.append('g')
-            .datum(() => {
-                return {
-                    selected: false,
-                    previouslySelected: false
-                };
-            })
-            .attr('class', 'brush')
-            .call(this.brush);
-
-        d3.select('#toolbarSelect').classed('active', true);
-        d3.select('#toolbarPanZoom').classed('active', false);
+        d3.select('#toolbarSelectSecond').classed('active', true);
+        d3.select('#toolbarPanZoomSecond').classed('active', false);
 
     }
 
@@ -1540,15 +1536,16 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         this.setClipPathForAxes();
 
-        d3.select('#toolbarReset').on('click', reset.bind(this));
+        d3.select('#toolbarResetSecond').on('click', reset.bind(this));
 
-        d3.select('#toolbarSelect').classed('active', false);
+        d3.select('#toolbarSelectSecond').classed('active', false);
 
-        d3.select('#toolbarPanZoom').classed('active', true);
+        d3.select('#toolbarPanZoomSecond').classed('active', true);
 
         function reset() {
 
             this.resetSelection();
+
             this.nodeGroup.transition()
                 .duration(700)
                 .attr('transform', 'translate(0,0) scale(1)');
@@ -2023,6 +2020,10 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         };
 
 
+    }
+
+    public keyflip() {
+        this.shiftKey = d3.event.shiftKey || d3.event.metaKey;
     }
 
     public cross(a, b) {
