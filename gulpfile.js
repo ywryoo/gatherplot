@@ -224,18 +224,14 @@ gulp.task('cleanServer', (done) => {
     })
 })
 
-gulp.task('copyHtmlsToServer', ['cleanServer'], (done) => {
-    gulp.src(appConfig.dist + '/*.html')
-        .pipe(gulp.dest(appConfig.deploy))
-        .on('end', done)
-})
-
 gulp.task('copyStaticToServer', ['build', 'cleanServer'], (done) => {
     gulp.src(appConfig.dist + '/static/**/*')
         .pipe(gulp.dest(appConfig.deploy))
         .on('end', done)
 })
 
-gulp.task('copyToServer', ['copyStaticToServer', 'copyHtmlsToServer'], (done) => {
-    done()
+gulp.task('deploy', ['copyStaticToServer'], (done) => {
+    gulp.src(appConfig.dist + '/*.html')
+        .pipe(gulp.dest(appConfig.deploy))
+        .on('end', done)
 })
