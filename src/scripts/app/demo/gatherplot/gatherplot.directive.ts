@@ -188,10 +188,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         // dimsum = <any>{};
 
         d3.select('body')
-            .attr('tabindex', 1)
-            .each(function () {
-                this.focus();
-            });
+            .attr('tabindex', 1);
 
         // .value('title');
 
@@ -1427,7 +1424,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             })
             .on('brush', () => {
                 let selection = d3.event.selection;
-                if(selection !== null) {
+                if (selection !== null) {
                     this.node.classed('selected', (d) => {
 
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
@@ -1462,10 +1459,10 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 // console.log(this);
                 //                    d3.event.target.clear();
                 //  this.brush.move()
-            //    console.log(this)
-              //  console.log(d3.event)
+                //    console.log(this)
+                //  console.log(d3.event)
                 //this.svg.select('.brush').call(this.brush.move, null);
-                if(d3.event.selection !== null && d3.event.sourceEvent !== null) {
+                if (d3.event.selection !== null && d3.event.sourceEvent !== null) {
                     d3.event.target.move(self.brushGroup.select('.brush'), null);
                 }
             });

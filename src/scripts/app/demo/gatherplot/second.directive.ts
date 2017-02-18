@@ -187,12 +187,8 @@ export class SecondDirective implements OnInit, OnDestroy {
         // dimsum = <any>{};
 
         d3.select('body')
-            .attr('tabindex', 1)
-            .on('keydown.brush', this.keyflip.bind(this))
-            .on('keyup.brush', this.keyflip.bind(this))
-            .each(() => {
-                focus();
-            });
+            .attr('tabindex', 1);
+
 
         // .value('title');
 
