@@ -884,34 +884,22 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
             this.dataService.setData(tdata);
             this.nomaConfig.dims = d3.keys(tdata[0]);
-            this.nomaConfig2.dims = d3.keys(tdata[0]);
 
             let index = this.nomaConfig.dims.indexOf('id');
-            let index2 = this.nomaConfig2.dims.indexOf('id');
             this.nomaConfig.dims.splice(index, 1);
-            this.nomaConfig2.dims.splice(index, 1);
-
 
             index = this.nomaConfig.dims.indexOf('Name');
-            index2 = this.nomaConfig2.dims.indexOf('Name');
             this.nomaConfig.dims.splice(index, 1);
-            this.nomaConfig2.dims.splice(index, 1);
-
 
             this.nomaConfig.xDim = 'Cylinders';
-            this.nomaConfig2.xDim = 'Cylinders';
             this.nomaConfig.yDim = 'MPG';
-            this.nomaConfig2.yDim = 'MPG';
             this.nomaConfig.colorDim = 'Origin';
-            this.nomaConfig2.colorDim = 'Origin';
 
             this.nomaConfig.isGather = 'gather';
-            this.nomaConfig2.isGather = 'gather';
             this.isCarsOpen = true;
             this.nomaConfig.relativeMode = 'absolute';
-            this.nomaConfig2.relativeMode = 'absolute';
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
-            this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
+            this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
             this.loadGPLOM();
 
 
