@@ -11,8 +11,10 @@
                         </div>
                     </div>
                     <div [hidden]="!isScatter">
-                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
-                            Try these buttons.</alert>
+                        <div [hidden]="!isPlotSelectFocused">
+                            <alert class="chart-instruction" onClose="isPlotSelectFocused=false" dismissible=true>
+                                Try these buttons.</alert>
+                        </div>
                         <div class="btn-group">
                                 <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
                                 <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
@@ -49,8 +51,10 @@
                         <h6>
                             <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
                     </div>
-                    <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
-                        Try this check button.</alert>
+                    <div [hidden]="!isRelativeSelectFocused">
+                        <alert class="chart-instruction" (onClose)="isRelativeSelectFocused=false" dismissible=true>
+                            Try this check button.</alert>
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,8 +69,10 @@
                         </div>
                     </div>
                     <div [hidden]="!isScatter">
-                        <alert class="chart-instruction" [hidden]="!isPlotSelectFocused" onClose="isPlotSelectFocused=false" dismissible=true>
-                            Try these buttons.</alert>
+                        <div [hidden]="!isPlotSelectFocused">
+                            <alert class="chart-instruction" onClose="isPlotSelectFocused=false" dismissible=true>
+                                Try these buttons.</alert>
+                        </div>
                         <div class="btn-group">
                                 <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
                                 <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
@@ -103,8 +109,10 @@
                         <h6>
                             <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
                     </div>
-                    <alert class="chart-instruction" [hidden]="!isRelativeSelectFocused" (onClose)="isRelativeSelectFocused=false" dismissible=true>
-                        Try this check button.</alert>
+                    <div [hidden]="!isRelativeSelectFocused">
+                        <alert class="chart-instruction" (onClose)="isRelativeSelectFocused=false" dismissible=true>
+                            Try this check button.</alert>
+                    </div>
                 </div>
             </div>
         </div>
@@ -380,8 +388,10 @@
                                             <input type="number" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50" size="20">
                                             <input type="range" [ngModel]="nomaConfig.binSize" (ngModelChange)="validateAndUpdateBinsize($event)" min="1" max="50">
                                         </div>
-                                        <alert class="chart-instruction" [hidden]="!isBinSizeFocused" onClose="isBinSizeFocused=false">
-                                            Try different values for a bin size.</alert>
+                                        <div [hidden]="!isBinSizeFocused">
+                                            <alert class="chart-instruction" onClose="isBinSizeFocused=false">
+                                                Try different values for a bin size.</alert>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>

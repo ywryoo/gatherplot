@@ -265,7 +265,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
       */
 
     public handleDimsumChange(newDimsum) {
-        if (!this.node) {
+        if (this.node.empty()) {
             return;
         }
         if (!this.dimsum) {
@@ -1424,16 +1424,16 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             })
             .on('brush', () => {
                 let selection = d3.event.selection;
-                if (selection !== null) {
+                let transform = d3.zoomTransform(this.svgGroup.node());
+                if (selection !== null && !this.node.empty()) {
                     this.node.classed('selected', (d) => {
 
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
-
                         if (d.previouslySelected
-                            || (selection[0][0] <= this.xMap(d)
-                                && selection[1][0] > this.xMap(d)
-                                && selection[0][1] <= this.yMap(d)
-                                && selection[1][1] > this.yMap(d))) {
+                            || (((selection[0][0]-transform.x)/transform.k) <= this.xMap(d)
+                                && ((selection[1][0]-transform.x)/transform.k) > this.xMap(d)
+                                && ((selection[0][1]-transform.y)/transform.k) <= this.yMap(d)
+                                && ((selection[1][1]-transform.y)/transform.k) > this.yMap(d))) {
 
                             if (nodeIndex === -1) {
                                 this.dimsum.selectionSpace.push(d.id);
@@ -1484,14 +1484,13 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
     public zoomUsingContext() {
 
+    //    this.zoom.translate(this.context.translate);
+    ///    this.zoom.scaleTo(this.context.scale);
 
-        this.zoom.translate(this.context.translate);
-        this.zoom.scaleTo(this.context.scale);
+//        this.svgGroup.select('.x.axis').each(this.xAxis);
+//        this.svgGroup.select('.y.axis').each(this.yAxis);
 
-        this.svgGroup.select('.x.axis').each(this.xAxis);
-        this.svgGroup.select('.y.axis').each(this.yAxis);
-
-        this.nodeGroup.attr('transform', 'translate(' + this.context.translate[0] + ',' + this.context.translate[1] + ')scale(' + this.context.scale + ')');
+  //      this.nodeGroup.attr('transform', 'translate(' + this.context.translate[0] + ',' + this.context.translate[1] + ')scale(' + this.context.scale + ')');
 
 
         this.comment = false;
@@ -1500,7 +1499,8 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
     public configZoom() {
 
-        d3.selectAll('.brush').remove();
+        this.brushGroup.select('.brush').call(this.brush.move, null);
+        this.brushGroup.select('.brush').remove();
 
         this.zoom = d3.zoom()
             .scaleExtent([1, 100])
@@ -1522,17 +1522,10 @@ export class GatherplotDirective implements OnInit, OnDestroy {
             this.svgGroup.select('.y.axis').call(
                 this.yAxis.scale(d3.event.transform.rescaleY(this.yScale))
             );
-
-            this.context.translate = [d3.event.transform.x, d3.event.transform.y];
-            this.context.scale = d3.event.transform.k;
-
-            this.scale = d3.event.transform.k;
-            //    this.context.xDomain = this.xScale.scale(d3.event.transform.k).domain();
-            //  this.context.yDomain = this.yScale.scale(d3.event.transform.k).domain();
-
+            if(!this.nodeGroup.empty()) {
             this.nodeGroup.attr('transform', 'translate(' + d3.event.transform.x +
                 ',' + d3.event.transform.y + ')scale(' + d3.event.transform.k + ')');
-
+            }
         }
 
         this.setClipPathForAxes();
@@ -1545,54 +1538,28 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
         function reset() {
 
+            this.brushGroup.select('.brush').call(this.brush.move, null);
             this.resetSelection();
             this.nodeGroup.transition()
                 .duration(700)
-                .attr('transform', 'translate(0,0) scale(1)');
+                .attr('transform', 'translate(0,0)scale(1)');
 
-            this.context.translate = [0, 0];
-            this.context.scale = 1;
+            this.svgGroup.transition().duration(700)
+                .call(this.zoom.transform, d3.zoomIdentity);
 
-            // this.zone.run();
+            this.svgGroup.select('.x.axis')
+                .transition()
+                .duration(700)
+                .call(
+                  this.xAxis.scale(this.xScale)
+                );
+            this.svgGroup.select('.y.axis')
+                .transition()
+                .duration(700)
+                .call(
+                  this.yAxis.scale(this.yScale)
+                );
 
-            d3.transition('resetZoom').duration(700).tween('zoom', () => {
-
-                let range = this.getExtentConsideringXY(this.xdim, this.ydim);
-
-                let xRange = range.xRange;
-                let yRange = range.yRange;
-
-                if (this.config.isGather === 'gather') {
-
-                    let typeOfXYDim = this.findTypeOfXYDim();
-
-                    if (typeOfXYDim === 'XNomYOrd') {
-
-                        yRange = this.getExtentFromCalculatedPointsForBinnedGather(this.ydim);
-
-                    } else if (typeOfXYDim === 'XOrdYNom') {
-
-                        xRange = this.getExtentFromCalculatedPointsForBinnedGather(this.xdim);
-
-                    }
-
-                }
-
-                let ix = d3.interpolate(this.xScale.domain(), xRange);
-                let iy = d3.interpolate(this.yScale.domain(), yRange);
-
-                return (t) => {
-                    //    this.zoom.scaleTo(1);
-
-                    //          this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
-                    /*        this.svgGroup.select('.x.axis').call(
-                              this.xAxis.scale(this.xScale.domain(ix(t)))
-                            );
-                            this.svgGroup.select('.y.axis').call(
-                              this.yAxis.scale(this.yScale.domain(iy(t)))
-                            );*/
-                };
-            });
         }
 
         if (this.comment === true) {
@@ -3738,7 +3705,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
     public drawXAxisLinesAndTicksForScatter() {
 
         this.xAxis = d3.axisBottom(this.xScale)
-            .ticks(this.tickGenerator(this.xdim)/*, */)
+            .ticks(this.tickGenerator(this.xdim))
             .tickFormat(this.labelGenerator(this.xdim));
 
         this.xAxisNodes = this.svgGroup.append('g')
