@@ -26,18 +26,23 @@ export class GatherplotComponent implements OnInit, OnDestroy {
     public onlyNumbers: any;
     //  public dimsum: any;
     public nomaConfig: any;
+    public nomaConfig2: any;
     //  public context: any;
     //  public nomaBorder: any;
     //  public nomaShapeRendering: any;
     public alerts: any;
     public isPlotSelectFocused: any;
+    public isPlotSelectFocused2: any;
     public isScatter: any;
+    public isScatter2: any;
     public isRelativeSelectFocused: boolean;
+    public isRelativeSelectFocused2: boolean;
     public isBinSizeFocused: boolean;
     public activeData: string;
     public isAdvancedOptionOpen: boolean;
     public isCarsOpen: boolean;
     private configSubscription: Subscription;
+    private configSubscription2: Subscription;
     //  private roundSubscription: Subscription;
     //  private borderSubscription: Subscription;
     //  private shapeRenderingSubscription: Subscription;
@@ -52,6 +57,13 @@ export class GatherplotComponent implements OnInit, OnDestroy {
                 //For getting default settings
                 this.nomaConfig = config;
                 this.isScatter = (config.isGather === 'scatter');
+            });
+        this.configSubscription2 = this.configService.config2$
+            .subscribe((config2) => {
+                //For getting default settings
+
+                this.nomaConfig2 = config2;
+                this.isScatter2 = (config2.isGather === 'scatter');
             });
         //    this.borderSubscription = this.configService.border$
         //         .subscribe(border => this.nomaBorder = border);
@@ -68,10 +80,41 @@ export class GatherplotComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         // prevent memory leak when component is destroyed
         this.configSubscription.unsubscribe();
+        this.configSubscription2.unsubscribe();
         //    this.borderSubscription.unsubscribe();
         //    this.shapeRenderingSubscription.unsubscribe();
         //    this.dimsumSubscription.unsubscribe();
         //    this.contextSubscription.unsubscribe();
+    }
+
+    private updateIsGather2(isGather: string) {
+        this.nomaConfig2.isGather = isGather;
+        this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
+    }
+
+    private updateLens2(lens: string) {
+        this.nomaConfig2.lens = lens;
+        this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
+    }
+
+    private updateXDim2(xDim: string) {
+        this.nomaConfig2.xDim = xDim;
+        this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
+    }
+
+    private updateYDim2(yDim: string) {
+        this.nomaConfig2.yDim = yDim;
+        this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
+    }
+
+    private updateColorDim2(colorDim: string) {
+        this.nomaConfig2.colorDim = colorDim;
+        this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
+    }
+
+    private updateRelativeMode2(relativeMode: boolean) {
+        this.nomaConfig2.relativeMode = relativeMode ? 'relative' : 'absolute';
+        this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
     }
 
     private updateIsGather(isGather: string) {
@@ -186,6 +229,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
             this.nomaConfig.isGather = 'gather';
             this.nomaConfig.relativeMode = 'absolute';
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         });
 
 
@@ -361,6 +405,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
             this.nomaConfig.yDim = this.nomaConfig.dims[1];
             this.nomaConfig.colorDim = this.nomaConfig.dims[2];
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
 
             this.loadGPLOM();
 
@@ -415,6 +460,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
 
 
     }
@@ -439,6 +485,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info', 'It looks like woman had survived more likely. Is this pattern clear in jittered scatterplots?');
         this.focusElement(this.isPlotSelectFocused);
 
@@ -465,6 +512,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info', 'The different number of elements in the group makes it difficult to compare the percentage directly. Especially male groups of Second, Third and Crew looks similar.');
 
     }
@@ -488,6 +536,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = true;
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info',
             'The size of nodes changes to make the entire group size same ' +
             'in order to make comparison between groups easier. ' +
@@ -572,6 +621,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.loadGPLOM();
 
         // this.$apply();
@@ -599,6 +649,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
         this.nomaConfig.isGather = 'gather';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeConfigMammoAnswer() {
@@ -618,6 +669,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
         this.nomaConfig.isGather = 'gather';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeActiveDataContinuous() {
@@ -678,6 +730,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
         this.nomaConfig.isGather = 'scatter';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.loadGPLOM();
 
         this.resetTutMsg();
@@ -701,6 +754,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
         this.nomaConfig.isGather = 'scatter';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info', 'There is a severe overplotting over the range where X value is near 4.');
 
     }
@@ -722,6 +776,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
         this.nomaConfig.isGather = 'gather';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info', 'The trend over the region where overplotting was severe is now clear. However the other regions where there were only small number of nodes were is barely visible. ');
 
     }
@@ -730,6 +785,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
         this.nomaConfig.binSize = binSize;
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         return 'success intuinno';
     }
 
@@ -769,6 +825,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
         this.nomaConfig.isGather = 'gather';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         let promise = this.updateBinSizeDefer(7);
 
         promise.then((greeting) => {
@@ -802,6 +859,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = true;
         this.nomaConfig.isGather = 'gather';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
 
         this.addAlert('info', 'Here you can see that the distributions of sparse regions are more visible. It makes spotting outliers much easier. Compare absolute and relative mode to feel this change. Can you tell what is the underlying distribution of these random letiables?');
         this.focusElement(this.isRelativeSelectFocused);
@@ -826,23 +884,34 @@ export class GatherplotComponent implements OnInit, OnDestroy {
 
             this.dataService.setData(tdata);
             this.nomaConfig.dims = d3.keys(tdata[0]);
+            this.nomaConfig2.dims = d3.keys(tdata[0]);
 
             let index = this.nomaConfig.dims.indexOf('id');
+            let index2 = this.nomaConfig2.dims.indexOf('id');
             this.nomaConfig.dims.splice(index, 1);
+            this.nomaConfig2.dims.splice(index, 1);
 
 
             index = this.nomaConfig.dims.indexOf('Name');
+            index2 = this.nomaConfig2.dims.indexOf('Name');
             this.nomaConfig.dims.splice(index, 1);
+            this.nomaConfig2.dims.splice(index, 1);
 
 
             this.nomaConfig.xDim = 'Cylinders';
+            this.nomaConfig2.xDim = 'Cylinders';
             this.nomaConfig.yDim = 'MPG';
+            this.nomaConfig2.yDim = 'MPG';
             this.nomaConfig.colorDim = 'Origin';
+            this.nomaConfig2.colorDim = 'Origin';
 
             this.nomaConfig.isGather = 'gather';
+            this.nomaConfig2.isGather = 'gather';
             this.isCarsOpen = true;
             this.nomaConfig.relativeMode = 'absolute';
+            this.nomaConfig2.relativeMode = 'absolute';
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.configService.setConfig2(Object.assign({}, this.nomaConfig2));
             this.loadGPLOM();
 
 
@@ -899,6 +968,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.relativeMode = 'absolute';
 
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeConfigCarsScatterOneNominal() {
@@ -918,6 +988,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'scatter';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeConfigCarsJitterOneNominal() {
@@ -937,6 +1008,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'jitter';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeConfigCarsJitterOneNominalWithColor() {
@@ -956,6 +1028,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'jitter';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeConfigCarsGatherOneNominalWithColor() {
@@ -975,6 +1048,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
     }
 
     public changeConfigCarsGatherTwoNominalWithColor() {
@@ -994,6 +1068,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info', 'Here Cylinders and Origin are both nominal letiables. Try what happens with scatterplots or jittering.');
         this.focusElement(this.isPlotSelectFocused);
 
@@ -1016,6 +1091,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
         this.nomaConfig.isGather = 'gather';
         this.nomaConfig.relativeMode = 'absolute';
         this.configService.setConfig(Object.assign({}, this.nomaConfig));
+        this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         this.addAlert('info', 'Here the color of nodes represent a weight, which is continuous. Having ordered arrangement makes it easier to discern minute changes in colors.  Compare with scatterplots or jittering.');
         this.focusElement(this.isPlotSelectFocused);
 
@@ -1053,6 +1129,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
             this.nomaConfig.relativeMode = 'absolute';
 
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         });
 
     }
@@ -1087,6 +1164,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
             this.nomaConfig.relativeMode = 'absolute';
 
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
         });
 
     }
@@ -1120,6 +1198,7 @@ export class GatherplotComponent implements OnInit, OnDestroy {
             this.isCarsOpen = true;
             this.nomaConfig.relativeMode = 'absolute';
             this.configService.setConfig(Object.assign({}, this.nomaConfig));
+            this.configService.setConfig2(JSON.parse(JSON.stringify(this.nomaConfig)));
 
         });
 

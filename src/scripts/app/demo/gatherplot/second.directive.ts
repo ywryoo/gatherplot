@@ -17,6 +17,7 @@ import { ConfigService } from '../shared/config.service';
 })
 
 export class SecondDirective implements OnInit, OnDestroy {
+    public originalData: any;
     public data: any;
     public config: any;
     public border: any;
@@ -81,6 +82,7 @@ export class SecondDirective implements OnInit, OnDestroy {
     private dimsumSubscription: Subscription;
     private contextSubscription: Subscription;
     private dataSubscription: Subscription;
+    private internalDimsumChange: boolean;
 
     constructor(private el: ElementRef, private zone: NgZone,
         private configService: ConfigService, private dataService: DataService) {
@@ -89,7 +91,7 @@ export class SecondDirective implements OnInit, OnDestroy {
     public ngOnInit() {
         this.isInitialized = false;
 
-        this.configSubscription = this.configService.config$
+        this.configSubscription = this.configService.config2$
             .subscribe((config) => {
                 if (config !== null && config !== undefined) {
                     this.config = config;
@@ -98,7 +100,7 @@ export class SecondDirective implements OnInit, OnDestroy {
                     if ((config.dims !== null && config.dims !== undefined
                         && Object.keys(config.dims).length !== 0)
                         && (this.data !== null && this.data !== undefined
-                            && Object.keys(this.data).length !== 0)) {
+                            && this.data.length !== 0)) {
                         this.identifyAndUpdateDimDataType();
                         if (this.isInitialized) {
                             this.handleConfigChange(this.data, config);
@@ -127,18 +129,20 @@ export class SecondDirective implements OnInit, OnDestroy {
         this.dimsumSubscription = this.configService.dimsum$
             .subscribe((dimsum) => {
                 this.dimsum = dimsum;
-                this.handleDimsumChange(dimsum);
+                if(this.data && this.data.length !== 0 && this.config) {
+                    this.renderDataChange(this.data, this.config);
+                }
             });
         this.contextSubscription = this.configService.context$
             .subscribe((context) => this.context = context);
         this.dataSubscription = this.dataService.data$
             .subscribe((data) => {
-                if (data !== null && data !== undefined && Object.keys(data).length !== 0) {
+                if (data !== null && data !== undefined && data.length !== 0) {
                     this.data = data;
                     if (this.config !== null && this.config !== undefined
                         && this.config.dims !== null && this.config.dims !== undefined
                         && Object.keys(this.config.dims).length !== 0) {
-                        this.renderDataChange(data, this.config);
+                        this.renderDataChange(this.data, this.config);
                     }
                 }
             });
@@ -182,7 +186,7 @@ export class SecondDirective implements OnInit, OnDestroy {
         this.initialHistLensHeight = 90;
         this.scale = 1;
         this.initialInnerRadiusOfPieLens = 20;
-
+        this.internalDimsumChange = false;
         this.brush = d3.brush();
         // dimsum = <any>{};
 
@@ -264,14 +268,14 @@ export class SecondDirective implements OnInit, OnDestroy {
 
       */
 
-    public handleDimsumChange(newDimsum) {
+    public handleDimsumChange() {
         if (!this.node) {
             return;
         }
         if (!this.dimsum) {
             return;
         }
-        if (!this.dimsum.selectionSpace) {
+        if (!this.dimsum.selectionSpace && this.dimsum.selectionSpace.constructor !== Array) {
             return;
         }
 
@@ -289,7 +293,6 @@ export class SecondDirective implements OnInit, OnDestroy {
         });
 
         this.dimsum.source = 'gatherplot';
-
     }
 
     public renderBorderChange(isBorder) {
@@ -334,74 +337,76 @@ export class SecondDirective implements OnInit, OnDestroy {
         this.maskGroup.selectAll('rect').remove();
 
         this.drawBackground();
+        let filteredData = this.data.filter((d) => {return this.dimsum.selectionSpace.indexOf(d.id) !== -1;});
+        if (filteredData.length !== 0) {
+            if (this.config.matrixMode === false) {
 
-        if (this.config.matrixMode === false) {
+                this.node = this.nodeGroup.selectAll('.dot')
+                    .data(filteredData)
+                    .enter().append('rect')
+                    .attr('class', 'dot')
+                    .on('mouseover', (d) => {
 
-            this.node = this.nodeGroup.selectAll('.dot')
-                .data(this.data)
-                .enter().append('rect')
-                .attr('class', 'dot')
-                .on('mouseover', (d) => {
+                        this.tooltip.transition()
+                            .duration(500)
+                            .style('opacity', 0);
 
-                    this.tooltip.transition()
-                        .duration(500)
-                        .style('opacity', 0);
+                        this.tooltip.transition()
+                            .duration(200)
+                            .style('opacity', 0.9);
 
+                        this.tooltip.html(this.xdim + ':' + this.xOriginalValue(d) + '<br/>' + this.ydim + ':' + this.yOriginalValue(d) + '<br/>' + this.config.colorDim + ':' + this.colorOriginalValue(d) + '')
+                            .style('left', (d3.event.pageX + 5) + 'px')
+                            .style('top', (d3.event.pageY - 28) + 'px');
+                    })
+                    .on('mouseout', (d) => {
+                        this.tooltip.transition()
+                            .duration(500)
+                            .style('opacity', 0);
+                    })
+                    .on('mousedown', function(d) {
+                        if (d3.event.ctrlKey) {
+                            d3.select(this).classed('selected', d.selected = !d.selected);
+                        } else {
+                            this.node.classed('selected', (p) => {
+                                return p.selected = d === p;
+                            });
+                        }
+                    });
+
+            } else {
+
+                this.nodeGroup.selectAll('.dot')
+                    .data(filteredData)
+                    .enter().append('rect')
+                    .attr('class', 'dot');
+
+                this.svg.on('mouseover', (d) => {
                     this.tooltip.transition()
                         .duration(200)
                         .style('opacity', 0.9);
 
-                    this.tooltip.html(this.xdim + ':' + this.xOriginalValue(d) + '<br/>' + this.ydim + ':' + this.yOriginalValue(d) + '<br/>' + this.config.colorDim + ':' + this.colorOriginalValue(d) + '')
+                    this.tooltip.html('<h3>' + this.xdim + ' vs ' + this.ydim + '</h3>')
                         .style('left', (d3.event.pageX + 5) + 'px')
                         .style('top', (d3.event.pageY - 28) + 'px');
                 })
-                .on('mouseout', (d) => {
-                    this.tooltip.transition()
-                        .duration(500)
-                        .style('opacity', 0);
-                })
-                .on('mousedown', function(d) {
-                    if (d3.event.shiftKey) {
-                        d3.select(this).classed('selected', d.selected = !d.selected);
-                    } else {
-                        this.node.classed('selected', (p) => {
-                            return p.selected = d === p;
-                        });
-                    }
+                    .on('mouseout', (d) => {
+                        this.tooltip.transition()
+                            .duration(500)
+                            .style('opacity', 0);
+                    })
+                /*.on('click', (d) => {
+
+                    return this.onClick({
+                        item: {
+                            xDim: this.xdim,
+                            yDim: this.ydim
+                        }
+                    });
                 });
+    */
 
-        } else {
-
-            this.nodeGroup.selectAll('.dot')
-                .data(this.data)
-                .enter().append('rect')
-                .attr('class', 'dot');
-
-            this.svg.on('mouseover', (d) => {
-                this.tooltip.transition()
-                    .duration(200)
-                    .style('opacity', 0.9);
-
-                this.tooltip.html('<h3>' + this.xdim + ' vs ' + this.ydim + '</h3>')
-                    .style('left', (d3.event.pageX + 5) + 'px')
-                    .style('top', (d3.event.pageY - 28) + 'px');
-            })
-                .on('mouseout', (d) => {
-                    this.tooltip.transition()
-                        .duration(500)
-                        .style('opacity', 0);
-                })
-            /*.on('click', (d) => {
-
-                return this.onClick({
-                    item: {
-                        xDim: this.xdim,
-                        yDim: this.ydim
-                    }
-                });
-            });
-*/
-
+            }
         }
 
 
@@ -438,7 +443,11 @@ export class SecondDirective implements OnInit, OnDestroy {
             currentDimSetting.isBinned = false;
 
         }
+
+
     }
+
+
     public doBinningAndSetKeys(dimName, numBin) {
 
         let currentDimSetting = this.dimSetting[dimName];
@@ -604,7 +613,7 @@ export class SecondDirective implements OnInit, OnDestroy {
 
     public renderDataChange(data, config) {
 
-        if (!data) {
+        if (!this.data) {
             return;
         }
 
@@ -621,10 +630,9 @@ export class SecondDirective implements OnInit, OnDestroy {
     // define render function
     public handleConfigChange(data, config) {
 
-        if (!data) {
+        if (!this.data) {
             return;
         }
-
         this.renderConfigChange(data, config);
 
         this.handleLensChange(config);
@@ -1407,44 +1415,28 @@ export class SecondDirective implements OnInit, OnDestroy {
 
     public configBrush() {
         const self = this;
-        this.brush = this.brushGroup.append('g')
-            .datum(() => {
-                return {
-                    selected: false,
-                    previouslySelected: false
-                };
+        this.brush = d3.brush()
+            .extent([[0, 0], [this.width, this.height]])
+            .on('start', (d0) => {
+                this.node.each((d) => {
+
+                    // if (d.Name.indexOf('ciera') > 0) {
+                    //     console.log(d);
+                    // }
+                    d.previouslySelected = d3.event.sourceEvent.ctrlKey && d.selected;
+                });
             })
-            .attr('class', 'brush')
-            .call(d3.brush()
-                .extent([[0, 0], [this.width, this.height]])
-                .on('start', (d0) => {
-                    this.node.each((d) => {
-
-                        // if (d.Name.indexOf('ciera') > 0) {
-                        //     console.log(d);
-                        // }
-
-                        d.previouslySelected = d3.event.sourceEvent.shiftKey && d.selected;
-                    });
-                })
-                .on('brush', () => {
-                    let extent = d3.event.target.extent();
-
+            .on('brush', () => {
+                let selection = d3.event.selection;
+                let transform = d3.zoomTransform(this.svgGroup.node());
+                if (selection !== null && !this.node.empty()) {
                     this.node.classed('selected', (d) => {
-
-                        //     return d.selected = d.previouslySelected ^
-                        //         (xScale(extent[0][0]) <= xMap(d) && xMap(d)
-                        // < xScale(extent[1][0]) && yScale(extent[0][1]) >= yMap(d)
-                        //  && yMap(d) > yScale(extent[1][1]));
-                        // });
-
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
-
                         if (d.previouslySelected
-                            && (this.xScale(extent()[0][0]) <= this.xMap(d)
-                                && this.xScale(extent()[1][0] > this.xMap(d))
-                                && this.yScale(extent()[0][1]) >= this.yMap(d)
-                                && this.yScale(extent()[1][1]) < this.yMap(d))) {
+                            || (((selection[0][0] - transform.x) / transform.k) <= this.xMap(d)
+                                && ((selection[1][0] - transform.x) / transform.k) > this.xMap(d)
+                                && ((selection[0][1] - transform.y) / transform.k) <= this.yMap(d)
+                                && ((selection[1][1] - transform.y) / transform.k) > this.yMap(d))) {
 
                             if (nodeIndex === -1) {
                                 this.dimsum.selectionSpace.push(d.id);
@@ -1456,21 +1448,39 @@ export class SecondDirective implements OnInit, OnDestroy {
                             }
 
                         }
+                        this.internalDimsumChange = true;
+                        this.configService.setDimsum(Object.assign({}, this.dimsum));
 
                     });
-                    this.zone.run(() => { });
-                    this.handleDimsumChange(this.dimsum);
-                })
-                .on('end', function() {
-                    d3.selectAll('.brush').remove();
-                    //      if (!d3.event.sourceEvent) {return;}
-                    //      d3.select(this).call(d3.event.target.move, null);
-                    // console.log(this);
-                    //                    d3.event.target.clear();
-                    //  this.brush.move()
-                    //    this.brushGroup.select('.brush').call(.move, null);
 
-                }));
+                }
+                //this.zone.run(() => { });
+                this.handleDimsumChange();
+            })
+            .on('end', function() {
+                //d3.selectAll('.brush').remove();
+                //      if (!d3.event.sourceEvent) {return;}
+                //      d3.select(this).call(d3.event.target.move, null);
+                // console.log(this);
+                //                    d3.event.target.clear();
+                //  this.brush.move()
+                //    console.log(this)
+                //  console.log(d3.event)
+                //this.svg.select('.brush').call(this.brush.move, null);
+                if (d3.event.selection !== null && d3.event.sourceEvent !== null) {
+                    d3.event.target.move(self.brushGroup.select('.brush'), null);
+                }
+            });
+
+        this.brushGroup.append('g')
+            .datum(() => {
+                return {
+                    selected: false,
+                    previouslySelected: false
+                };
+            })
+            .attr('class', 'brush')
+            .call(this.brush);
 
         d3.select('#toolbarSelectSecond').classed('active', true);
         d3.select('#toolbarPanZoomSecond').classed('active', false);
@@ -1479,14 +1489,13 @@ export class SecondDirective implements OnInit, OnDestroy {
 
     public zoomUsingContext() {
 
+        //    this.zoom.translate(this.context.translate);
+        ///    this.zoom.scaleTo(this.context.scale);
 
-        this.zoom.translate(this.context.translate);
-        this.zoom.scaleTo(this.context.scale);
+        //        this.svgGroup.select('.x.axis').each(this.xAxis);
+        //        this.svgGroup.select('.y.axis').each(this.yAxis);
 
-        this.svgGroup.select('.x.axis').each(this.xAxis);
-        this.svgGroup.select('.y.axis').each(this.yAxis);
-
-        this.nodeGroup.attr('transform', 'translate(' + this.context.translate[0] + ',' + this.context.translate[1] + ')scale(' + this.context.scale + ')');
+        //      this.nodeGroup.attr('transform', 'translate(' + this.context.translate[0] + ',' + this.context.translate[1] + ')scale(' + this.context.scale + ')');
 
 
         this.comment = false;
@@ -1495,7 +1504,8 @@ export class SecondDirective implements OnInit, OnDestroy {
 
     public configZoom() {
 
-        d3.selectAll('.brush').remove();
+        this.brushGroup.select('.brush').call(this.brush.move, null);
+        this.brushGroup.select('.brush').remove();
 
         this.zoom = d3.zoom()
             .scaleExtent([1, 100])
@@ -1517,17 +1527,10 @@ export class SecondDirective implements OnInit, OnDestroy {
             this.svgGroup.select('.y.axis').call(
                 this.yAxis.scale(d3.event.transform.rescaleY(this.yScale))
             );
-
-            this.context.translate = [d3.event.transform.x, d3.event.transform.y];
-            this.context.scale = d3.event.transform.k;
-
-            this.scale = d3.event.transform.k;
-            //    this.context.xDomain = this.xScale.scale(d3.event.transform.k).domain();
-            //  this.context.yDomain = this.yScale.scale(d3.event.transform.k).domain();
-
-            this.nodeGroup.attr('transform', 'translate(' + d3.event.transform.x +
-                ',' + d3.event.transform.y + ')scale(' + d3.event.transform.k + ')');
-
+            if (!this.nodeGroup.empty()) {
+                this.nodeGroup.attr('transform', 'translate(' + d3.event.transform.x +
+                    ',' + d3.event.transform.y + ')scale(' + d3.event.transform.k + ')');
+            }
         }
 
         this.setClipPathForAxes();
@@ -1540,55 +1543,28 @@ export class SecondDirective implements OnInit, OnDestroy {
 
         function reset() {
 
+            this.brushGroup.select('.brush').call(this.brush.move, null);
             this.resetSelection();
-
             this.nodeGroup.transition()
                 .duration(700)
-                .attr('transform', 'translate(0,0) scale(1)');
+                .attr('transform', 'translate(0,0)scale(1)');
 
-            this.context.translate = [0, 0];
-            this.context.scale = 1;
+            this.svgGroup.transition().duration(700)
+                .call(this.zoom.transform, d3.zoomIdentity);
 
-            // this.zone.run();
+            this.svgGroup.select('.x.axis')
+                .transition()
+                .duration(700)
+                .call(
+                this.xAxis.scale(this.xScale)
+                );
+            this.svgGroup.select('.y.axis')
+                .transition()
+                .duration(700)
+                .call(
+                this.yAxis.scale(this.yScale)
+                );
 
-            d3.transition('resetZoom').duration(700).tween('zoom', () => {
-
-                let range = this.getExtentConsideringXY(this.xdim, this.ydim);
-
-                let xRange = range.xRange;
-                let yRange = range.yRange;
-
-                if (this.config.isGather === 'gather') {
-
-                    let typeOfXYDim = this.findTypeOfXYDim();
-
-                    if (typeOfXYDim === 'XNomYOrd') {
-
-                        yRange = this.getExtentFromCalculatedPointsForBinnedGather(this.ydim);
-
-                    } else if (typeOfXYDim === 'XOrdYNom') {
-
-                        xRange = this.getExtentFromCalculatedPointsForBinnedGather(this.xdim);
-
-                    }
-
-                }
-
-                let ix = d3.interpolate(this.xScale.domain(), xRange);
-                let iy = d3.interpolate(this.yScale.domain(), yRange);
-
-                return (t) => {
-                    //    this.zoom.scaleTo(1);
-
-                    //          this.zoom.x(this.xScale.domain(ix(t))).y(this.yScale.domain(iy(t)));
-                    /*        this.svgGroup.select('.x.axis').call(
-                              this.xAxis.scale(this.xScale.domain(ix(t)))
-                            );
-                            this.svgGroup.select('.y.axis').call(
-                              this.yAxis.scale(this.yScale.domain(iy(t)))
-                            );*/
-                };
-            });
         }
 
         if (this.comment === true) {
@@ -1614,7 +1590,7 @@ export class SecondDirective implements OnInit, OnDestroy {
         }
 
         this.dimsum.selectionSpace = [];
-        this.handleDimsumChange(this.dimsum);
+        this.handleDimsumChange();
         //        this.zone.run();
     }
 
@@ -2016,10 +1992,6 @@ export class SecondDirective implements OnInit, OnDestroy {
         };
 
 
-    }
-
-    public keyflip() {
-        this.shiftKey = d3.event.shiftKey || d3.event.metaKey;
     }
 
     public cross(a, b) {
@@ -3738,7 +3710,7 @@ export class SecondDirective implements OnInit, OnDestroy {
     public drawXAxisLinesAndTicksForScatter() {
 
         this.xAxis = d3.axisBottom(this.xScale)
-            .ticks(this.tickGenerator(this.xdim)/*, */)
+            .ticks(this.tickGenerator(this.xdim))
             .tickFormat(this.labelGenerator(this.xdim));
 
         this.xAxisNodes = this.svgGroup.append('g')

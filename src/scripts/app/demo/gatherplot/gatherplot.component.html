@@ -61,23 +61,23 @@
         <div class="col-md-6">
             <div>
                 <h5>
-                    <div [ngClass]="{tryMe: isPlotSelectFocused}" focus-me="isPlotSelectFocused" popover="Try me!" popover-trigger="focus" popover-placement="right">
+                    <div [ngClass]="{tryMe: isPlotSelectFocused2}" focus-me="isPlotSelectFocused2" popover="Try me!" popover-trigger="focus" popover-placement="right">
                         <div class="btn-group">
-                            <label class="btn btn-default active" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="scatter">Scatter</label>
-                            <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="jitter">Jitter</label>
-                            <label class="btn btn-default" [ngModel]="nomaConfig.isGather" (ngModelChange)="updateIsGather($event)" btnRadio="gather">Gather</label>
+                            <label class="btn btn-default active" [ngModel]="nomaConfig2.isGather" (ngModelChange)="updateIsGather2($event)" btnRadio="scatter">Scatter</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig2.isGather" (ngModelChange)="updateIsGather2($event)" btnRadio="jitter">Jitter</label>
+                            <label class="btn btn-default" [ngModel]="nomaConfig2.isGather" (ngModelChange)="updateIsGather2($event)" btnRadio="gather">Gather</label>
                         </div>
                     </div>
-                    <div [hidden]="!isScatter">
-                        <div [hidden]="!isPlotSelectFocused">
-                            <alert class="chart-instruction" onClose="isPlotSelectFocused=false" dismissible=true>
+                    <div [hidden]="!isScatter2">
+                        <div [hidden]="!isPlotSelectFocused2">
+                            <alert class="chart-instruction" onClose="isPlotSelectFocused2=false" dismissible=true>
                                 Try these buttons.</alert>
                         </div>
                         <div class="btn-group">
-                                <label class="btn btn-default active" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="noLens">No Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="rectLens">Rect Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="histLens">Histogram Lens</label>
-                                <label class="btn btn-default" [ngModel]="nomaConfig.lens" (ngModelChange)="updateLens($event)" btnRadio="pieLens"> Pie Lens</label>
+                                <label class="btn btn-default active" [ngModel]="nomaConfig2.lens" (ngModelChange)="updateLens2($event)" btnRadio="noLens">No Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig2.lens" (ngModelChange)="updateLens2($event)" btnRadio="rectLens">Rect Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig2.lens" (ngModelChange)="updateLens2($event)" btnRadio="histLens">Histogram Lens</label>
+                                <label class="btn btn-default" [ngModel]="nomaConfig2.lens" (ngModelChange)="updateLens2($event)" btnRadio="pieLens"> Pie Lens</label>
                         </div>
                     </div>
                 </h5>
@@ -89,28 +89,28 @@
                 <!--(click)="d3OnClick(item)" -->
                 <div class="chart-simple-interface">
                     <h5>Show me
-                        <select [ngModel]="nomaConfig.xDim" (ngModelChange)="updateXDim($event)">
-                            <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                            <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        <select [ngModel]="nomaConfig2.xDim" (ngModelChange)="updateXDim2($event)">
+                            <option *ngIf="!nomaConfig2.dims">-- undefined --</option>
+                            <option *ngFor="let f of nomaConfig2.dims" [value]="f">{{f}}</option>
                         </select>&nbsp;vs&nbsp;.
-                        <select [ngModel]="nomaConfig.yDim" (ngModelChange)="updateYDim($event)">
-                            <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                            <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        <select [ngModel]="nomaConfig2.yDim" (ngModelChange)="updateYDim2($event)">
+                            <option *ngIf="!nomaConfig2.dims">-- undefined --</option>
+                            <option *ngFor="let f of nomaConfig2.dims" [value]="f">{{f}}</option>
                         </select>
                         <br>
                         <br>
                         Mark nodes with color according to
-                        <select [ngModel]="nomaConfig.colorDim" (ngModelChange)="updateColorDim($event)">
-                          <option *ngIf="!nomaConfig.dims">-- undefined --</option>
-                          <option *ngFor="let f of nomaConfig.dims" [value]="f">{{f}}</option>
+                        <select [ngModel]="nomaConfig2.colorDim" (ngModelChange)="updateColorDim2($event)">
+                          <option *ngIf="!nomaConfig2.dims">-- undefined --</option>
+                          <option *ngFor="let f of nomaConfig2.dims" [value]="f">{{f}}</option>
                         </select>
                     </h5>
                     <div>
                         <h6>
-                            <input type='checkbox' [ngModel]="nomaConfig.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode($event)">Check this to make it easy to compare groups of different sizes.</h6>
+                            <input type='checkbox' [ngModel]="nomaConfig2.relativeMode !== 'absolute'" (ngModelChange)="updateRelativeMode2($event)">Check this to make it easy to compare groups of different sizes.</h6>
                     </div>
-                    <div [hidden]="!isRelativeSelectFocused">
-                        <alert class="chart-instruction" (onClose)="isRelativeSelectFocused=false" dismissible=true>
+                    <div [hidden]="!isRelativeSelectFocused2">
+                        <alert class="chart-instruction" (onClose)="isRelativeSelectFocused2=false" dismissible=true>
                             Try this check button.</alert>
                     </div>
                 </div>

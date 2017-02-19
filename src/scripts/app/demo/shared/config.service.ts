@@ -14,12 +14,23 @@ export class ConfigService {
         isInteractiveAxis: false,
         lens: 'noLens'
     });
+    private configSource2 = new BehaviorSubject<any>({
+        SVGAspectRatio: 1.4,
+        isGather: 'scatter',
+        relativeModes: [false, true],
+        relativeMode: 'absolute',
+        binSize: 10,
+        matrixMode: false,
+        isInteractiveAxis: false,
+        lens: 'noLens'
+    });
     private roundSource = new BehaviorSubject<boolean>(true);
     private borderSource = new BehaviorSubject<boolean>(false);
     private shapeRenderingSource = new BehaviorSubject<string>('auto');
     private dimsumSource = new BehaviorSubject<any>({ selectionSpace: [] });
     private contextSource = new BehaviorSubject<any>({ translate: [0, 0], scale: 1 });
     public config$ = this.configSource.asObservable();
+    public config2$ = this.configSource2.asObservable();
     public round$ = this.roundSource.asObservable();
     public border$ = this.borderSource.asObservable();
     public shapeRendering$ = this.shapeRenderingSource.asObservable();
@@ -28,6 +39,10 @@ export class ConfigService {
 
     public setConfig(configs: any) {
         this.configSource.next(configs);
+    }
+
+    public setConfig2(configs: any) {
+        this.configSource2.next(configs);
     }
 
     public setRound(round: boolean) {

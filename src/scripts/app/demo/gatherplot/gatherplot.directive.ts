@@ -128,7 +128,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         this.dimsumSubscription = this.configService.dimsum$
             .subscribe((dimsum) => {
                 this.dimsum = dimsum;
-                this.handleDimsumChange(dimsum);
+                this.handleDimsumChange();
             });
         this.contextSubscription = this.configService.context$
             .subscribe((context) => this.context = context);
@@ -183,7 +183,6 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         this.initialHistLensHeight = 90;
         this.scale = 1;
         this.initialInnerRadiusOfPieLens = 20;
-
         this.brush = d3.brush();
         // dimsum = <any>{};
 
@@ -264,14 +263,14 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
       */
 
-    public handleDimsumChange(newDimsum) {
-        if (this.node.empty()) {
+    public handleDimsumChange() {
+        if (!this.node) {
             return;
         }
         if (!this.dimsum) {
             return;
         }
-        if (!this.dimsum.selectionSpace) {
+        if (!this.dimsum.selectionSpace && this.dimsum.selectionSpace.constructor !== Array) {
             return;
         }
 
@@ -289,7 +288,6 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         });
 
         this.dimsum.source = 'gatherplot';
-
     }
 
     public renderBorderChange(isBorder) {
@@ -361,7 +359,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                         .style('opacity', 0);
                 })
                 .on('mousedown', function(d) {
-                    if (d3.event.ctrlKey) {
+                    if (d3.event !== null && d3.event.ctrlKey) {
                         d3.select(this).classed('selected', d.selected = !d.selected);
                     } else {
                         this.node.classed('selected', (p) => {
@@ -1419,7 +1417,9 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                     // if (d.Name.indexOf('ciera') > 0) {
                     //     console.log(d);
                     // }
-                    d.previouslySelected = d3.event.sourceEvent.ctrlKey && d.selected;
+                    if(d3.event && d3.event.sourceEvent){
+                        d.previouslySelected = d3.event.sourceEvent.ctrlKey && d.selected;
+                    }
                 });
             })
             .on('brush', () => {
@@ -1427,7 +1427,6 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 let transform = d3.zoomTransform(this.svgGroup.node());
                 if (selection !== null && !this.node.empty()) {
                     this.node.classed('selected', (d) => {
-
                         let nodeIndex = this.dimsum.selectionSpace.indexOf(d.id);
                         if (d.previouslySelected
                             || (((selection[0][0]-transform.x)/transform.k) <= this.xMap(d)
@@ -1450,7 +1449,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
 
                 }
                 //this.zone.run(() => { });
-                this.handleDimsumChange(this.dimsum);
+                this.handleDimsumChange();
             })
             .on('end', function() {
                 //d3.selectAll('.brush').remove();
@@ -1462,6 +1461,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
                 //    console.log(this)
                 //  console.log(d3.event)
                 //this.svg.select('.brush').call(this.brush.move, null);
+                self.configService.setDimsum(Object.assign({}, self.dimsum));
                 if (d3.event.selection !== null && d3.event.sourceEvent !== null) {
                     d3.event.target.move(self.brushGroup.select('.brush'), null);
                 }
@@ -1585,7 +1585,7 @@ export class GatherplotDirective implements OnInit, OnDestroy {
         }
 
         this.dimsum.selectionSpace = [];
-        this.handleDimsumChange(this.dimsum);
+        this.handleDimsumChange();
         //        this.zone.run();
     }
 
