@@ -2,14 +2,15 @@
 
 import './polyfills.browser';
 
-//import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { AppModule } from './app/app.module';
 
 export const platformRef = platformBrowserDynamic();
 
 export function main() {
-//    enableProdMode();
+    if (window.location.hostname !== 'localhost') {
+        require('@angular/core').enableProdMode();
+    }
     return platformRef.bootstrapModule(AppModule)
         .catch((err) => console.error(err));
 }
